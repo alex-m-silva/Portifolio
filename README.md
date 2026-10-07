@@ -19,7 +19,7 @@ Todo o conteúdo fica em [`js/data.js`](js/data.js):
 | Campo | O que preencher |
 |---|---|
 | `perfil` | nome, frases do topo, texto do "sobre" e stack |
-| `contato` | `email`, `github`, `linkedin`, `instagram`, `whatsapp` (só números, com DDI e DDD). Campo vazio esconde o canal |
+| `contato` | `email`, `github`, `linkedin`, `instagram`, `whatsapp` (só números, com DDI e DDD), `whatsappMensagem` (texto que já vem escrito ao abrir o WhatsApp). Campo vazio esconde o canal |
 | `experiencia` | `cargo`, `empresa`, `inicio` e `fim` (`"AAAA-MM"`, `fim` vazio = emprego atual), `local`, `resumo`, `destaques` e `stack` |
 | `formacao` | `curso`, `instituicao`, `inicio` e `fim` |
 | `certificados` | `titulo`, `emissor`, `data` de conclusão (`"AAAA-MM"`), `categoria` (vira o filtro), `skills` e `url` de verificação |

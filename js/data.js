@@ -49,6 +49,7 @@ window.PORTFOLIO = {
     linkedin: "https://www.linkedin.com/in/alex-matias-silva",
     instagram: "https://www.instagram.com/alex_matias._/",
     whatsapp: "5537988411918", // só números com DDI e DDD
+    whatsappMensagem: "Olá, Alex! Vi seu portfólio e gostaria de conversar sobre um projeto.", // texto que já vem escrito no WhatsApp
   },
 
   // Experiência: cada item vira um "commit" no git log. `fim` vazio = emprego atual.

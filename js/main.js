@@ -662,7 +662,7 @@
     if (c.instagram) canal(ICONES.instagram, "instagram", "@" + c.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/+$/, ""), { href: c.instagram, target: "_blank", rel: "noopener noreferrer" });
     if (c.whatsapp) {
       var num = String(c.whatsapp).replace(/\D/g, "");
-      canal(ICONES.whatsapp, "whatsapp", "mandar mensagem", { href: "https://wa.me/" + num, target: "_blank", rel: "noopener noreferrer" });
+      canal(ICONES.whatsapp, "whatsapp", "mandar mensagem", { href: "https://wa.me/" + num + (c.whatsappMensagem ? "?text=" + encodeURIComponent(c.whatsappMensagem) : ""), target: "_blank", rel: "noopener noreferrer" });
     }
     if (!ul.children.length) ul.appendChild(h("li", { class: "mono", style: "color:var(--texto-3);font-size:13px", text: "Nenhum canal configurado em js/data.js" }));
 
