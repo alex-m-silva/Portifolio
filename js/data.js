@@ -128,33 +128,38 @@ window.PORTFOLIO = {
   // `data` é o mês de conclusão ("AAAA-MM"); `categoria` vira o filtro no topo da seção.
   certificados: [
     // --- Arquitetura, backend .NET, segurança e banco de dados ---
-    { titulo: "Segurança em APIs ASP.NET com JWT e Bearer Authentication", emissor: "balta.io", data: "2025-06", categoria: "arquitetura & backend", skills: [".NET", "JWT", "Bearer Authentication", "Segurança em APIs"], url: "https://balta.io/certificados/7f11af9b-93a2-4797-86f7-43aa9c46a31d" },
-    { titulo: "Fundamentos dos Microsserviços", emissor: "balta.io", data: "2025-06", categoria: "arquitetura & backend", skills: ["Microsserviços", ".NET"], url: "https://balta.io/certificados/6ff8871e-f4ae-4f68-b037-29e6763eeb7a" },
-    { titulo: "Fundamentos do Event-Driven Architecture", emissor: "balta.io", data: "2025-06", categoria: "arquitetura & backend", skills: ["Event-Driven Architecture", ".NET"], url: "https://balta.io/certificados/3df2dc51-7a7f-4ac0-9dc5-9982e298f48a" },
-    { titulo: "Aplicações Mult-Tenant com Entity Framework Core", emissor: "balta.io", data: "2025-06", categoria: "arquitetura & backend", skills: [".NET", "Mult-Tenant", "Entity Framework Core"], url: "https://balta.io/certificados/1ee931cf-7f94-4ddd-af91-dab9855cfb7c" },
-    { titulo: "Dominando Injeção de Dependência", emissor: "balta.io", data: "2025-06", categoria: "arquitetura & backend", skills: [".NET", "Injeção de dependência"], url: "https://balta.io/certificados/f416e374-00a8-4b1d-ba49-2b86840241fd" },
-    { titulo: "Modelando Domínios Ricos", emissor: "balta.io", data: "2025-05", categoria: "arquitetura & backend", skills: ["Domínios Ricos", "DDD"], url: "https://balta.io/certificados/a5cd3727-de4d-4ec8-91dc-03f384e1ff1b" },
-    { titulo: "Refatorando para testes de unidade", emissor: "balta.io", data: "2025-05", categoria: "arquitetura & backend", skills: [".NET", "Testes de unidade"], url: "https://balta.io/certificados/e045e9cb-2ad4-4e40-ad7f-de70cbf51632" },
-    { titulo: "Acesso à dados com .NET, C#, Dapper e SQL Server", emissor: "balta.io", data: "2024-09", categoria: "arquitetura & backend", skills: [".NET", "C#", "Dapper", "SQL Server", "Docker"], url: "https://balta.io/certificados/9e64513d-425f-485d-b153-bb1e73bbd9be" },
-    { titulo: "Fundamentos do Entity Framework", emissor: "balta.io", data: "2024-09", categoria: "arquitetura & backend", skills: [".NET", "Entity Framework"], url: "https://balta.io/certificados/9a8aac3f-417f-42e0-9a83-c964f143744e" },
-    { titulo: "Fundamentos do SQL Server", emissor: "balta.io", data: "2024-06", categoria: "arquitetura & backend", skills: ["SQL Server", "Azure"], url: "https://balta.io/certificados/4a921494-ca1f-4bb8-ae05-441a9b114592" },
+    { titulo: "Introdução ao ASP.NET Core Identity", emissor: "balta.io", data: "2025-10", categoria: "arquitetura & backend", skills: [".NET", "ASP.NET Core Identity", "Autenticação"], url: "https://balta.io/certificates/4c903784-850c-4948-8809-459e1a35b9fd" },
+    { titulo: "Segurança em APIs ASP.NET com JWT e Bearer Authentication", emissor: "balta.io", data: "2025-06", categoria: "arquitetura & backend", skills: [".NET", "JWT", "Bearer Authentication", "Segurança em APIs"], url: "https://balta.io/certificates/e2fe40e9-1c73-4d35-afa7-29199ea870ff" },
+    { titulo: "Fundamentos dos Microsserviços", emissor: "balta.io", data: "2025-06", categoria: "arquitetura & backend", skills: ["Microsserviços", ".NET"], url: "https://balta.io/certificates/314a383b-d260-417f-9874-420fceb9764e" },
+    { titulo: "Fundamentos do Event-Driven Architecture", emissor: "balta.io", data: "2025-06", categoria: "arquitetura & backend", skills: ["Event-Driven Architecture", ".NET"], url: "https://balta.io/certificates/b6614f6d-c6f2-46b6-ae6e-b6abd488a778" },
+    { titulo: "Aplicações Mult-Tenant com Entity Framework Core", emissor: "balta.io", data: "2025-06", categoria: "arquitetura & backend", skills: [".NET", "Mult-Tenant", "Entity Framework Core"], url: "https://balta.io/certificates/b5a2db85-205c-4c06-8502-ad607879f08e" },
+    { titulo: "Dominando Injeção de Dependência", emissor: "balta.io", data: "2025-06", categoria: "arquitetura & backend", skills: [".NET", "Injeção de dependência"], url: "https://balta.io/certificates/9f73b59a-63cb-49b4-b4c0-ab2aea57db94" },
+    { titulo: "Modelando Domínios Ricos", emissor: "balta.io", data: "2025-05", categoria: "arquitetura & backend", skills: ["Domínios Ricos", "DDD"], url: "https://balta.io/certificates/09a27615-177a-4102-b9a4-b4ce390063c2" },
+    { titulo: "Refatorando para testes de unidade", emissor: "balta.io", data: "2025-05", categoria: "arquitetura & backend", skills: [".NET", "Testes de unidade"], url: "https://balta.io/certificates/15289f5a-3dcf-454d-908b-c5c0cb254b71" },
+    { titulo: "Acesso à dados com .NET, C#, Dapper e SQL Server", emissor: "balta.io", data: "2024-09", categoria: "arquitetura & backend", skills: [".NET", "C#", "Dapper", "SQL Server", "Docker"], url: "https://balta.io/certificates/c7691c16-4763-4e6c-be09-a322e5c1ddd0" },
+    { titulo: "Fundamentos do Entity Framework", emissor: "balta.io", data: "2024-09", categoria: "arquitetura & backend", skills: [".NET", "Entity Framework"], url: "https://balta.io/certificates/f8dcaad1-bb61-44aa-b796-11933b5759c7" },
+    { titulo: "Fundamentos do SQL Server", emissor: "balta.io", data: "2024-06", categoria: "arquitetura & backend", skills: ["SQL Server", "Azure"], url: "https://balta.io/certificates/90437c20-9b23-48b7-990b-401fe26877fc" },
 
     // --- Frameworks web, cloud e DevOps ---
-    { titulo: "Fundamentos do ASP.NET 6", emissor: "balta.io", data: "2025-03", categoria: "web, cloud & devops", skills: [".NET", "ASP.NET MVC"], url: "https://balta.io/certificados/303abb8b-e0bf-48fe-956e-c8ae3439fc81" },
-    { titulo: "Fundamentos do Azure, Git, GitHub e DevOps", emissor: "balta.io", data: "2025-04", categoria: "web, cloud & devops", skills: [".NET", "Git", "GitHub", "Azure", "DevOps"], url: "https://balta.io/certificados/6090ae49-76bd-4bda-97b4-656b4d138988" },
-    { titulo: "Fundamentos do Blazor com .NET 8", emissor: "balta.io", data: "2025-03", categoria: "web, cloud & devops", skills: [".NET", "Blazor"], url: "https://balta.io/certificados/46fda571-fcec-49d5-803b-8eb355f36238" },
-    { titulo: "Fundamentos do Blazor Web Assembly", emissor: "balta.io", data: "2025-03", categoria: "web, cloud & devops", skills: [".NET", "Blazor"], url: "https://balta.io/certificados/4b7c9ba8-c8a6-43db-818a-4e98a6ad8e5b" },
-    { titulo: "Fundamentos do Blazor Server", emissor: "balta.io", data: "2025-03", categoria: "web, cloud & devops", skills: [".NET", "Blazor"], url: "https://balta.io/certificados/01dbef73-acdf-40db-81a5-4b2b2686ea77" },
-    { titulo: "Uma visão geral sobre o ASP.NET Razor Pages", emissor: "balta.io", data: "2023-04", categoria: "web, cloud & devops", skills: [".NET", "ASP.NET MVC", "Razor Pages"], url: "https://balta.io/certificados/7ae0857f-c78b-48dc-93e7-9fb108d696f1" },
+    { titulo: "Fundamentos do Azure, Git, GitHub e DevOps", emissor: "balta.io", data: "2025-04", categoria: "web, cloud & devops", skills: [".NET", "Git", "GitHub", "Azure", "DevOps"], url: "https://balta.io/certificates/f8f92a90-3f69-4d54-b76b-e7c912e3e3de" },
+    { titulo: "Progressive Web Apps com Blazor Web Assembly", emissor: "balta.io", data: "2025-03", categoria: "web, cloud & devops", skills: [".NET", "Blazor", "PWA"], url: "https://balta.io/certificates/3ed8617d-a7db-46a8-a89e-68cd713a2817" },
+    { titulo: "Fundamentos do Blazor com .NET 8", emissor: "balta.io", data: "2025-03", categoria: "web, cloud & devops", skills: [".NET", "Blazor"], url: "https://balta.io/certificates/0004c940-1ce2-45bb-980e-96bc7431230f" },
+    { titulo: "Fundamentos do Blazor Web Assembly", emissor: "balta.io", data: "2025-03", categoria: "web, cloud & devops", skills: [".NET", "Blazor"], url: "https://balta.io/certificates/d9d602b4-6a09-4945-9749-617031b3d220" },
+    { titulo: "Fundamentos do Blazor Server", emissor: "balta.io", data: "2025-03", categoria: "web, cloud & devops", skills: [".NET", "Blazor"], url: "https://balta.io/certificates/7ed45d2e-a4f4-4c86-a04a-6ab190627e46" },
+    { titulo: "Fundamentos do ASP.NET 6", emissor: "balta.io", data: "2025-03", categoria: "web, cloud & devops", skills: [".NET", "ASP.NET MVC"], url: "https://balta.io/certificates/6b095b3b-ab62-4e60-9689-cadab4a7b75d" },
+    { titulo: "Uma visão geral sobre o ASP.NET Razor Pages", emissor: "balta.io", data: "2023-04", categoria: "web, cloud & devops", skills: [".NET", "ASP.NET MVC", "Razor Pages"], url: "https://balta.io/certificates/7b08c6e0-0254-4293-bd7a-67a7646b7beb" },
 
     // --- Fundamentos e programação orientada a objetos ---
-    { titulo: "Aplicando Orientação a Objetos em Projetos Reais com C# 11 e .NET 7", emissor: "balta.io", data: "2025-06", categoria: "fundamentos & POO", skills: ["POO", ".NET", "C# 11"], url: "https://balta.io/certificados/00af3965-8a47-4b63-a93e-5698a50aae4a" },
-    { titulo: "Fundamentos da Orientação a Objetos", emissor: "balta.io", data: "2025-05", categoria: "fundamentos & POO", skills: ["POO"], url: "https://balta.io/certificados/71fcfad4-5adb-44a9-b5f8-b97de4f88050" },
+    { titulo: "Fundamentos do JavaScript", emissor: "balta.io", data: "2025-10", categoria: "fundamentos & POO", skills: ["JavaScript"], url: "https://balta.io/certificates/52db820b-9d4d-4b9a-a18f-141d8c53d296" },
+    { titulo: ".NET Developer Fundamentals (carreira)", emissor: "balta.io", data: "2025-07", categoria: "fundamentos & POO", skills: [".NET", "C#"], url: "https://balta.io/certificates/19b388a1-37b2-47b9-9d73-98406e7643be" },
+    { titulo: "Fundamentos do C#", emissor: "balta.io", data: "2025-07", categoria: "fundamentos & POO", skills: ["C#", ".NET"], url: "https://balta.io/certificates/3ae555bc-e0ae-46ac-b1c8-ceded65120d6" },
+    { titulo: "Aplicando Orientação a Objetos em Projetos Reais com C# 11 e .NET 7", emissor: "balta.io", data: "2025-06", categoria: "fundamentos & POO", skills: ["POO", ".NET", "C# 11"], url: "https://balta.io/certificates/b3cf963c-b806-4bac-8b64-3311dbe953e3" },
+    { titulo: "Fundamentos da Orientação a Objetos", emissor: "balta.io", data: "2025-05", categoria: "fundamentos & POO", skills: ["POO"], url: "https://balta.io/certificates/8e5be4ce-1c48-4983-80e0-80f9123dbce7" },
     { titulo: "C# COMPLETO Programação Orientada a Objetos", emissor: "Udemy", data: "", categoria: "fundamentos & POO", skills: ["C#", "POO", "ASP.NET MVC", "MySQL"], url: "https://udemy-certificate.s3.amazonaws.com/image/UC-0814dee0-00fa-42dc-8fe6-0f4d7115650d.jpg" },
     { titulo: "Curso Programador", emissor: "Curso presencial", data: "", categoria: "fundamentos & POO", skills: ["VBA", "Delphi"], url: "" },
 
     // --- Complementar: interface, web design e relatórios ---
-    { titulo: "Sites Responsivos", emissor: "balta.io", data: "2025-06", categoria: "interface & relatórios", skills: ["Sites Responsivos"], url: "https://balta.io/certificados/bda41201-b0f3-46f2-837f-24daeac71462" },
+    { titulo: "Sites Responsivos", emissor: "balta.io", data: "2025-06", categoria: "interface & relatórios", skills: ["Sites Responsivos"], url: "https://balta.io/certificates/f5b45281-23e0-47a9-8799-417488fe9e77" },
     { titulo: "SAP Crystal Reports - Do Básico ao Avançado", emissor: "Udemy", data: "", categoria: "interface & relatórios", skills: ["Crystal Reports"], url: "https://www.udemy.com/certificate/UC-5cae22f4-44fb-4286-8c5c-f4849b796327/" },
   ],
 
