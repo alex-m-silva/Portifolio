@@ -48,7 +48,7 @@ window.PORTFOLIO = {
     github: "https://github.com/alex-m-silva",
     linkedin: "https://www.linkedin.com/in/alex-matias-silva",
     instagram: "https://www.instagram.com/alex_matias._/",
-    whatsapp: "",       // só números com DDI e DDD, ex.: "5531999999999"
+    whatsapp: "5537988411918", // só números com DDI e DDD
   },
 
   // Experiência: cada item vira um "commit" no git log. `fim` vazio = emprego atual.
