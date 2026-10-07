@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alex Matias · Desenvolvedor .NET</title>
+  <meta name="description" content="Portfólio de Alex Matias, desenvolvedor .NET: sistemas de gestão para o comércio em C#, Windows Forms, ASP.NET Core, PostgreSQL e SQLite.">
+  <meta name="theme-color" content="#0d1117">
+  <meta property="og:title" content="Alex Matias · Desenvolvedor .NET">
+  <meta property="og:description" content="Sistemas de gestão para o comércio em C# e .NET.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Aplica o tema antes de pintar a página para não piscar
+    (function () {
+      try {
+        var t = localStorage.getItem("tema");
+        if (t === "claro" || t === "escuro") document.documentElement.dataset.tema = t;
+      } catch (e) { /* armazenamento indisponível: segue o sistema */ }
+    })();
+  </script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="topo">
+    <a class="marca" href="#inicio" aria-label="Início">
+      <span class="marca-prompt">~/</span><span id="marca-usuario">alex-matias</span><span class="marca-cursor" aria-hidden="true"></span>
+    </a>
+    <nav class="nav" aria-label="Seções">
+      <ul>
+        <li><a href="#sobre"><span class="ramo" aria-hidden="true">⎇</span> sobre</a></li>
+        <li><a href="#certificados"><span class="ramo" aria-hidden="true">⎇</span> certificados</a></li>
+        <li><a href="#projetos"><span class="ramo" aria-hidden="true">⎇</span> projetos</a></li>
+        <li><a href="#contato"><span class="ramo" aria-hidden="true">⎇</span> contato</a></li>
+      </ul>
+    </nav>
+    <div class="topo-acoes">
+      <button class="btn-icone btn-paleta" type="button" id="abrir-paleta" aria-label="Abrir paleta de comandos">
+        <kbd>Ctrl</kbd><kbd>K</kbd>
+      </button>
+      <button class="btn-icone" type="button" id="alternar-tema" aria-label="Alternar tema claro e escuro">
+        <svg class="ico-sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
+        <svg class="ico-lua" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Trilho lateral: cada seção é um commit no ramo main -->
+  <aside class="trilho" aria-hidden="true">
+    <div class="trilho-linha"><div class="trilho-progresso" id="trilho-progresso"></div></div>
+    <ol class="trilho-nos" id="trilho-nos"></ol>
+  </aside>
+
+  <main id="conteudo">
+    <!-- INÍCIO -->
+    <section class="secao hero" id="inicio" data-commit="init">
+      <div class="hero-texto">
+        <p class="hero-hash"><span class="mono">commit</span> <span class="hash" id="hero-hash">0000000</span> <span class="ref">(HEAD → main)</span></p>
+        <h1 class="hero-nome">
+          <span class="hero-ola">Olá, eu sou</span>
+          <span id="hero-nome">Alex Matias</span>
+        </h1>
+        <p class="hero-funcao">
+          <span class="mono sinal">&gt;</span> desenvolvo <span class="digitando" id="digitando" aria-live="off"></span><span class="cursor-texto" aria-hidden="true">▍</span>
+        </p>
+        <p class="hero-frase" id="hero-frase"></p>
+        <div class="hero-acoes">
+          <a class="btn btn-primario" href="#projetos">git checkout projetos</a>
+          <a class="btn btn-secundario" href="#contato">abrir um PR →</a>
+        </div>
+        <dl class="hero-numeros" id="hero-numeros"></dl>
+      </div>
+      <div class="hero-grafo">
+        <canvas id="grafo" aria-label="Animação de um grafo de commits com ramos se unindo" role="img"></canvas>
+        <div class="grafo-legenda mono" id="grafo-legenda" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- SOBRE -->
+    <section class="secao" id="sobre" data-commit="sobre">
+      <header class="secao-cab">
+        <p class="secao-cmd mono"><span class="sinal">$</span> git show sobre</p>
+        <h2>Quem sou eu</h2>
+      </header>
+      <article class="git-show" aria-label="Sobre mim">
+        <div class="git-show-meta mono">
+          <p><span class="amarelo">commit</span> <span id="sobre-hash">0000000</span></p>
+          <p>Author: <span id="sobre-autor">Alex Matias</span></p>
+          <p>Date:&nbsp;&nbsp; <span id="sobre-data"></span></p>
+        </div>
+        <div class="git-show-msg" id="sobre-texto"></div>
+        <div class="diff" aria-label="Tecnologias">
+          <p class="diff-cab mono">diff --git a/stack b/stack</p>
+          <p class="diff-hunk mono">@@ -0,0 +1,<span id="stack-qtd">0</span> @@ ferramentas do dia a dia</p>
+          <ul class="diff-linhas mono" id="stack"></ul>
+        </div>
+      </article>
+    </section>
+
+    <!-- CERTIFICADOS -->
+    <section class="secao" id="certificados" data-commit="tags">
+      <header class="secao-cab">
+        <p class="secao-cmd mono"><span class="sinal">$</span> git tag --sort=-creatordate</p>
+        <h2>Certificados</h2>
+        <p class="secao-sub">Cada certificado é uma versão lançada. Clique para verificar.</p>
+      </header>
+      <div class="filtros" id="filtros-cert" role="group" aria-label="Filtrar certificados por habilidade"></div>
+      <ol class="tags" id="lista-cert"></ol>
+    </section>
+
+    <!-- PROJETOS -->
+    <section class="secao" id="projetos" data-commit="repos">
+      <header class="secao-cab">
+        <p class="secao-cmd mono"><span class="sinal">$</span> ls ~/repos</p>
+        <h2>Projetos</h2>
+        <p class="secao-sub">Uma família de sistemas: cada um nasceu do anterior.</p>
+      </header>
+      <div class="filtros" id="filtros-proj" role="group" aria-label="Filtrar projetos por tecnologia"></div>
+      <div class="repos" id="lista-proj"></div>
+    </section>
+
+    <!-- CONTATO -->
+    <section class="secao" id="contato" data-commit="pr">
+      <header class="secao-cab">
+        <p class="secao-cmd mono"><span class="sinal">$</span> gh pr create --base alex</p>
+        <h2>Vamos conversar</h2>
+        <p class="secao-sub">Proposta, vaga ou ideia: abra um pull request.</p>
+      </header>
+      <div class="contato">
+        <form class="pr" id="form-pr" novalidate>
+          <div class="pr-cab mono">
+            <span class="pr-badge">● Open</span>
+            <span><span id="pr-autor">visitante</span> quer fazer merge em <code>alex:main</code></span>
+          </div>
+          <div class="campo">
+            <label for="pr-nome">Seu nome</label>
+            <input id="pr-nome" name="nome" type="text" autocomplete="name" required maxlength="80">
+          </div>
+          <div class="campo">
+            <label for="pr-email">Seu e-mail</label>
+            <input id="pr-email" name="email" type="email" autocomplete="email" required maxlength="120">
+          </div>
+          <div class="campo">
+            <label for="pr-titulo">Título do PR</label>
+            <input id="pr-titulo" name="titulo" type="text" required maxlength="120" placeholder="feat: proposta de projeto">
+          </div>
+          <div class="campo">
+            <label for="pr-msg">Descrição</label>
+            <textarea id="pr-msg" name="mensagem" rows="5" required maxlength="2000" placeholder="Conte o que você precisa…"></textarea>
+          </div>
+          <div class="pr-checks mono" id="pr-checks" aria-live="polite">
+            <p data-check="nome"><span class="check-ico"></span> nome informado</p>
+            <p data-check="email"><span class="check-ico"></span> e-mail válido</p>
+            <p data-check="titulo"><span class="check-ico"></span> título preenchido</p>
+            <p data-check="mensagem"><span class="check-ico"></span> descrição com 10+ caracteres</p>
+          </div>
+          <button class="btn btn-primario btn-merge" type="submit">Create pull request</button>
+          <p class="pr-status" id="pr-status" role="status"></p>
+        </form>
+        <aside class="canais" aria-label="Outros canais">
+          <h3 class="mono">remotes</h3>
+          <ul id="canais"></ul>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <p class="mono"><span class="ref">HEAD → main</span> · feito à mão com HTML, CSS e JavaScript, sem framework · <span id="ano"></span></p>
+  </footer>
+
+  <!-- Detalhes do projeto -->
+  <dialog class="modal" id="modal-proj" aria-labelledby="modal-titulo">
+    <div class="modal-corpo">
+      <div class="modal-barra mono">
+        <span>README.md</span>
+        <button class="btn-icone" type="button" data-fechar aria-label="Fechar">✕</button>
+      </div>
+      <div class="modal-conteudo" id="modal-conteudo"></div>
+    </div>
+  </dialog>
+
+  <!-- Paleta de comandos -->
+  <dialog class="paleta" id="paleta" aria-label="Paleta de comandos">
+    <div class="paleta-corpo">
+      <label class="paleta-busca">
+        <span class="mono sinal" aria-hidden="true">&gt;</span>
+        <input id="paleta-input" type="text" placeholder="Digite um comando… (ex.: projetos, tema, email)" autocomplete="off" spellcheck="false" aria-controls="paleta-lista">
+      </label>
+      <ul class="paleta-lista" id="paleta-lista" role="listbox"></ul>
+      <p class="paleta-dica mono">↑↓ navegar · Enter executar · Esc fechar</p>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript><p class="noscript">Este portfólio precisa de JavaScript para mostrar certificados e projetos.</p></noscript>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
