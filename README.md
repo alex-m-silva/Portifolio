@@ -27,7 +27,7 @@ Todo o conteúdo fica em [`js/data.js`](js/data.js):
 
 Um certificado com `exemplo: true` aparece com um selo "exemplo"; sem `url`, aparece como "link em breve".
 
-O formulário de contato abre o aplicativo de e-mail do visitante com o assunto e a mensagem já preenchidos, então só funciona depois de configurar o `email`.
+O formulário de contato envia a mensagem direto para o `email` configurado, via [FormSubmit](https://formsubmit.co) (sem cadastro). Na primeira mensagem o FormSubmit manda um e-mail de ativação para esse endereço: é só clicar no link uma vez. Se o envio falhar, o formulário abre o aplicativo de e-mail do visitante como alternativa.
 
 ## Rodar localmente
 

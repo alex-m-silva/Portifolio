@@ -705,10 +705,37 @@
         status.textContent = "✗ O e-mail de destino ainda não foi configurado em js/data.js.";
         return;
       }
-      var corpo = campos.mensagem.value.trim() + "\n\n— " + campos.nome.value.trim() + " <" + campos.email.value.trim() + ">";
-      var url = "mailto:" + c.email + "?subject=" + encodeURIComponent(campos.titulo.value.trim()) + "&body=" + encodeURIComponent(corpo);
-      window.location.href = url;
-      status.textContent = "✓ Abrindo seu aplicativo de e-mail com o PR pronto para enviar.";
+      var botao = $('button[type="submit"]', form);
+      var dados = {
+        name: campos.nome.value.trim(),
+        email: campos.email.value.trim(),
+        _subject: "[Portfólio] " + campos.titulo.value.trim(),
+        message: campos.mensagem.value.trim(),
+        _template: "box",
+        _captcha: "false",
+      };
+
+      // Envia direto pelo FormSubmit; se falhar, cai no mailto como antes.
+      botao.disabled = true;
+      status.textContent = "… Enviando o PR.";
+      fetch("https://formsubmit.co/ajax/" + c.email, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(dados),
+      })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok || String(j.success) !== "true") throw new Error(j.message); }); })
+        .then(function () {
+          status.textContent = "✓ PR #" + (Math.floor(Math.random() * 90) + 10) + " merged! Mensagem enviada, já já eu respondo.";
+          form.reset();
+          tentou = false;
+          verificar();
+        })
+        .catch(function () {
+          var corpo = dados.message + "\n\n— " + dados.name + " <" + dados.email + ">";
+          window.location.href = "mailto:" + c.email + "?subject=" + encodeURIComponent(dados._subject) + "&body=" + encodeURIComponent(corpo);
+          status.textContent = "✗ Não deu para enviar direto. Abrindo seu e-mail, ou copie o endereço acima.";
+        })
+        .then(function () { botao.disabled = false; });
     });
   }
 
