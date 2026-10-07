@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Alex Matias · Desenvolvedor .NET</title>
-  <meta name="description" content="Portfólio de Alex Matias, desenvolvedor .NET: sistemas de gestão para o comércio em C#, Windows Forms, ASP.NET Core, PostgreSQL e SQLite.">
+  <title>Alex Matias · Desenvolvedor de Software .NET</title>
+  <meta name="description" content="Portfólio de Alex Matias, desenvolvedor de software .NET em Divinópolis, MG: experiência, certificados e projetos em C#, .NET, Entity Framework, SQL Server e ASP.NET Core.">
   <meta name="theme-color" content="#0d1117">
-  <meta property="og:title" content="Alex Matias · Desenvolvedor .NET">
+  <meta property="og:title" content="Alex Matias · Desenvolvedor de Software .NET">
   <meta property="og:description" content="Sistemas de gestão para o comércio em C# e .NET.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -34,6 +34,7 @@
     <nav class="nav" aria-label="Seções">
       <ul>
         <li><a href="#sobre"><span class="ramo" aria-hidden="true">⎇</span> sobre</a></li>
+        <li><a href="#experiencia"><span class="ramo" aria-hidden="true">⎇</span> carreira</a></li>
         <li><a href="#certificados"><span class="ramo" aria-hidden="true">⎇</span> certificados</a></li>
         <li><a href="#projetos"><span class="ramo" aria-hidden="true">⎇</span> projetos</a></li>
         <li><a href="#contato"><span class="ramo" aria-hidden="true">⎇</span> contato</a></li>
@@ -100,6 +101,20 @@
           <ul class="diff-linhas mono" id="stack"></ul>
         </div>
       </article>
+    </section>
+
+    <!-- EXPERIÊNCIA -->
+    <section class="secao" id="experiencia" data-commit="log">
+      <header class="secao-cab">
+        <p class="secao-cmd mono"><span class="sinal">$</span> git log --author=alex</p>
+        <h2>Experiência</h2>
+        <p class="secao-sub">Cada emprego é um commit na carreira, do mais recente ao mais antigo.</p>
+      </header>
+      <ol class="log" id="lista-exp"></ol>
+      <div id="bloco-formacao" hidden>
+        <p class="log-sub mono"><span class="sinal">$</span> git log --grep=formação</p>
+        <ol class="log" id="lista-form"></ol>
+      </div>
     </section>
 
     <!-- CERTIFICADOS -->
@@ -190,7 +205,7 @@
     <div class="paleta-corpo">
       <label class="paleta-busca">
         <span class="mono sinal" aria-hidden="true">&gt;</span>
-        <input id="paleta-input" type="text" placeholder="Digite um comando… (ex.: projetos, tema, email)" autocomplete="off" spellcheck="false" aria-controls="paleta-lista">
+        <input id="paleta-input" type="text" placeholder="Digite um comando… (ex.: projetos, carreira, email)" autocomplete="off" spellcheck="false" aria-controls="paleta-lista">
       </label>
       <ul class="paleta-lista" id="paleta-lista" role="listbox"></ul>
       <p class="paleta-dica mono">↑↓ navegar · Enter executar · Esc fechar</p>

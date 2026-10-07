@@ -91,6 +91,7 @@
     email: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2.4V17h16V7.4l-8 5.6-8-5.6ZM5.4 7l6.6 4.6L18.6 7H5.4Z"/></svg>',
     linkedin: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4v11H3v-11Zm6.5 0h3.83v1.5h.05c.53-1 1.84-2.06 3.79-2.06 4.05 0 4.8 2.67 4.8 6.13v5.43h-4v-4.82c0-1.15-.02-2.63-1.6-2.63-1.6 0-1.85 1.25-1.85 2.55v4.9h-4v-11Z"/></svg>',
     whatsapp: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.6-.3Z"/></svg>',
+    instagram: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"/></svg>',
     copiar: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 6.75C0 5.78.78 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .14.11.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Zm5-5C5 .78 5.78 0 6.75 0h7.5C15.22 0 16 .78 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .14.11.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>',
   };
 
@@ -112,6 +113,8 @@
       { valor: D.certificados.length, rotulo: "tags (certificados)" },
       { valor: p.stack.length, rotulo: "ferramentas" },
     ];
+    var anos = anosDeCarreira();
+    if (anos) numeros.unshift({ valor: anos, rotulo: "anos de carreira" });
     var dl = $("#hero-numeros");
     numeros.forEach(function (n) {
       var dd = h("dd", null, h("span", { "data-contar": n.valor, text: reduzirMovimento ? String(n.valor) : "0" }), h("small", { text: "+" }));
@@ -410,6 +413,61 @@
   }
 
   /* ============================================================
+     Experiência e formação (git log)
+     ============================================================ */
+  // Anos completos desde o primeiro emprego
+  function anosDeCarreira() {
+    var inicios = (D.experiencia || []).map(function (e) { return e.inicio; }).filter(Boolean).sort();
+    if (!inicios.length) return 0;
+    var p = inicios[0].split("-");
+    var hoje = new Date();
+    var meses = (hoje.getFullYear() - parseInt(p[0], 10)) * 12 + (hoje.getMonth() + 1 - parseInt(p[1], 10));
+    return Math.max(0, Math.floor(meses / 12));
+  }
+
+  function periodo(inicio, fim) {
+    return formatarMes(inicio) + " → " + (fim ? formatarMes(fim) : "hoje");
+  }
+
+  function montarExperiencia() {
+    var secao = $("#experiencia");
+    var exp = D.experiencia || [];
+    var form = D.formacao || [];
+    if (!exp.length && !form.length) {
+      secao.remove();
+      $$('.nav a[href="#experiencia"]').forEach(function (a) { a.parentNode.remove(); });
+      return;
+    }
+
+    var lista = $("#lista-exp");
+    exp.forEach(function (e, i) {
+      var atual = !e.fim;
+      lista.appendChild(h("li", { class: "commit", style: "--cor: var(" + CORES_ROTACAO[i % CORES_ROTACAO.length] + ")" },
+        h("p", { class: "commit-meta mono" },
+          h("span", { class: "amarelo", text: "commit " + hashCurto(e.empresa + e.inicio) }),
+          atual ? h("span", { class: "ref", text: "(HEAD → main)" }) : null,
+          h("span", { class: "commit-data", text: periodo(e.inicio, e.fim) })),
+        h("h3", null, e.cargo, h("span", { class: "commit-empresa", text: " @ " + e.empresa })),
+        e.local ? h("p", { class: "commit-local mono", text: e.local }) : null,
+        e.resumo ? h("p", { class: "commit-resumo", text: e.resumo }) : null,
+        (e.destaques || []).length ? h("ul", { class: "commit-itens" }, e.destaques.map(function (d) { return h("li", { text: d }); })) : null,
+        (e.stack || []).length ? h("div", { class: "tag-skills" }, e.stack.map(function (t) { return h("span", { text: t }); })) : null));
+    });
+
+    if (form.length) {
+      $("#bloco-formacao").hidden = false;
+      var listaForm = $("#lista-form");
+      form.forEach(function (f) {
+        listaForm.appendChild(h("li", { class: "commit", style: "--cor: var(--ambar)" },
+          h("p", { class: "commit-meta mono" },
+            h("span", { class: "amarelo", text: "commit " + hashCurto(f.instituicao + f.curso) }),
+            h("span", { class: "commit-data", text: periodo(f.inicio, f.fim) })),
+          h("h3", null, f.curso, h("span", { class: "commit-empresa", text: " @ " + f.instituicao }))));
+      });
+    }
+  }
+
+  /* ============================================================
      Filtros (chips)
      ============================================================ */
   function montarFiltros(container, opcoes, aoMudar) {
@@ -444,6 +502,9 @@
     certs.forEach(function (c, i) { c._versao = "v1." + i + ".0"; c._cor = CORES_ROTACAO[i % CORES_ROTACAO.length]; });
     certs.reverse();
 
+    // Se os certificados têm `categoria`, os filtros são por categoria; senão, por habilidade
+    var porCategoria = certs.some(function (c) { return !!c.categoria; });
+
     if (!certs.length) {
       lista.replaceWith(h("p", { class: "vazio", text: "fatal: No names found, cannot describe anything. (nenhum certificado ainda)" }));
       return;
@@ -451,7 +512,7 @@
 
     function render(filtro) {
       lista.textContent = "";
-      certs.filter(function (c) { return filtro === "todos" || (c.skills || []).indexOf(filtro) >= 0; })
+      certs.filter(function (c) { return filtro === "todos" || (porCategoria ? c.categoria === filtro : (c.skills || []).indexOf(filtro) >= 0); })
         .forEach(function (c) {
           var temLink = !!c.url;
           var corpo = [
@@ -471,8 +532,10 @@
         });
     }
 
-    var skills = frequencia(certs.map(function (c) { return c.skills; }), 8);
-    if (skills.length > 1) montarFiltros($("#filtros-cert"), skills, render);
+    var categorias = [];
+    D.certificados.forEach(function (c) { if (c.categoria && categorias.indexOf(c.categoria) < 0) categorias.push(c.categoria); });
+    var opcoes = porCategoria ? categorias : frequencia(certs.map(function (c) { return c.skills; }), 8);
+    if (opcoes.length > 1) montarFiltros($("#filtros-cert"), opcoes, render);
     render("todos");
   }
 
@@ -596,6 +659,7 @@
     }
     if (c.github) canal(ICONES.github, "origin", c.github.replace(/^https?:\/\/(www\.)?/, ""), { href: c.github, target: "_blank", rel: "noopener noreferrer" });
     if (c.linkedin) canal(ICONES.linkedin, "linkedin", c.linkedin.replace(/^https?:\/\/(www\.)?/, ""), { href: c.linkedin, target: "_blank", rel: "noopener noreferrer" });
+    if (c.instagram) canal(ICONES.instagram, "instagram", "@" + c.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/+$/, ""), { href: c.instagram, target: "_blank", rel: "noopener noreferrer" });
     if (c.whatsapp) {
       var num = String(c.whatsapp).replace(/\D/g, "");
       canal(ICONES.whatsapp, "whatsapp", "mandar mensagem", { href: "https://wa.me/" + num, target: "_blank", rel: "noopener noreferrer" });
@@ -729,7 +793,7 @@
     window.addEventListener("load", posicionarNos);
 
     // Revelação dos blocos ao entrar na tela
-    var alvos = $$(".secao-cab, .git-show, .tags > li, .repo, .pr, .canais, .filtros");
+    var alvos = $$(".secao-cab, .git-show, .commit, .tags > li, .repo, .pr, .canais, .filtros");
     if (reduzirMovimento || !("IntersectionObserver" in window)) return;
     var io = new IntersectionObserver(function (entradas) {
       entradas.forEach(function (e) {
@@ -760,6 +824,7 @@
     var comandos = [
       { rotulo: "Ir para o início", dica: "git checkout main", acao: ir("inicio") },
       { rotulo: "Ir para sobre", dica: "git show sobre", acao: ir("sobre") },
+      { rotulo: "Ir para experiência (carreira)", dica: "git log", acao: ir("experiencia") },
       { rotulo: "Ir para certificados", dica: "git tag", acao: ir("certificados") },
       { rotulo: "Ir para projetos", dica: "ls ~/repos", acao: ir("projetos") },
       { rotulo: "Ir para contato", dica: "gh pr create", acao: ir("contato") },
@@ -768,6 +833,7 @@
     if (D.contato.email) comandos.push({ rotulo: "Copiar e-mail", dica: D.contato.email, acao: function () { copiar(D.contato.email, "E-mail copiado!"); } });
     if (D.contato.github) comandos.push({ rotulo: "Abrir GitHub", dica: "git remote -v", acao: function () { window.open(D.contato.github, "_blank", "noopener"); } });
     if (D.contato.linkedin) comandos.push({ rotulo: "Abrir LinkedIn", dica: "linkedin", acao: function () { window.open(D.contato.linkedin, "_blank", "noopener"); } });
+    if (D.contato.instagram) comandos.push({ rotulo: "Abrir Instagram", dica: "instagram", acao: function () { window.open(D.contato.instagram, "_blank", "noopener"); } });
     D.projetos.forEach(function (p) {
       comandos.push({ rotulo: "README: " + p.nome, dica: "cat " + p.nome + "/README.md", acao: function () { abrirProjeto(p); } });
     });
@@ -843,6 +909,7 @@
     if (!D) return;
     montarInicio();
     montarSobre();
+    montarExperiencia();
     montarCertificados();
     montarProjetos();
     montarContato();
