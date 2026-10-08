@@ -7,8 +7,11 @@ Site pessoal com um conceito próprio: **o portfólio é um repositório git**.
 - **Experiência**: um `git log` da carreira, em que cada emprego é um commit, seguido da formação.
 - **Certificados**: cada certificado é uma *tag* de versão (`v1.0.0`, `v1.1.0`…), com filtro por categoria.
 - **Projetos**: cartões de repositório com barra de linguagens, filtro por tecnologia e README em janela.
-- **Contato**: o formulário é um *pull request*, com "checks" que passam conforme os campos são preenchidos.
-- Trilho lateral que mostra cada seção como um commit no ramo, paleta de comandos (**Ctrl+K** ou **/**), tema claro e escuro e layout para celular.
+- **Contato**: o formulário é um *pull request*, com "checks" que passam conforme os campos são preenchidos, uma janela para revisar antes de enviar e a confirmação de envio ("PR merged").
+- Trilho lateral clicável: cada seção é um commit no ramo, e clicar num ponto leva até ela.
+- Paleta de comandos (**Ctrl+K** ou **/**), tema claro e escuro e layout para celular.
+- Texto protegido contra seleção e cópia (os campos do formulário continuam normais; o e-mail se copia pelo botão "copiar email").
+- Um recado para quem abre o console do navegador, com os links de contato e o comando `vamosConversar()`.
 
 HTML, CSS e JavaScript puros: sem framework, sem build e sem dependências.
 
@@ -27,17 +30,38 @@ Todo o conteúdo fica em [`js/data.js`](js/data.js):
 
 Um certificado com `exemplo: true` aparece com um selo "exemplo"; sem `url`, aparece como "link em breve".
 
-O formulário de contato envia a mensagem direto para o `email` configurado, via [FormSubmit](https://formsubmit.co) (sem cadastro). Na primeira mensagem o FormSubmit manda um e-mail de ativação para esse endereço: é só clicar no link uma vez. Se o envio falhar, o formulário abre o aplicativo de e-mail do visitante como alternativa.
+O formulário de contato envia a mensagem direto para o `email` configurado, via [FormSubmit](https://formsubmit.co) (sem cadastro). Na primeira mensagem o FormSubmit manda um e-mail de ativação para esse endereço: é só clicar no link uma vez. Se o envio falhar, a janela oferece tentar de novo ou enviar pelo aplicativo de e-mail do visitante.
+
+## SEO (tráfego orgânico)
+
+- Título, descrição, `canonical` e `robots` no `<head>`.
+- Open Graph e Twitter Card com a imagem [`assets/og-image.png`](assets/og-image.png) (1200×630), para o link aparecer com prévia no LinkedIn e no WhatsApp.
+- Dados estruturados (JSON-LD `ProfilePage` + `Person`) com cargo, empresa, formação, cidade, habilidades e redes.
+- [`robots.txt`](robots.txt), [`sitemap.xml`](sitemap.xml), [`site.webmanifest`](site.webmanifest), ícones do app e `favicon.ico`.
+- Página [`404.html`](404.html) com status 404 de verdade (o Vercel serve sozinho).
+
+Ao mudar cargo, empresa ou habilidades em `js/data.js`, atualize também o JSON-LD e as metatags do `index.html`, e a data em `sitemap.xml`.
+
+**Depois de publicar:** cadastre o site no [Google Search Console](https://search.google.com/search-console) e no [Bing Webmaster Tools](https://www.bing.com/webmasters), envie o `sitemap.xml` e coloque o link do site no LinkedIn, no GitHub (perfil e README) e no Instagram. Esses links são o que mais ajuda o Google a achar e confiar no site.
+
+## Imagens
+
+A imagem de compartilhamento e os ícones são gerados a partir dos modelos em [`tools/`](tools) com o Chrome em modo headless:
+
+```bash
+bash tools/gerar-imagens.sh
+```
+
+A pasta `tools/` não vai para o ar (está no `.vercelignore` e bloqueada no `robots.txt`).
 
 ## Rodar localmente
 
-Abra o `index.html` no navegador, ou sirva a pasta:
+Sirva a pasta (abrindo o `index.html` direto pelo arquivo, o manifest não carrega):
 
 ```bash
 python -m http.server 5510
 ```
 
-## Publicar no GitHub Pages
+## Publicação
 
-1. Crie um repositório no GitHub e envie este projeto.
-2. Em **Settings → Pages**, escolha a branch `main` e a pasta `/ (root)`.
+O site está no Vercel, em [alexmatias.dev.br](https://alexmatias.dev.br). Cada push na `main` publica. O [`vercel.json`](vercel.json) define cabeçalhos de segurança e de cache.

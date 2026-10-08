@@ -79,6 +79,15 @@
     ta.remove();
   }
 
+  // Rola até uma seção e atualiza o endereço (#secao) sem pular a página
+  function irPara(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    // Atualiza o endereço antes de rolar: trocar a URL no meio da rolagem suave a interrompe no Chrome
+    if (history.replaceState) history.replaceState(null, "", id === "inicio" ? location.pathname : "#" + id);
+    el.scrollIntoView({ behavior: reduzirMovimento ? "auto" : "smooth" });
+  }
+
   function corVar(nome) {
     return getComputedStyle(document.documentElement).getPropertyValue(nome).trim();
   }
@@ -629,8 +638,9 @@
   function prepararDialogos() {
     $$("dialog").forEach(function (dlg) {
       // Clique fora do conteúdo fecha
-      dlg.addEventListener("click", function (e) { if (e.target === dlg) fecharDialogo(dlg); });
-      $$("[data-fechar]", dlg).forEach(function (b) { b.addEventListener("click", function () { fecharDialogo(dlg); }); });
+      // `data-travado` impede fechar enquanto algo está sendo enviado
+      dlg.addEventListener("click", function (e) { if (e.target === dlg && !dlg.dataset.travado) fecharDialogo(dlg); });
+      $$("[data-fechar]", dlg).forEach(function (b) { b.addEventListener("click", function () { if (!dlg.dataset.travado) fecharDialogo(dlg); }); });
     });
   }
 
@@ -705,38 +715,117 @@
         status.textContent = "✗ O e-mail de destino ainda não foi configurado em js/data.js.";
         return;
       }
-      var botao = $('button[type="submit"]', form);
-      var dados = {
-        name: campos.nome.value.trim(),
-        email: campos.email.value.trim(),
-        _subject: "[Portfólio] " + campos.titulo.value.trim(),
-        message: campos.mensagem.value.trim(),
-        _template: "box",
-        _captcha: "false",
-      };
+      // Robô preencheu o campo invisível: finge que deu certo e não envia nada
+      if ($("#pr-site").value) { status.textContent = "✓ Mensagem enviada."; form.reset(); return; }
 
-      // Envia direto pelo FormSubmit; se falhar, cai no mailto como antes.
-      botao.disabled = true;
-      status.textContent = "… Enviando o PR.";
+      status.textContent = "";
+      revisarPR({
+        nome: campos.nome.value.trim(),
+        email: campos.email.value.trim(),
+        titulo: campos.titulo.value.trim(),
+        mensagem: campos.mensagem.value.trim(),
+      });
+    });
+
+    /* --- Confirmação do envio, em três telas no mesmo diálogo: revisar → enviando → resultado --- */
+    var dlg = $("#modal-pr");
+    var corpoDlg = $("#pr-modal-conteudo");
+    var barraDlg = $("#pr-modal-barra");
+    // Durante o envio, Esc, o X e o clique fora não fecham o diálogo
+    function travar(sim) { if (sim) dlg.dataset.travado = "1"; else delete dlg.dataset.travado; }
+    dlg.addEventListener("cancel", function (e) { if (dlg.dataset.travado) e.preventDefault(); });
+
+    function tela(titulo) {
+      barraDlg.textContent = titulo;
+      corpoDlg.textContent = "";
+      for (var i = 1; i < arguments.length; i++) if (arguments[i]) corpoDlg.appendChild(arguments[i]);
+    }
+
+    function botaoAcao(texto, classe, aoClicar) {
+      return h("button", { type: "button", class: "btn " + classe, text: texto, onclick: aoClicar });
+    }
+
+    function revisarPR(msg) {
+      var numero = Math.floor(Math.random() * 90) + 10;
+      tela("Revisar pull request",
+        h("p", { class: "pr-rev-cab mono" },
+          h("span", { class: "pr-badge", text: "● Open" }),
+          h("span", { text: " #" + numero + " · " + msg.nome + " quer fazer merge em " }),
+          h("code", { text: "alex:main" })),
+        h("h3", { class: "pr-rev-titulo", id: "pr-modal-titulo", text: msg.titulo }),
+        h("dl", { class: "pr-rev-dados" },
+          h("div", null, h("dt", { text: "de" }), h("dd", { text: msg.nome + " <" + msg.email + ">" })),
+          h("div", null, h("dt", { text: "para" }), h("dd", { text: "Alex Matias" }))),
+        h("div", { class: "pr-rev-diff mono", "aria-label": "Mensagem" },
+          msg.mensagem.split("\n").map(function (l) { return h("p", { text: "+ " + l }); })),
+        h("p", { class: "pr-rev-aviso", text: "Confira se o seu e-mail está certo: é por ele que eu vou responder." }),
+        h("div", { class: "pr-rev-acoes" },
+          botaoAcao("Voltar e editar", "btn-secundario", function () { fecharDialogo(dlg); campos.mensagem.focus(); }),
+          botaoAcao("Confirmar e enviar", "btn-primario", function () { enviarPR(msg, numero); })));
+      abrirDialogo(dlg);
+      var confirmar = $(".pr-rev-acoes .btn-primario", corpoDlg);
+      if (confirmar) confirmar.focus();
+    }
+
+    function enviarPR(msg, numero) {
+      travar(true);
+      tela("Enviando…",
+        h("div", { class: "pr-enviando", role: "status" },
+          h("span", { class: "pr-spinner", "aria-hidden": "true" }),
+          h("p", { class: "mono", text: "git push origin pr/" + numero }),
+          h("p", { class: "pr-rev-aviso", text: "Enviando sua mensagem, só um instante." })));
+
+      // FormSubmit: envia o formulário para o e-mail sem precisar de servidor próprio
       fetch("https://formsubmit.co/ajax/" + c.email, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(dados),
+        body: JSON.stringify({
+          name: msg.nome,
+          email: msg.email,
+          _replyto: msg.email,
+          _subject: "[Portfólio] " + msg.titulo,
+          message: msg.mensagem,
+          _template: "box",
+          _captcha: "false",
+        }),
       })
-        .then(function (r) { return r.json().then(function (j) { if (!r.ok || String(j.success) !== "true") throw new Error(j.message); }); })
+        .then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (j) {
+            if (!r.ok || String(j.success) !== "true") throw new Error(j.message || "falha no envio");
+          });
+        })
         .then(function () {
-          status.textContent = "✓ PR #" + (Math.floor(Math.random() * 90) + 10) + " merged! Mensagem enviada, já já eu respondo.";
+          travar(false);
           form.reset();
           tentou = false;
           verificar();
+          $("#pr-status").textContent = "✓ PR #" + numero + " enviado. Obrigado pelo contato!";
+          tela("Pull request merged",
+            h("div", { class: "pr-sucesso", role: "status" },
+              h("span", { class: "pr-sucesso-ico", "aria-hidden": "true", text: "✓" }),
+              h("h3", { id: "pr-modal-titulo", text: "Mensagem enviada!" }),
+              h("p", { class: "mono pr-merged", text: "PR #" + numero + " merged into alex:main" }),
+              h("p", { text: "Obrigado, " + msg.nome.split(/\s+/)[0] + ". Recebi sua mensagem e vou responder em " + msg.email + "." })),
+            h("div", { class: "pr-rev-acoes" },
+              botaoAcao("Fechar", "btn-primario", function () { fecharDialogo(dlg); })));
+          var fechar = $(".pr-rev-acoes .btn-primario", corpoDlg);
+          if (fechar) fechar.focus();
         })
         .catch(function () {
-          var corpo = dados.message + "\n\n— " + dados.name + " <" + dados.email + ">";
-          window.location.href = "mailto:" + c.email + "?subject=" + encodeURIComponent(dados._subject) + "&body=" + encodeURIComponent(corpo);
-          status.textContent = "✗ Não deu para enviar direto. Abrindo seu e-mail, ou copie o endereço acima.";
-        })
-        .then(function () { botao.disabled = false; });
-    });
+          travar(false);
+          // Alternativa: o próprio visitante envia pelo app de e-mail (só abre com o clique dele)
+          var corpo = msg.mensagem + "\n\n— " + msg.nome + " <" + msg.email + ">";
+          var mailto = "mailto:" + c.email + "?subject=" + encodeURIComponent("[Portfólio] " + msg.titulo) + "&body=" + encodeURIComponent(corpo);
+          tela("Falha no envio",
+            h("div", { class: "pr-sucesso pr-falha", role: "alert" },
+              h("span", { class: "pr-sucesso-ico", "aria-hidden": "true", text: "✗" }),
+              h("h3", { id: "pr-modal-titulo", text: "Não consegui enviar agora" }),
+              h("p", { text: "Sua mensagem não se perdeu: ela continua no formulário. Tente de novo ou envie pelo seu e-mail." })),
+            h("div", { class: "pr-rev-acoes" },
+              h("a", { class: "btn btn-secundario", href: mailto, text: "Enviar pelo meu e-mail" }),
+              botaoAcao("Tentar de novo", "btn-primario", function () { enviarPR(msg, numero); })));
+        });
+    }
   }
 
   /* ============================================================
@@ -770,8 +859,15 @@
     var progresso = $("#trilho-progresso");
     var links = $$(".nav a");
 
+    // Cada ponto do trilho é um botão que leva até a seção
     var nos = secoes.map(function (s) {
-      var li = h("li", null, h("span", { text: s.getAttribute("data-commit") }));
+      var titulo = $("h1 #hero-nome, h2", s);
+      var nome = s.id === "inicio" ? "Início" : (titulo ? titulo.textContent.trim() : s.id);
+      var botao = h("button", {
+        type: "button", class: "trilho-no", "aria-label": "Ir para " + nome, title: nome,
+        onclick: function () { irPara(s.id); },
+      }, h("span", { text: s.getAttribute("data-commit") }));
+      var li = h("li", null, botao);
       trilhoNos.appendChild(li);
       return li;
     });
@@ -803,6 +899,8 @@
         nos.forEach(function (li, i) {
           li.classList.toggle("passou", i <= atual);
           li.classList.toggle("atual", i === atual);
+          var b = li.firstChild;
+          if (i === atual) b.setAttribute("aria-current", "location"); else b.removeAttribute("aria-current");
         });
         var id = secoes[atual].id;
         links.forEach(function (a) {
@@ -847,7 +945,7 @@
     var selecionado = 0;
     var filtrados = [];
 
-    function ir(id) { return function () { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: reduzirMovimento ? "auto" : "smooth" }); }; }
+    function ir(id) { return function () { irPara(id); }; }
     var comandos = [
       { rotulo: "Ir para o início", dica: "git checkout main", acao: ir("inicio") },
       { rotulo: "Ir para sobre", dica: "git show sobre", acao: ir("sobre") },
@@ -930,6 +1028,77 @@
   }
 
   /* ============================================================
+     Proteção do conteúdo
+     ------------------------------------------------------------
+     Bloqueia seleção, cópia, recorte, arrastar e o menu do botão
+     direito no texto do site. Campos do formulário continuam
+     normais, e o e-mail se copia pelo botão "copiar email".
+     ============================================================ */
+  function protegerConteudo() {
+    function liberado(alvo) {
+      return !!(alvo && alvo.closest && alvo.closest("input, textarea, [contenteditable], .paleta"));
+    }
+    var ultimoAviso = 0;
+    function avisar() {
+      var agora = Date.now();
+      if (agora - ultimoAviso < 2500) return;
+      ultimoAviso = agora;
+      toast(D.contato.email ? "Conteúdo protegido · use \"copiar email\" no contato" : "Conteúdo protegido");
+    }
+    ["copy", "cut"].forEach(function (tipo) {
+      document.addEventListener(tipo, function (e) {
+        if (liberado(e.target) || liberado(document.activeElement)) return;
+        e.preventDefault();
+        avisar();
+      });
+    });
+    document.addEventListener("contextmenu", function (e) {
+      // Links continuam com o menu (abrir em nova aba etc.)
+      if (liberado(e.target) || (e.target.closest && e.target.closest("a[href]"))) return;
+      e.preventDefault();
+    });
+    document.addEventListener("dragstart", function (e) {
+      if (!liberado(e.target)) e.preventDefault();
+    });
+    document.addEventListener("selectstart", function (e) {
+      if (!liberado(e.target)) e.preventDefault();
+    });
+  }
+
+  /* ============================================================
+     Recado para quem abre o console (DevTools)
+     ============================================================ */
+  function recadoNoConsole() {
+    var c = D.contato;
+    var titulo = "font: 700 22px/1.4 'Space Grotesk', system-ui, sans-serif; color: #3ddc97;";
+    var texto = "font: 14px/1.6 'JetBrains Mono', Consolas, monospace; color: #9fb0c0;";
+    var link = "font: 14px/1.6 'JetBrains Mono', Consolas, monospace; color: #5cc8ff;";
+    var grafo = [
+      "  * a1c3e47 (HEAD -> main) você abriu o console",
+      "  |\\",
+      "  | * 5f0d2b1 feat: curiosidade de dev",
+      "  |/",
+      "  * 0c0ffee init",
+    ].join("\n");
+    var linhas = ["%cOlá, dev curioso! 👋", "%c" + grafo + "\n\nJá que você está aqui… que tal a gente conversar?"];
+    var estilos = [titulo, texto];
+    if (c.linkedin) { linhas.push("%cLinkedIn  → %c" + c.linkedin); estilos.push(texto, link); }
+    if (c.github) { linhas.push("%cGitHub    → %c" + c.github); estilos.push(texto, link); }
+    if (c.whatsapp) { linhas.push("%cWhatsApp  → %chttps://wa.me/" + String(c.whatsapp).replace(/\D/g, "")); estilos.push(texto, link); }
+    if (c.instagram) { linhas.push("%cInstagram → %c" + c.instagram); estilos.push(texto, link); }
+    if (c.email) { linhas.push("%cE-mail    → %c" + c.email); estilos.push(texto, link); }
+    linhas.push("%cDigite %cvamosConversar()%c para ir direto ao formulário de contato.");
+    estilos.push(texto, link, texto);
+    console.log.apply(console, [linhas.join("\n")].concat(estilos));
+
+    window.vamosConversar = function () {
+      irPara("contato");
+      setTimeout(function () { $("#pr-nome").focus({ preventScroll: true }); }, 600);
+      return "Abrindo o contato… até já! 🚀";
+    };
+  }
+
+  /* ============================================================
      Partida
      ============================================================ */
   function iniciar() {
@@ -946,6 +1115,8 @@
     iniciarGrafo();
     atualizarCorTema();
     contarNumeros();
+    protegerConteudo();
+    recadoNoConsole();
     $("#ano").textContent = String(new Date().getFullYear());
     $("#alternar-tema").addEventListener("click", alternarTema);
 

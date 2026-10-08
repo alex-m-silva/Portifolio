@@ -3,25 +3,93 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Alex Matias · Desenvolvedor de Software .NET</title>
-  <meta name="description" content="Portfólio de Alex Matias, desenvolvedor de software .NET em Divinópolis, MG: experiência, certificados e projetos em C#, .NET, Entity Framework, SQL Server e ASP.NET Core.">
-  <meta name="theme-color" content="#0d1117">
+  <title>Alex Matias · Desenvolvedor de Software .NET e C# | Divinópolis, MG</title>
+  <meta name="description" content="Alex Matias, desenvolvedor de software .NET em Divinópolis, MG. Mais de 3 anos com C#, .NET 8, Entity Framework, SQL Server e ASP.NET Core: ERP, integrações, automação industrial e sistemas de gestão.">
+  <meta name="author" content="Alex Matias">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0b0f14">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="canonical" href="https://alexmatias.dev.br/">
+
+  <!-- Compartilhamento (LinkedIn, WhatsApp, Facebook, X) -->
+  <meta property="og:type" content="profile">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Alex Matias">
+  <meta property="og:url" content="https://alexmatias.dev.br/">
   <meta property="og:title" content="Alex Matias · Desenvolvedor de Software .NET">
-  <meta property="og:description" content="Sistemas de gestão para o comércio em C# e .NET.">
-  <meta property="og:type" content="website">
+  <meta property="og:description" content="C#, .NET, Entity Framework e SQL Server: ERP, integrações bancárias, automação industrial e sistemas de gestão. Veja experiência, certificados e projetos.">
+  <meta property="og:image" content="https://alexmatias.dev.br/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:alt" content="Alex Matias, Desenvolvedor de Software .NET, com um grafo de commits ao lado">
+  <meta property="profile:first_name" content="Alex">
+  <meta property="profile:last_name" content="Matias">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Alex Matias · Desenvolvedor de Software .NET">
+  <meta name="twitter:description" content="C#, .NET, Entity Framework e SQL Server: ERP, integrações e sistemas de gestão.">
+  <meta name="twitter:image" content="https://alexmatias.dev.br/assets/og-image.png">
+
+  <!-- Ícones e app -->
+  <link rel="icon" href="favicon.ico" sizes="32x32">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="Alex Matias">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <script>
-    // Aplica o tema antes de pintar a página para não piscar
-    (function () {
-      try {
-        var t = localStorage.getItem("tema");
-        if (t === "claro" || t === "escuro") document.documentElement.dataset.tema = t;
-      } catch (e) { /* armazenamento indisponível: segue o sistema */ }
-    })();
+  <script src="js/tema.js"></script>
+  <script defer src="js/data.js"></script>
+  <script defer src="js/main.js"></script>
+
+  <!-- Dados estruturados para o Google (perfil profissional) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ProfilePage",
+        "@id": "https://alexmatias.dev.br/#pagina",
+        "url": "https://alexmatias.dev.br/",
+        "name": "Alex Matias · Desenvolvedor de Software .NET",
+        "inLanguage": "pt-BR",
+        "dateModified": "2026-10-08",
+        "mainEntity": { "@id": "https://alexmatias.dev.br/#alex" },
+        "isPartOf": { "@id": "https://alexmatias.dev.br/#site" }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://alexmatias.dev.br/#site",
+        "url": "https://alexmatias.dev.br/",
+        "name": "Alex Matias",
+        "inLanguage": "pt-BR",
+        "publisher": { "@id": "https://alexmatias.dev.br/#alex" }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://alexmatias.dev.br/#alex",
+        "name": "Alex Matias",
+        "url": "https://alexmatias.dev.br/",
+        "image": "https://alexmatias.dev.br/assets/og-image.png",
+        "jobTitle": "Desenvolvedor de Software .NET",
+        "description": "Desenvolvedor de software .NET com mais de 3 anos de experiência em desenvolvimento, modernização e integração de sistemas corporativos.",
+        "worksFor": { "@type": "Organization", "name": "CartSys Software" },
+        "alumniOf": { "@type": "CollegeOrUniversity", "name": "Faculdade Pitágoras" },
+        "address": { "@type": "PostalAddress", "addressLocality": "Divinópolis", "addressRegion": "MG", "addressCountry": "BR" },
+        "knowsLanguage": "pt-BR",
+        "knowsAbout": ["C#", ".NET", ".NET 8", ".NET Framework", "ASP.NET Core", "Entity Framework", "EF Core", "SQL Server", "MySQL", "PostgreSQL", "SQLite", "Firebird", "Windows Forms", "WPF", "DevExpress", "APIs REST", "JWT", "Docker", "Git", "Blazor", "DDD", "Microsserviços"],
+        "sameAs": [
+          "https://github.com/alex-m-silva",
+          "https://www.linkedin.com/in/alex-matias-silva",
+          "https://www.instagram.com/alex_matias._/"
+        ]
+      }
+    ]
+  }
   </script>
 </head>
 <body>
@@ -51,11 +119,11 @@
     </div>
   </header>
 
-  <!-- Trilho lateral: cada seção é um commit no ramo main -->
-  <aside class="trilho" aria-hidden="true">
-    <div class="trilho-linha"><div class="trilho-progresso" id="trilho-progresso"></div></div>
+  <!-- Trilho lateral: cada seção é um commit no ramo main; clique num ponto para ir até ela -->
+  <nav class="trilho" aria-label="Navegação rápida pelas seções">
+    <div class="trilho-linha" aria-hidden="true"><div class="trilho-progresso" id="trilho-progresso"></div></div>
     <ol class="trilho-nos" id="trilho-nos"></ol>
-  </aside>
+  </nav>
 
   <main id="conteudo">
     <!-- INÍCIO -->
@@ -148,6 +216,11 @@
       </header>
       <div class="contato">
         <form class="pr" id="form-pr" novalidate>
+          <!-- Armadilha para robôs de spam: pessoas não veem nem preenchem -->
+          <div class="pote-mel" aria-hidden="true">
+            <label for="pr-site">Não preencha</label>
+            <input id="pr-site" name="_honey" type="text" tabindex="-1" autocomplete="off">
+          </div>
           <div class="pr-cab mono">
             <span class="pr-badge">● Open</span>
             <span><span id="pr-autor">visitante</span> quer fazer merge em <code>alex:main</code></span>
@@ -200,6 +273,17 @@
     </div>
   </dialog>
 
+  <!-- Confirmação do envio do contato -->
+  <dialog class="modal modal-pr" id="modal-pr" aria-labelledby="pr-modal-titulo">
+    <div class="modal-corpo">
+      <div class="modal-barra mono">
+        <span id="pr-modal-barra">Revisar pull request</span>
+        <button class="btn-icone" type="button" data-fechar aria-label="Fechar">✕</button>
+      </div>
+      <div class="modal-conteudo" id="pr-modal-conteudo"></div>
+    </div>
+  </dialog>
+
   <!-- Paleta de comandos -->
   <dialog class="paleta" id="paleta" aria-label="Paleta de comandos">
     <div class="paleta-corpo">
@@ -214,9 +298,13 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <noscript><p class="noscript">Este portfólio precisa de JavaScript para mostrar certificados e projetos.</p></noscript>
+  <noscript>
+    <div class="noscript">
+      <p><strong>Alex Matias, Desenvolvedor de Software .NET</strong> em Divinópolis, MG. Mais de 3 anos desenvolvendo, modernizando e integrando sistemas corporativos com C#, .NET, Entity Framework, SQL Server, MySQL e ASP.NET Core.</p>
+      <p>Hoje na CartSys Software (ERP para cartórios). Antes: Condumig (automação industrial) e Petrarca Software. Formado em Ciência da Computação pela Faculdade Pitágoras.</p>
+      <p>Ative o JavaScript para ver a experiência completa, os certificados e os projetos, ou fale comigo pelo <a href="https://www.linkedin.com/in/alex-matias-silva">LinkedIn</a> ou pelo <a href="https://github.com/alex-m-silva">GitHub</a>.</p>
+    </div>
+  </noscript>
 
-  <script src="js/data.js"></script>
-  <script src="js/main.js"></script>
 </body>
 </html>

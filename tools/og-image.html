@@ -1,0 +1,87 @@
+<!doctype html>
+<!--
+  Modelo da imagem de compartilhamento (1200x630) usada no LinkedIn, WhatsApp etc.
+  Para regerar assets/og-image.png, veja tools/README.md.
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>og-image</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=block" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background:
+      radial-gradient(circle at 78% 20%, rgba(61, 220, 151, 0.16), transparent 45%),
+      radial-gradient(circle at 10% 100%, rgba(92, 200, 255, 0.10), transparent 40%),
+      #0b0f14;
+    color: #e6edf3;
+    font-family: "Space Grotesk", sans-serif;
+    position: relative;
+  }
+  body::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: linear-gradient(#243140 1px, transparent 1px), linear-gradient(90deg, #243140 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.35;
+  }
+  .conteudo { position: absolute; left: 80px; top: 78px; width: 700px; }
+  .mono { font-family: "JetBrains Mono", monospace; }
+  .prompt { font-size: 26px; font-weight: 700; color: #e6edf3; }
+  .prompt b { color: #3ddc97; }
+  .commit { margin-top: 56px; font-size: 22px; color: #6b7d8f; }
+  .commit span { color: #f5b041; }
+  .commit i { color: #5cc8ff; font-style: normal; }
+  h1 {
+    margin-top: 14px;
+    font-size: 104px; line-height: 1; letter-spacing: -0.03em;
+    background: linear-gradient(100deg, #e6edf3 30%, #3ddc97 70%, #5cc8ff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    padding-bottom: 8px;
+  }
+  .cargo { margin-top: 18px; font-size: 34px; color: #9fb0c0; font-weight: 500; }
+  .chips { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
+  .chips span {
+    font-family: "JetBrains Mono", monospace; font-size: 20px;
+    padding: 6px 16px; border-radius: 999px;
+    color: #3ddc97; background: rgba(61, 220, 151, 0.10); border: 1px solid rgba(61, 220, 151, 0.35);
+  }
+  .url { position: absolute; left: 80px; bottom: 56px; font-size: 22px; color: #6b7d8f; }
+  .url b { color: #3ddc97; font-weight: 500; }
+  svg { position: absolute; right: 70px; top: 60px; }
+</style>
+</head>
+<body>
+  <div class="conteudo">
+    <p class="prompt mono"><b>~/</b>alex-matias<b>▍</b></p>
+    <p class="commit mono">commit <span>a1c3e47</span> <i>(HEAD → main)</i></p>
+    <h1>Alex Matias</h1>
+    <p class="cargo">Desenvolvedor de Software .NET</p>
+    <div class="chips"><span>C#</span><span>.NET 8</span><span>EF Core</span><span>SQL Server</span><span>ASP.NET Core</span></div>
+  </div>
+  <p class="url mono"><b>alexmatias.dev.br</b> · Divinópolis, MG</p>
+
+  <!-- Grafo de commits estático -->
+  <svg width="300" height="510" viewBox="0 0 300 510" fill="none" stroke-linecap="round">
+    <g stroke-width="5">
+      <path d="M60 20V490" stroke="#3ddc97"/>
+      <path d="M60 110C60 150 140 140 140 180V330C140 370 60 360 60 400" stroke="#5cc8ff"/>
+      <path d="M140 220C140 250 220 245 220 280C220 300 140 300 140 320" stroke="#b799ff"/>
+      <path d="M60 40C60 70 220 60 220 90" stroke="#f5b041"/>
+    </g>
+    <g stroke-width="5">
+      <circle cx="60" cy="40" r="13" fill="#0b0f14" stroke="#3ddc97"/>
+      <circle cx="220" cy="90" r="11" fill="#f5b041" stroke="#f5b041"/>
+      <circle cx="60" cy="150" r="11" fill="#3ddc97" stroke="#3ddc97"/>
+      <circle cx="140" cy="200" r="11" fill="#5cc8ff" stroke="#5cc8ff"/>
+      <circle cx="220" cy="280" r="11" fill="#b799ff" stroke="#b799ff"/>
+      <circle cx="60" cy="250" r="11" fill="#3ddc97" stroke="#3ddc97"/>
+      <circle cx="140" cy="320" r="13" fill="#0b0f14" stroke="#5cc8ff"/>
+      <circle cx="60" cy="400" r="13" fill="#0b0f14" stroke="#3ddc97"/>
+      <circle cx="60" cy="470" r="11" fill="#3ddc97" stroke="#3ddc97"/>
+    </g>
+  </svg>
+</body>
+</html>
