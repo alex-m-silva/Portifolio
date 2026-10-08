@@ -6,6 +6,10 @@
  *  - Itens com `exemplo: true` aparecem com o selo "exemplo":
  *    troque pelos seus dados reais e apague essa linha.
  */
+function revelar(codigo) {
+  try { return atob(codigo).split("").reverse().join(""); } catch (e) { return ""; }
+}
+
 window.PORTFOLIO = {
   perfil: {
     nome: "Alex Matias",
@@ -43,12 +47,18 @@ window.PORTFOLIO = {
     ],
   },
 
+  // E-mail e WhatsApp ficam codificados (base64 do texto ao contrário) para robôs que
+  // varrem o código atrás de contatos não acharem. Para gerar um valor novo:
+  //   node tools/codificar.js "seu@email.com"
   contato: {
-    email: "alexmatias.am162@gmail.com",
+    email: revelar("bW9jLmxpYW1nQDI2MW1hLnNhaXRhbXhlbGE="),
+    // Endereço apelido do FormSubmit (chega no e-mail de ativação). Se preenchido, é usado
+    // no envio do formulário no lugar do e-mail, que assim não aparece na requisição.
+    formsubmitId: "",
     github: "https://github.com/alex-m-silva",
     linkedin: "https://www.linkedin.com/in/alex-matias-silva",
     instagram: "https://www.instagram.com/alex_matias._/",
-    whatsapp: "5537988411918", // só números com DDI e DDD
+    whatsapp: revelar("ODE5MTE0ODg5NzM1NQ=="), // só números com DDI e DDD
     whatsappMensagem: "Olá, Alex! Vi seu portfólio e gostaria de conversar sobre um projeto.", // texto que já vem escrito no WhatsApp
   },
 

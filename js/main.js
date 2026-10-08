@@ -776,7 +776,7 @@
           h("p", { class: "pr-rev-aviso", text: "Enviando sua mensagem, só um instante." })));
 
       // FormSubmit: envia o formulário para o e-mail sem precisar de servidor próprio
-      fetch("https://formsubmit.co/ajax/" + c.email, {
+      fetch("https://formsubmit.co/ajax/" + (c.formsubmitId || c.email), {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
