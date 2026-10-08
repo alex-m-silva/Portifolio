@@ -537,7 +537,9 @@
           var cartao = temLink
             ? h("a", { class: "tag", href: c.url, target: "_blank", rel: "noopener noreferrer", style: "--cor: var(" + c._cor + ")", "aria-label": c.titulo + ", " + c.emissor + " — verificar certificado" }, corpo)
             : h("div", { class: "tag", style: "--cor: var(" + c._cor + ")" }, corpo);
-          lista.appendChild(h("li", null, cartao));
+          var item = h("li", null, cartao);
+          lista.appendChild(item);
+          animarEntrada(item, "card");
         });
     }
 
@@ -592,6 +594,7 @@
             card.style.setProperty("--my", (e.clientY - r.top) + "px");
           });
           lista.appendChild(card);
+          animarEntrada(card, "card");
         });
     }
 
@@ -621,6 +624,50 @@
     if (!p.repo) alvo.appendChild(h("p", { class: "mono", style: "margin-top:18px;font-size:13px;color:var(--texto-3)", text: "Repositório privado. Código disponível sob consulta." }));
     alvo.appendChild(botoesProjeto(p, false));
     abrirDialogo($("#modal-proj"));
+  }
+
+  /* ============================================================
+     Animação de entrada dos cards
+     ------------------------------------------------------------
+     Os cards que entram na tela juntos surgem em cascata, na
+     ordem em que aparecem (esquerda → direita, cima → baixo).
+     Só `opacity` e `transform` são animados, então o navegador
+     resolve tudo na placa de vídeo, sem recalcular o layout.
+     Ao terminar, as classes saem e o card volta ao normal (o
+     hover continua funcionando). Vale também para os cards
+     recriados pelos filtros.
+     ============================================================ */
+  var observadorCards = null;
+  var PASSO_CASCATA = 75;   // ms entre um card e o próximo
+  var MAX_CASCATA = 7;      // a partir daqui todos entram juntos, para não demorar
+
+  function animarEntrada(el, tipo) {
+    if (reduzirMovimento || !("IntersectionObserver" in window)) return;
+    if (!observadorCards) {
+      observadorCards = new IntersectionObserver(function (entradas) {
+        var chegando = entradas.filter(function (e) { return e.isIntersecting; }).map(function (e) { return e.target; });
+        chegando.forEach(function (alvo) { observadorCards.unobserve(alvo); });
+        // Ordem visual: linha por linha, da esquerda para a direita
+        chegando.map(function (alvo) { return { alvo: alvo, r: alvo.getBoundingClientRect() }; })
+          .sort(function (a, b) { return Math.round(a.r.top / 40) - Math.round(b.r.top / 40) || a.r.left - b.r.left; })
+          .forEach(function (item, i) {
+            item.alvo.style.setProperty("--atraso", Math.min(i, MAX_CASCATA) * PASSO_CASCATA + "ms");
+            item.alvo.classList.add("anima-ativa");
+          });
+      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.08 });
+    }
+    el.classList.add("anima", "anima-" + tipo);
+    // Brilho que passa uma vez pelo card (dentro do próprio cartão, que tem as bordas arredondadas)
+    if (tipo === "card") ($(".tag", el) || el).appendChild(h("span", { class: "anima-brilho", "aria-hidden": "true" }));
+    el.addEventListener("animationend", function fim(e) {
+      if (e.target !== el) return; // ignora as animações internas (barra, brilho)
+      el.removeEventListener("animationend", fim);
+      el.classList.remove("anima", "anima-card", "anima-commit", "anima-ativa");
+      el.style.removeProperty("--atraso");
+      var brilho = $(".anima-brilho", el);
+      if (brilho) brilho.remove();
+    });
+    observadorCards.observe(el);
   }
 
   /* ============================================================
@@ -918,7 +965,9 @@
     window.addEventListener("load", posicionarNos);
 
     // Revelação dos blocos ao entrar na tela
-    var alvos = $$(".secao-cab, .git-show, .commit, .tags > li, .repo, .pr, .canais, .filtros");
+    // (os cards têm animação própria, em animarEntrada)
+    $$(".commit").forEach(function (el) { animarEntrada(el, "commit"); });
+    var alvos = $$(".secao-cab, .git-show, .pr, .canais, .filtros");
     if (reduzirMovimento || !("IntersectionObserver" in window)) return;
     var io = new IntersectionObserver(function (entradas) {
       entradas.forEach(function (e) {

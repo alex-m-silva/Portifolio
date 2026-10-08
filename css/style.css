@@ -26,6 +26,7 @@
   --fonte: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
   --raio: 14px;
+  --suave: cubic-bezier(0.16, 1, 0.3, 1); /* desacelera no fim, sem quicar */
   --largura: 1120px;
   --topo-h: 64px;
   color-scheme: dark;
@@ -339,7 +340,7 @@ main { display: block; }
 .secao-sub { margin-top: 10px; color: var(--texto-2); }
 
 /* Revelação ao rolar */
-.revelar { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.revelar { opacity: 0; transform: translateY(20px); transition: opacity 0.8s var(--suave), transform 0.8s var(--suave); }
 .revelar.visivel { opacity: 1; transform: none; }
 
 /* ============================================================
@@ -849,7 +850,68 @@ dialog[open] { animation: surgir 0.25s ease; }
 @keyframes piscar { 50% { opacity: 0; } }
 @keyframes surgir { from { opacity: 0; transform: translateY(10px) scale(0.98); } }
 
+/* ============================================================
+   Entrada dos cards (classes postas e tiradas por animarEntrada)
+   ============================================================ */
+/* Antes de entrar na tela: invisível, um pouco abaixo e menor */
+.anima { opacity: 0; }
+.anima-card { transform: translate3d(0, 32px, 0) scale(0.96); }
+.anima-commit { transform: translate3d(-24px, 0, 0); }
+
+.anima-ativa { will-change: transform, opacity; }
+.anima-card.anima-ativa { animation: card-entra 0.85s var(--suave) var(--atraso, 0ms) both; }
+.anima-commit.anima-ativa { animation: commit-entra 0.8s var(--suave) var(--atraso, 0ms) both; }
+
+@keyframes card-entra {
+  0% { opacity: 0; transform: translate3d(0, 32px, 0) scale(0.96); }
+  45% { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes commit-entra {
+  0% { opacity: 0; transform: translate3d(-24px, 0, 0); }
+  50% { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+
+/* Faixa colorida da etiqueta cresce de cima para baixo */
+.anima-ativa .tag::before { transform-origin: top; animation: faixa-cresce 0.6s var(--suave) calc(var(--atraso, 0ms) + 0.15s) both; }
+.anima-ativa .tag::after { animation: furo-surge 0.4s var(--suave) calc(var(--atraso, 0ms) + 0.35s) both; }
+@keyframes faixa-cresce { from { transform: scaleY(0); } }
+@keyframes furo-surge { from { transform: scale(0); opacity: 0; } }
+
+/* Barra de linguagens se preenche da esquerda para a direita */
+.anima-ativa .lang-barra span { transform-origin: left; animation: barra-enche 0.6s var(--suave) calc(var(--atraso, 0ms) + 0.15s) both; }
+.anima-ativa .lang-barra span + span { animation-delay: calc(var(--atraso, 0ms) + 0.25s); }
+@keyframes barra-enche { from { transform: scaleX(0); } }
+
+/* Tags e chips do card aparecem logo depois do card */
+.anima-ativa .repo-tags span,
+.anima-ativa .tag-skills span { animation: chip-surge 0.5s var(--suave) calc(var(--atraso, 0ms) + 0.25s) both; }
+@keyframes chip-surge { from { opacity: 0; transform: translate3d(0, 6px, 0); } }
+
+/* Brilho diagonal que atravessa o card uma única vez */
+.anima-brilho {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+.anima-brilho::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 60%;
+  background: linear-gradient(105deg, transparent 20%, color-mix(in srgb, var(--acento) 14%, transparent) 50%, transparent 80%);
+  transform: translate3d(-120%, 0, 0);
+}
+.anima-ativa .anima-brilho::before { animation: brilho-passa 0.8s ease-out calc(var(--atraso, 0ms) + 0.05s) both; }
+@keyframes brilho-passa { to { transform: translate3d(240%, 0, 0); } }
+
 @media (prefers-reduced-motion: reduce) {
+  .anima { opacity: 1; transform: none; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   .revelar { opacity: 1; transform: none; }
