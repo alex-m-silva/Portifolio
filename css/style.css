@@ -456,6 +456,7 @@ main { display: block; }
   color: var(--texto-2);
   border-bottom: 1px dashed var(--borda);
 }
+.git-show-corpo { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 0 8px; }
 .git-show-msg { padding: 24px 24px 8px 48px; display: grid; gap: 14px; }
 .git-show-msg p { max-width: 62ch; color: var(--texto); }
 .git-show-msg p:first-child { font-size: 20px; font-weight: 500; }
@@ -987,6 +988,68 @@ dialog[open] { animation: surgir 0.25s ease; }
   animation: menu-desce 0.6s var(--suave) var(--atraso-menu, 0ms) both;
 }
 @keyframes menu-desce { from { opacity: 0; translate: 0 -10px; } to { opacity: 1; translate: 0 0; } }
+
+/* ============================================================
+   Grafo da carreira no "Quem sou eu" (desenhado uma vez)
+   ============================================================ */
+.grafo-carreira {
+  margin: 24px 24px 8px 0;
+  padding: 14px 16px 10px;
+  border: 1px dashed var(--borda);
+  border-radius: 12px;
+  background: var(--bg-2);
+}
+.grafo-carreira figcaption { font-size: 12px; color: var(--texto-3); margin-bottom: 6px; }
+.grafo-carreira svg { display: block; max-width: 100%; height: auto; overflow: visible; }
+.grafo-carreira text { font-family: var(--mono); font-size: 12px; fill: var(--texto); }
+.grafo-carreira .gc-ano { fill: var(--texto-3); }
+.grafo-carreira .gc-merge { fill: var(--texto-2); }
+.grafo-carreira .gc-ref { fill: var(--ceu); font-weight: 700; }
+.gc-linha { fill: none; stroke-width: 2.5; stroke-linecap: round; }
+.gc-no circle { transform-box: fill-box; transform-origin: center; }
+.gc-no { cursor: default; }
+.gc-no:hover .gc-bola { scale: 1.35; }
+.gc-bola { transition: scale 0.25s var(--suave); }
+/* HEAD pulsando de leve (só opacity e scale) */
+.gc-pulso { animation: gc-pulsar 2.4s ease-out infinite; opacity: 0; }
+@keyframes gc-pulsar { 0% { opacity: 0.45; scale: 1; } 70%, 100% { opacity: 0; scale: 2.6; } }
+
+/* Desenho: linhas crescem de baixo para cima; nós e rótulos surgem atrás delas */
+.armado .gc-linha { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.armado .gc-no { opacity: 0; translate: -6px 0; }
+.desenhado .gc-linha { stroke-dashoffset: 0; transition: stroke-dashoffset var(--dur, 900ms) var(--suave) var(--d, 0ms); }
+.desenhado .gc-no { opacity: 1; translate: 0 0; transition: opacity 0.5s var(--suave) var(--d, 0ms), translate 0.5s var(--suave) var(--d, 0ms); }
+
+/* Linhas do diff da stack entram uma a uma */
+.diff-linhas.armado li { opacity: 0; translate: -10px 0; }
+.diff-linhas.desenhado li { opacity: 1; translate: 0 0; transition: opacity 0.45s var(--suave) calc(var(--i, 0) * 55ms), translate 0.45s var(--suave) calc(var(--i, 0) * 55ms), border-color 0.2s; }
+
+/* Experiência: duração e emprego atual pulsando */
+.commit-duracao { color: var(--texto-3); }
+.ref-atual { display: inline-flex; align-items: center; gap: 6px; }
+.pulso {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--menta);
+}
+.pulso::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--menta);
+  animation: gc-pulsar 2.4s ease-out infinite;
+}
+
+@media (max-width: 900px) {
+  .git-show-corpo { grid-template-columns: 1fr; }
+  .grafo-carreira { margin: 8px 24px 8px; }
+}
+@media (max-width: 720px) {
+  .grafo-carreira { margin: 8px 16px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .anima { opacity: 1; transform: none; }

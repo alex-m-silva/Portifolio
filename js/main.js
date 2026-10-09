@@ -449,8 +449,153 @@
     p.sobre.forEach(function (par) { texto.appendChild(h("p", { text: par })); });
 
     var lista = $("#stack");
-    p.stack.forEach(function (s) { lista.appendChild(h("li", { text: s })); });
+    p.stack.forEach(function (item, i) { lista.appendChild(h("li", { text: item, style: "--i:" + i })); });
     $("#stack-qtd").textContent = String(p.stack.length);
+    desenharUmaVez(lista); // as linhas do diff entram uma a uma
+
+    montarGrafoCarreira();
+  }
+
+  /* ============================================================
+     Grafo da carreira (card "Quem sou eu")
+     ------------------------------------------------------------
+     Desenha a carreira como um `git log --graph`, montado a partir
+     de D.experiencia e D.formacao:
+     - empregos em sequência são commits na main;
+     - um emprego que acontece durante outro (ex.: freela) vira um
+       ramo que sai da main e volta com um merge ao terminar;
+     - cada formação também é um ramo, com merge na conclusão.
+     O mais novo fica em cima. É estático: só se desenha uma vez,
+     do mais antigo para o mais novo, quando aparece na tela.
+     ============================================================ */
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  function s(tag, attrs) {
+    var el = document.createElementNS(SVG_NS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+    for (var i = 2; i < arguments.length; i++) if (arguments[i]) el.appendChild(arguments[i]);
+    return el;
+  }
+
+  function montarGrafoCarreira() {
+    var fig = $("#grafo-carreira");
+    var exp = D.experiencia || [];
+    var form = D.formacao || [];
+    if (!fig || exp.length + form.length < 2) return;
+
+    var hoje = new Date();
+    var hojeStr = hoje.getFullYear() + "-" + ("0" + (hoje.getMonth() + 1)).slice(-2);
+    var fimDe = function (x) { return x.fim || hojeStr; };
+    var meses = function (x) { var a = x.inicio.split("-"), b = fimDe(x).split("-"); return (b[0] - a[0]) * 12 + (b[1] - a[1]); };
+
+    // Emprego "paralelo": acontece inteiro dentro de outro, mais longo
+    var paralelo = function (e) {
+      return exp.some(function (o) { return o !== e && o.inicio <= e.inicio && fimDe(o) >= fimDe(e) && meses(o) > meses(e); });
+    };
+
+    var eventos = [];
+    var ramos = [];
+    exp.forEach(function (e) {
+      if (!e.inicio) return;
+      if (paralelo(e)) ramos.push({ inicio: e.inicio, fim: e.fim, nome: e.empresa, rotulo: e.empresa, merge: "merge: " + e.empresa, dica: e.cargo + " @ " + e.empresa });
+      else eventos.push({ data: e.inicio, lane: 0, tipo: "commit", rotulo: e.empresa, dica: e.cargo + " @ " + e.empresa + " (" + periodo(e.inicio, e.fim) + ")" });
+    });
+    form.forEach(function (f) {
+      if (!f.inicio) return;
+      ramos.push({ inicio: f.inicio, fim: f.fim && f.fim <= hojeStr ? f.fim : "", nome: "graduação", rotulo: f.instituicao, merge: "merge: graduação ✓", dica: f.curso + " @ " + f.instituicao });
+    });
+
+    // Cada ramo ganha a menor faixa livre (≥ 1) no período dele. Os mais curtos escolhem
+    // primeiro e ficam por dentro, perto da main, para as linhas não se cruzarem.
+    var ocupacao = [];
+    var livre = function (l, r) {
+      return !(ocupacao[l] || []).some(function (p) { return r.inicio <= p[1] && (r.fim || "9999") >= p[0]; });
+    };
+    ramos.sort(function (a, b) { return meses(a) - meses(b); }).forEach(function (r) {
+      var l = 1;
+      while (!livre(l, r)) l++;
+      (ocupacao[l] = ocupacao[l] || []).push([r.inicio, r.fim || "9999"]);
+      r.lane = l;
+      r.fork = { data: r.inicio, lane: l, tipo: "fork", rotulo: r.rotulo, dica: r.dica + " (início " + formatarMes(r.inicio) + ")" };
+      eventos.push(r.fork);
+      if (r.fim) {
+        r.mergeEv = { data: r.fim, lane: 0, tipo: "merge", rotulo: r.merge, dica: r.dica + " (concluído " + formatarMes(r.fim) + ")" };
+        eventos.push(r.mergeEv);
+      }
+    });
+
+    var ordemTipo = { merge: 0, commit: 1, fork: 2 };
+    eventos.sort(function (a, b) { return b.data.localeCompare(a.data) || ordemTipo[a.tipo] - ordemTipo[b.tipo]; });
+    eventos.forEach(function (ev, i) { ev.linha = i; });
+
+    var n = eventos.length;
+    var faixas = Math.max(1, ocupacao.length);
+    var GAP = 44, TOPO = 22;
+    var X = function (l) { return 14 + l * 26; };
+    var Y = function (i) { return TOPO + i * GAP; };
+    var xTexto = X(faixas - 1) + 22;
+    var larg = 300, alt = Y(n - 1) + TOPO;
+    var corFaixa = function (l) { return l === 0 ? "var(--menta)" : "var(" + ["--ambar", "--lilas", "--ceu", "--coral"][(l - 1) % 4] + ")"; };
+    var atrasoLinha = function (i) { return (n - 1 - i) * 140; }; // de baixo (antigo) para cima (novo)
+
+    var svg = s("svg", { viewBox: "0 0 " + larg + " " + alt, width: larg, height: alt, role: "img", "aria-label": "Linha do tempo da carreira em forma de grafo de commits" });
+
+    // Linha da main, desenhada de baixo para cima
+    svg.appendChild(s("path", {
+      class: "gc-linha", d: "M" + X(0) + " " + Y(n - 1) + "V" + Y(0), stroke: corFaixa(0), pathLength: 1,
+      style: "--d:0ms;--dur:" + (300 + n * 140) + "ms",
+    }));
+
+    // Ramos: saem da main abaixo do primeiro commit do ramo e voltam no merge
+    ramos.forEach(function (r) {
+      var xl = X(r.lane), rf = r.fork.linha, c = GAP * 0.6;
+      var d = rf + 1 < n
+        ? "M" + X(0) + " " + Y(rf + 1) + "C" + X(0) + " " + (Y(rf + 1) - c) + " " + xl + " " + (Y(rf) + c) + " " + xl + " " + Y(rf)
+        : "M" + xl + " " + Y(rf);
+      if (r.mergeEv) {
+        var rm = r.mergeEv.linha;
+        if (rm + 1 < rf) d += "V" + Y(rm + 1);
+        var yBase = rm + 1 < rf ? Y(rm + 1) : Y(rf);
+        d += "C" + xl + " " + (yBase - c) + " " + X(0) + " " + (Y(rm) + c) + " " + X(0) + " " + Y(rm);
+      } else {
+        d += "V" + (Y(0) - 14); // ramo ainda aberto: segue até o topo
+      }
+      svg.appendChild(s("path", { class: "gc-linha", d: d, stroke: corFaixa(r.lane), pathLength: 1, style: "--d:" + atrasoLinha(Math.min(rf + 1, n - 1)) + "ms;--dur:" + ((rf - (r.mergeEv ? r.mergeEv.linha : 0)) * 140 + 400) + "ms" }));
+    });
+
+    // Nós e rótulos
+    eventos.forEach(function (ev, i) {
+      var x = X(ev.lane), y = Y(i), cor = corFaixa(ev.lane), atraso = atrasoLinha(i) + "ms";
+      var g = s("g", { class: "gc-no", style: "--d:" + atraso }, s("title"));
+      g.firstChild.textContent = ev.dica;
+      if (i === 0) g.appendChild(s("circle", { class: "gc-pulso", cx: x, cy: y, r: 7, fill: cor }));
+      g.appendChild(s("circle", {
+        class: "gc-bola", cx: x, cy: y, r: ev.tipo === "merge" ? 6.5 : 5.5,
+        fill: ev.tipo === "merge" ? "var(--bg-2)" : cor, stroke: cor, "stroke-width": ev.tipo === "merge" ? 3 : 0,
+      }));
+      var texto = s("text", { x: xTexto, y: y, "dominant-baseline": "central" });
+      var ano = s("tspan", { class: "gc-ano" }); ano.textContent = ev.data.slice(0, 4) + " ";
+      var rot = s("tspan", { class: ev.tipo === "merge" ? "gc-merge" : "" }); rot.textContent = ev.rotulo;
+      texto.appendChild(ano); texto.appendChild(rot);
+      if (i === 0) { var ref = s("tspan", { class: "gc-ref" }); ref.textContent = " HEAD"; texto.appendChild(ref); }
+      g.appendChild(texto);
+      svg.appendChild(g);
+    });
+
+    fig.appendChild(svg);
+    fig.hidden = false;
+    desenharUmaVez(fig);
+  }
+
+  // Marca o elemento para animar e dispara uma única vez quando ele aparece na tela
+  function desenharUmaVez(el) {
+    if (reduzirMovimento || !("IntersectionObserver" in window)) return;
+    el.classList.add("armado");
+    var io = new IntersectionObserver(function (entradas) {
+      if (!entradas[0].isIntersecting) return;
+      io.disconnect();
+      el.classList.add("desenhado");
+    }, { threshold: 0.3 });
+    io.observe(el);
   }
 
   /* ============================================================
@@ -464,6 +609,19 @@
     var hoje = new Date();
     var meses = (hoje.getFullYear() - parseInt(p[0], 10)) * 12 + (hoje.getMonth() + 1 - parseInt(p[1], 10));
     return Math.max(0, Math.floor(meses / 12));
+  }
+
+  // "2 anos e 10 meses", do mês de início até o de saída (ou até hoje)
+  function duracao(inicio, fim) {
+    var a = String(inicio).split("-").map(Number);
+    var hoje = new Date();
+    var b = fim ? String(fim).split("-").map(Number) : [hoje.getFullYear(), hoje.getMonth() + 1];
+    var meses = Math.max(1, (b[0] - a[0]) * 12 + (b[1] - a[1]));
+    var anos = Math.floor(meses / 12), resto = meses % 12;
+    var partes = [];
+    if (anos) partes.push(anos + (anos === 1 ? " ano" : " anos"));
+    if (resto) partes.push(resto + (resto === 1 ? " mês" : " meses"));
+    return partes.join(" e ");
   }
 
   function periodo(inicio, fim) {
@@ -486,8 +644,9 @@
       lista.appendChild(h("li", { class: "commit", style: "--cor: var(" + CORES_ROTACAO[i % CORES_ROTACAO.length] + ")" },
         h("p", { class: "commit-meta mono" },
           h("span", { class: "amarelo", text: "commit " + hashCurto(e.empresa + e.inicio) }),
-          atual ? h("span", { class: "ref", text: "(HEAD → main)" }) : null,
-          h("span", { class: "commit-data", text: periodo(e.inicio, e.fim) })),
+          atual ? h("span", { class: "ref ref-atual" }, h("i", { class: "pulso", "aria-hidden": "true" }), "(HEAD → main)") : null,
+          h("span", { class: "commit-data" }, periodo(e.inicio, e.fim),
+            h("span", { class: "commit-duracao", text: " · " + duracao(e.inicio, e.fim) }))),
         h("h3", null, e.cargo, h("span", { class: "commit-empresa", text: " @ " + e.empresa })),
         e.local ? h("p", { class: "commit-local mono", text: e.local }) : null,
         e.resumo ? h("p", { class: "commit-resumo", text: e.resumo }) : null,

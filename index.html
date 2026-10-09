@@ -161,7 +161,12 @@
           <p>Author: <span id="sobre-autor">Alex Matias</span></p>
           <p>Date:&nbsp;&nbsp; <span id="sobre-data"></span></p>
         </div>
-        <div class="git-show-msg" id="sobre-texto"></div>
+        <div class="git-show-corpo">
+          <div class="git-show-msg" id="sobre-texto"></div>
+          <figure class="grafo-carreira" id="grafo-carreira" hidden>
+            <figcaption class="mono"><span class="sinal">$</span> git log --graph --oneline</figcaption>
+          </figure>
+        </div>
         <div class="diff" aria-label="Tecnologias">
           <p class="diff-cab mono">diff --git a/stack b/stack</p>
           <p class="diff-hunk mono">@@ -0,0 +1,<span id="stack-qtd">0</span> @@ ferramentas do dia a dia</p>
