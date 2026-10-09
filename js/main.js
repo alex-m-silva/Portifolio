@@ -88,6 +88,11 @@
     el.scrollIntoView({ behavior: reduzirMovimento ? "auto" : "smooth" });
   }
 
+  // Evento no Google Analytics (se ele estiver ligado; fora do domínio oficial não faz nada)
+  function rastrear(evento, params) {
+    if (typeof window.gtag === "function") window.gtag("event", evento, params || {});
+  }
+
   function corVar(nome) {
     return getComputedStyle(document.documentElement).getPropertyValue(nome).trim();
   }
@@ -795,6 +800,7 @@
   }
 
   function abrirProjeto(p) {
+    rastrear("ver_readme", { projeto: p.nome });
     var alvo = $("#modal-conteudo");
     alvo.textContent = "";
     alvo.appendChild(h("h3", { id: "modal-titulo", text: "# " + p.nome }));
@@ -928,6 +934,7 @@
           "aria-label": "Copiar " + rotulo, "data-dica": "copiar",
           onclick: function () {
             copiar(copia.texto, copia.aviso);
+            rastrear("copiar_contato", { canal: rotulo });
             botao.innerHTML = ICONES.check;
             botao.classList.add("copiado");
             botao.setAttribute("data-dica", "copiado!");
@@ -1075,6 +1082,7 @@
         })
         .then(function () {
           travar(false);
+          rastrear("generate_lead", { metodo: "formulario_contato" });
           form.reset();
           tentou = false;
           verificar();
