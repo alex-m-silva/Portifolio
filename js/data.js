@@ -57,7 +57,7 @@ window.PORTFOLIO = {
     formsubmitId: "",
     github: "https://github.com/alex-m-silva",
     linkedin: "https://www.linkedin.com/in/alex-matias-silva",
-    instagram: "https://www.instagram.com/alex_matias._/",
+    instagram: "", // vazio: não aparece no site
     whatsapp: revelar("ODE5MTE0ODg5NzM1NQ=="), // só números com DDI e DDD
     whatsappMensagem: "Olá, Alex! Vi seu portfólio e gostaria de conversar sobre um projeto.", // texto que já vem escrito no WhatsApp
   },

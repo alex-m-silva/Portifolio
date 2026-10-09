@@ -486,7 +486,9 @@ main { display: block; }
   border-left: 4px solid var(--cor, var(--acento));
   border-radius: var(--raio);
   background: var(--sup);
+  transition: translate 0.45s var(--suave), scale 0.45s var(--suave), border-color 0.3s, box-shadow 0.35s;
 }
+.commit:hover { border-color: var(--borda-forte); border-left-color: var(--cor, var(--acento)); box-shadow: var(--sombra); }
 .commit-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: 13px; color: var(--texto-3); }
 .commit-data { margin-left: auto; }
 .commit h3 { font-size: 21px; }
@@ -538,7 +540,7 @@ main { display: block; }
   background: var(--sup);
   text-decoration: none;
   overflow: hidden;
-  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+  transition: translate 0.45s var(--suave), scale 0.45s var(--suave), border-color 0.25s, box-shadow 0.35s;
 }
 /* Recorte de etiqueta à esquerda */
 .tag::before {
@@ -560,7 +562,7 @@ main { display: block; }
   border-radius: 50%;
   border: 2px solid var(--cor, var(--acento));
 }
-a.tag:hover { transform: translateY(-4px); border-color: var(--cor); box-shadow: var(--sombra); }
+a.tag:hover { border-color: var(--cor); box-shadow: var(--sombra); }
 .tag-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .tag-versao {
   font-family: var(--mono);
@@ -616,7 +618,7 @@ a.tag:hover { transform: translateY(-4px); border-color: var(--cor); box-shadow:
   border: 1px solid var(--borda);
   border-radius: var(--raio);
   background: var(--sup);
-  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+  transition: translate 0.45s var(--suave), scale 0.45s var(--suave), border-color 0.3s, box-shadow 0.35s;
   --mx: 50%;
   --my: 50%;
 }
@@ -631,7 +633,7 @@ a.tag:hover { transform: translateY(-4px); border-color: var(--cor); box-shadow:
   transition: opacity 0.3s;
   pointer-events: none;
 }
-.repo:hover { transform: translateY(-4px); border-color: var(--borda-forte); box-shadow: var(--sombra); }
+.repo:hover { border-color: var(--borda-forte); box-shadow: var(--sombra); }
 .repo:hover::before { opacity: 1; }
 .repo.destaque { border-color: color-mix(in srgb, var(--acento) 35%, var(--borda)); }
 .repo-cab { display: flex; align-items: center; gap: 10px; }
@@ -741,9 +743,59 @@ a.tag:hover { transform: translateY(-4px); border-color: var(--cor); box-shadow:
   text-decoration: none;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.2s, transform 0.2s;
+  transition: border-color 0.2s, translate 0.4s var(--suave), scale 0.4s var(--suave), box-shadow 0.3s;
 }
-.canal:hover { border-color: var(--acento); transform: translateX(4px); }
+.canal:hover { border-color: var(--acento); box-shadow: 0 10px 24px -16px var(--acento); }
+.canais li { position: relative; }
+.canal-com-copiar { padding-right: 52px; }
+
+/* Botão de copiar no canto superior direito: aparece ao passar o mouse */
+.canal-copiar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--borda);
+  background: var(--sup);
+  color: var(--texto-2);
+  cursor: pointer;
+  opacity: 0;
+  scale: 0.8;
+  transition: opacity 0.2s, scale 0.25s var(--suave), color 0.2s, border-color 0.2s, background 0.2s;
+}
+.canal-copiar svg { width: 15px; height: 15px; fill: currentColor; }
+.canais li:hover .canal-copiar,
+.canal-copiar:focus-visible { opacity: 1; scale: 1; }
+.canal-copiar:hover { color: var(--acento); border-color: var(--acento); }
+.canal-copiar.copiado { opacity: 1; scale: 1; color: var(--acento-texto); background: var(--acento); border-color: var(--acento); }
+.canal-copiar::after {
+  content: attr(data-dica);
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--texto);
+  color: var(--bg);
+  font-family: var(--mono);
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  translate: 0 4px;
+  pointer-events: none;
+  transition: opacity 0.2s, translate 0.2s;
+}
+.canal-copiar:hover::after, .canal-copiar.copiado::after { opacity: 1; translate: 0 0; }
+/* Telas de toque não têm hover: o botão fica sempre visível */
+@media (hover: none) {
+  .canal-copiar { opacity: 1; scale: 1; }
+}
 .canal svg { width: 20px; height: 20px; fill: currentColor; flex: none; color: var(--acento); }
 .canal-txt { display: grid; min-width: 0; }
 .canal-txt b { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--texto-3); }
@@ -909,6 +961,44 @@ dialog[open] { animation: surgir 0.25s ease; }
 }
 .anima-ativa .anima-brilho::before { animation: brilho-passa 0.8s ease-out calc(var(--atraso, 0ms) + 0.05s) both; }
 @keyframes brilho-passa { to { transform: translate3d(240%, 0, 0); } }
+
+/* ============================================================
+   Hover dos cards: sobe, cresce de leve e dá uma balançada
+   ------------------------------------------------------------
+   Usa as propriedades individuais translate / scale / rotate,
+   separadas do `transform` da animação de entrada. O balanço
+   termina em 0°, então tirar o mouse no meio não dá tranco.
+   ============================================================ */
+@media (hover: hover) {
+  a.tag:hover, .repo:hover { translate: 0 -6px; scale: 1.02; animation: balanco 0.7s var(--suave); }
+  .commit:hover { translate: 0 -3px; scale: 1.008; animation: balanco-leve 0.7s var(--suave); }
+  .canal:hover { translate: 0 -2px; scale: 1.015; animation: balanco 0.6s var(--suave); }
+}
+@keyframes balanco {
+  0% { rotate: 0deg; }
+  25% { rotate: -1.1deg; }
+  50% { rotate: 0.7deg; }
+  72% { rotate: -0.35deg; }
+  88% { rotate: 0.12deg; }
+  100% { rotate: 0deg; }
+}
+@keyframes balanco-leve {
+  0% { rotate: 0deg; }
+  30% { rotate: -0.35deg; }
+  60% { rotate: 0.2deg; }
+  100% { rotate: 0deg; }
+}
+
+/* ============================================================
+   Entrada do topo na primeira pintura: o nome é digitado e o
+   menu desce item por item (classe .intro posta em js/tema.js)
+   ============================================================ */
+.intro #marca-usuario { visibility: hidden; }
+.intro .nav li, .intro .topo-acoes > * { opacity: 0; translate: 0 -10px; }
+.intro-menu .nav li, .intro-menu .topo-acoes > * {
+  animation: menu-desce 0.6s var(--suave) var(--atraso-menu, 0ms) both;
+}
+@keyframes menu-desce { from { opacity: 0; translate: 0 -10px; } to { opacity: 1; translate: 0 0; } }
 
 @media (prefers-reduced-motion: reduce) {
   .anima { opacity: 1; transform: none; }

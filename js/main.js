@@ -61,13 +61,13 @@
     toastTimer = setTimeout(function () { t.classList.remove("mostrar"); }, 2400);
   }
 
+  // O aviso aparece na hora do clique; se a API moderna falhar, cai no método antigo
   function copiar(texto, aviso) {
-    function ok() { toast(aviso || "Copiado!"); }
+    toast(aviso || "Copiado!");
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(texto).then(ok, function () { copiarAntigo(texto); ok(); });
+      navigator.clipboard.writeText(texto).catch(function () { copiarAntigo(texto); });
     } else {
       copiarAntigo(texto);
-      ok();
     }
   }
   function copiarAntigo(texto) {
@@ -101,6 +101,7 @@
     linkedin: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4v11H3v-11Zm6.5 0h3.83v1.5h.05c.53-1 1.84-2.06 3.79-2.06 4.05 0 4.8 2.67 4.8 6.13v5.43h-4v-4.82c0-1.15-.02-2.63-1.6-2.63-1.6 0-1.85 1.25-1.85 2.55v4.9h-4v-11Z"/></svg>',
     whatsapp: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.6-.3Z"/></svg>',
     instagram: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"/></svg>',
+    check: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>',
     copiar: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 6.75C0 5.78.78 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .14.11.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Zm5-5C5 .78 5.78 0 6.75 0h7.5C15.22 0 16 .78 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .14.11.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>',
   };
 
@@ -131,6 +132,37 @@
     });
 
     digitar($("#digitando"), p.funcoes);
+    introTopo();
+  }
+
+  // Entrada do topo ao carregar: o nome em "~/alex-matias" é digitado letra a letra
+  // enquanto os itens do menu descem um a um. No fim fica tudo como sempre foi.
+  function introTopo() {
+    var raiz = document.documentElement;
+    if (!raiz.classList.contains("intro")) return;
+    var alvo = $("#marca-usuario");
+    var nome = alvo.textContent;
+    var itens = $$(".nav li, .topo-acoes > *");
+
+    alvo.textContent = "";
+    alvo.style.visibility = "visible";
+    itens.forEach(function (el, i) { el.style.setProperty("--atraso-menu", 380 + i * 70 + "ms"); });
+    raiz.classList.add("intro-menu");
+
+    var letra = 0;
+    setTimeout(function digita() {
+      alvo.textContent = nome.slice(0, ++letra);
+      if (letra < nome.length) setTimeout(digita, 45 + Math.random() * 45); // ritmo de quem digita
+    }, 250);
+
+    // Tira as classes quando a última animação do menu acabar
+    var duracao = 380 + itens.length * 70 + 650;
+    setTimeout(function () {
+      raiz.classList.remove("intro", "intro-menu");
+      alvo.style.removeProperty("visibility");
+      itens.forEach(function (el) { el.style.removeProperty("--atraso-menu"); });
+      alvo.textContent = nome;
+    }, Math.max(duracao, 250 + nome.length * 90 + 100));
   }
 
   // Efeito de digitação: escreve, espera, apaga e passa para a próxima frase
@@ -700,22 +732,40 @@
     var c = D.contato;
     var ul = $("#canais");
 
-    function canal(icone, rotulo, valor, attrs) {
+    // `copia` (opcional): { texto, aviso } mostra um botão de copiar no canto do card
+    function canal(icone, rotulo, valor, attrs, copia) {
       var tag = attrs.href ? "a" : "button";
       if (tag === "button") attrs.type = "button";
-      attrs.class = "canal";
+      attrs.class = "canal" + (copia ? " canal-com-copiar" : "");
       attrs.html = icone;
       var el = h(tag, attrs);
       el.appendChild(h("span", { class: "canal-txt" }, h("b", { text: rotulo }), h("span", { text: valor })));
-      ul.appendChild(h("li", null, el));
+      var li = h("li", null, el);
+      if (copia) {
+        var botao = h("button", {
+          type: "button", class: "canal-copiar", html: ICONES.copiar,
+          "aria-label": "Copiar " + rotulo, "data-dica": "copiar",
+          onclick: function () {
+            copiar(copia.texto, copia.aviso);
+            botao.innerHTML = ICONES.check;
+            botao.classList.add("copiado");
+            botao.setAttribute("data-dica", "copiado!");
+            clearTimeout(botao._t);
+            botao._t = setTimeout(function () {
+              botao.innerHTML = ICONES.copiar;
+              botao.classList.remove("copiado");
+              botao.setAttribute("data-dica", "copiar");
+            }, 1800);
+          },
+        });
+        li.appendChild(botao);
+      }
+      ul.appendChild(li);
     }
 
-    if (c.email) {
-      canal(ICONES.email, "email", c.email, { href: "mailto:" + c.email });
-      canal(ICONES.copiar, "copiar email", "clique para copiar", { onclick: function () { copiar(c.email, "E-mail copiado!"); } });
-    }
-    if (c.github) canal(ICONES.github, "origin", c.github.replace(/^https?:\/\/(www\.)?/, ""), { href: c.github, target: "_blank", rel: "noopener noreferrer" });
-    if (c.linkedin) canal(ICONES.linkedin, "linkedin", c.linkedin.replace(/^https?:\/\/(www\.)?/, ""), { href: c.linkedin, target: "_blank", rel: "noopener noreferrer" });
+    if (c.email) canal(ICONES.email, "email", c.email, { href: "mailto:" + c.email }, { texto: c.email, aviso: "E-mail copiado!" });
+    if (c.github) canal(ICONES.github, "origin", c.github.replace(/^https?:\/\/(www\.)?/, ""), { href: c.github, target: "_blank", rel: "noopener noreferrer" }, { texto: c.github, aviso: "Link do GitHub copiado!" });
+    if (c.linkedin) canal(ICONES.linkedin, "linkedin", c.linkedin.replace(/^https?:\/\/(www\.)?/, ""), { href: c.linkedin, target: "_blank", rel: "noopener noreferrer" }, { texto: c.linkedin, aviso: "Link do LinkedIn copiado!" });
     if (c.instagram) canal(ICONES.instagram, "instagram", "@" + c.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/+$/, ""), { href: c.instagram, target: "_blank", rel: "noopener noreferrer" });
     if (c.whatsapp) {
       var num = String(c.whatsapp).replace(/\D/g, "");
@@ -743,7 +793,8 @@
         campos[k].setAttribute("aria-invalid", !ok && tentou ? "true" : "false");
         if (!ok) tudoOk = false;
       });
-      $("#pr-autor").textContent = campos.nome.value.trim().split(/\s+/)[0] || "visitante";
+      var primeiroNome = campos.nome.value.trim().split(/\s+/)[0];
+      $("#pr-saudacao").textContent = (primeiroNome ? "Olá, " + primeiroNome + "! " : "") + "Sua mensagem chega direto no meu e-mail, e eu respondo pessoalmente.";
       return tudoOk;
     }
 
@@ -797,7 +848,7 @@
       tela("Revisar pull request",
         h("p", { class: "pr-rev-cab mono" },
           h("span", { class: "pr-badge", text: "● Open" }),
-          h("span", { text: " #" + numero + " · " + msg.nome + " quer fazer merge em " }),
+          h("span", { text: " #" + numero + " · de " + msg.nome + " para " }),
           h("code", { text: "alex:main" })),
         h("h3", { class: "pr-rev-titulo", id: "pr-modal-titulo", text: msg.titulo }),
         h("dl", { class: "pr-rev-dados" },
