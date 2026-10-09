@@ -673,33 +673,55 @@
   var PASSO_CASCATA = 75;   // ms entre um card e o próximo
   var MAX_CASCATA = 7;      // a partir daqui todos entram juntos, para não demorar
 
+  var observadorSaida = null;
+
+  // Deixa o card pronto para animar: invisível, abaixo e com o brilho
+  function armar(el) {
+    if (el.classList.contains("anima")) return;
+    el.classList.add("anima", "anima-" + el.dataset.anima);
+    if (el.dataset.anima === "card") ($(".tag", el) || el).appendChild(h("span", { class: "anima-brilho", "aria-hidden": "true" }));
+  }
+
+  function desarmar(el) {
+    el.classList.remove("anima", "anima-card", "anima-commit", "anima-ativa");
+    el.style.removeProperty("--atraso");
+    var brilho = $(".anima-brilho", el);
+    if (brilho) brilho.remove();
+  }
+
   function animarEntrada(el, tipo) {
     if (reduzirMovimento || !("IntersectionObserver" in window)) return;
     if (!observadorCards) {
+      // Entrada: card entrou na tela → anima (em cascata com os que entraram junto)
       observadorCards = new IntersectionObserver(function (entradas) {
-        var chegando = entradas.filter(function (e) { return e.isIntersecting; }).map(function (e) { return e.target; });
-        chegando.forEach(function (alvo) { observadorCards.unobserve(alvo); });
-        // Ordem visual: linha por linha, da esquerda para a direita
-        chegando.map(function (alvo) { return { alvo: alvo, r: alvo.getBoundingClientRect() }; })
+        entradas.filter(function (e) { return e.isIntersecting && e.target.classList.contains("anima") && !e.target.classList.contains("anima-ativa"); })
+          .map(function (e) { return { alvo: e.target, r: e.boundingClientRect }; })
+          // Ordem visual: linha por linha, da esquerda para a direita
           .sort(function (a, b) { return Math.round(a.r.top / 40) - Math.round(b.r.top / 40) || a.r.left - b.r.left; })
           .forEach(function (item, i) {
             item.alvo.style.setProperty("--atraso", Math.min(i, MAX_CASCATA) * PASSO_CASCATA + "ms");
             item.alvo.classList.add("anima-ativa");
           });
       }, { rootMargin: "0px 0px -6% 0px", threshold: 0.08 });
+
+      // Saída: card saiu da tela por BAIXO (a pessoa rolou para cima) → arma de novo,
+      // para animar outra vez quando ela descer. Saindo por cima, fica como está.
+      observadorSaida = new IntersectionObserver(function (entradas) {
+        entradas.forEach(function (e) {
+          if (!e.isIntersecting && e.boundingClientRect.top > 0) {
+            desarmar(e.target);
+            armar(e.target);
+          }
+        });
+      }, { threshold: 0 });
     }
-    el.classList.add("anima", "anima-" + tipo);
-    // Brilho que passa uma vez pelo card (dentro do próprio cartão, que tem as bordas arredondadas)
-    if (tipo === "card") ($(".tag", el) || el).appendChild(h("span", { class: "anima-brilho", "aria-hidden": "true" }));
-    el.addEventListener("animationend", function fim(e) {
-      if (e.target !== el) return; // ignora as animações internas (barra, brilho)
-      el.removeEventListener("animationend", fim);
-      el.classList.remove("anima", "anima-card", "anima-commit", "anima-ativa");
-      el.style.removeProperty("--atraso");
-      var brilho = $(".anima-brilho", el);
-      if (brilho) brilho.remove();
+    el.dataset.anima = tipo;
+    armar(el);
+    el.addEventListener("animationend", function (e) {
+      if (e.target === el) desarmar(el); // ignora as animações internas (barra, brilho)
     });
     observadorCards.observe(el);
+    observadorSaida.observe(el);
   }
 
   /* ============================================================
@@ -1025,6 +1047,8 @@
         if (!e.isIntersecting) return;
         e.target.classList.add("visivel");
         io.unobserve(e.target);
+        var alvo = e.target;
+        setTimeout(function () { alvo.style.transitionDelay = ""; }, 1000);
       });
     }, { rootMargin: "0px 0px -8% 0px" });
     alvos.forEach(function (el, i) {
