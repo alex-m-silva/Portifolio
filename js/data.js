@@ -206,6 +206,22 @@ window.PORTFOLIO = {
       destaque: true,
     },
     {
+      nome: "pdf-para-epub",
+      resumo: "Conversor online de PDF para EPUB, para ler no Kindle, Kobo e apps de leitura. Front estático no GitHub Pages e API em Python que roda o Calibre num container Docker.",
+      detalhes: [
+        "API FastAPI que recebe o PDF, roda o ebook-convert do Calibre e devolve o EPUB",
+        "Rate limit por IP, limite de conversões simultâneas, timeout e validação de tamanho do upload",
+        "Arquivos temporários com nome aleatório, apagados após a resposta e numa limpeza periódica",
+        "Front em HTML, CSS e JavaScript com fila de arquivos, arrastar e soltar e status do servidor",
+        "Publicação separada: páginas no GitHub Pages e API em Docker no Render",
+      ],
+      tags: ["Python", "FastAPI", "Docker", "Calibre", "JavaScript"],
+      linguagens: { "HTML": 40, "CSS": 25, "Python": 20, "JavaScript": 15 },
+      repo: "https://github.com/alex-m-silva/pdf-para-epub",
+      demo: "https://alex-m-silva.github.io/pdf-para-epub/",
+      destaque: true,
+    },
+    {
       nome: "ProjetoOficina",
       resumo: "O sistema que deu origem à família: ordens de serviço, clientes e veículos para oficinas mecânicas.",
       detalhes: [

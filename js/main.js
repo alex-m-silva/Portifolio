@@ -110,7 +110,7 @@
     copiar: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 6.75C0 5.78.78 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .14.11.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Zm5-5C5 .78 5.78 0 6.75 0h7.5C15.22 0 16 .78 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .14.11.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>',
   };
 
-  var CORES_LINGUAGEM = { "C#": "--lilas", "SQL": "--ambar", "WiX": "--coral", "JavaScript": "--ambar", "TypeScript": "--ceu", "HTML": "--coral", "CSS": "--ceu" };
+  var CORES_LINGUAGEM = { "C#": "--lilas", "SQL": "--ambar", "WiX": "--coral", "JavaScript": "--ambar", "TypeScript": "--ceu", "HTML": "--coral", "CSS": "--ceu", "Python": "--menta" };
   var CORES_ROTACAO = ["--menta", "--ceu", "--lilas", "--ambar", "--coral"];
 
   /* ============================================================
