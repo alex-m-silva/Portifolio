@@ -19,7 +19,9 @@ foto assets/icon-192.png         192 192 "icone.html?tam=192"
 foto assets/icon-512.png         512 512 "icone.html?tam=512"
 foto assets/icon-maskable-512.png 512 512 "icone.html?tam=512&maskable=1"
 foto assets/apple-touch-icon.png 180 180 "icone.html?tam=180&maskable=1"
+foto assets/favicon-16.png        16  16 "icone.html?tam=16"
 foto assets/favicon-32.png        32  32 "icone.html?tam=32"
+foto assets/favicon-48.png        48  48 "icone.html?tam=48"
 
 # Uma imagem de compartilhamento por projeto (assets/og/<slug>.png), lida pelo build
 mkdir -p assets/og
@@ -27,12 +29,19 @@ for slug in $(node -e "global.window={};global.atob=b=>Buffer.from(b,'base64').t
   foto "assets/og/$slug.png" 1200 630 "og-projeto.html?slug=$slug"
 done
 
-# favicon.ico com o PNG de 32px dentro (formato aceito por todos os navegadores atuais)
+# favicon.ico com 16, 32 e 48 px (PNG dentro do .ico). O Google só usa ícones com tamanho
+# múltiplo de 48 px, por isso o de 48 é obrigatório.
 python - <<'PY'
 import struct
-png = open("assets/favicon-32.png", "rb").read()
-cab = struct.pack("<HHH", 0, 1, 1) + struct.pack("<BBBBHHII", 32, 32, 0, 0, 1, 32, len(png), 6 + 16)
-open("favicon.ico", "wb").write(cab + png)
-print("gerado favicon.ico")
+tamanhos = [16, 32, 48]
+pngs = [open("assets/favicon-%d.png" % t, "rb").read() for t in tamanhos]
+cab = struct.pack("<HHH", 0, 1, len(pngs))
+desloc = 6 + 16 * len(pngs)
+entradas = b""
+for t, png in zip(tamanhos, pngs):
+    entradas += struct.pack("<BBBBHHII", t, t, 0, 0, 1, 32, len(png), desloc)
+    desloc += len(png)
+open("favicon.ico", "wb").write(cab + entradas + b"".join(pngs))
+print("gerado favicon.ico (16, 32 e 48 px)")
 PY
-rm assets/favicon-32.png
+rm assets/favicon-16.png assets/favicon-32.png assets/favicon-48.png
