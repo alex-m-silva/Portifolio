@@ -213,7 +213,7 @@ window.PORTFOLIO = {
       apresentacao: {
         pasta: "assets/projetos/gestao-comercial/",
         video: "apresentacao.mp4",
-        capa: "capa-video.jpg",
+        capa: "capa-video.webp",
         intro: "O cliente chega com a impressora, sai um orçamento, ele aprova pelo WhatsApp, a loja faz o serviço, finaliza e o estoque se ajusta sozinho. Bora dar uma volta pelas telas:",
         telas: [
           { arquivo: "01-pedidos", titulo: "Pedidos e orçamentos", texto: "A tela que fica aberta o dia todo. Vermelho é orçamento esperando resposta, verde é aprovado, azul é finalizado." },

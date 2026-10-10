@@ -228,7 +228,7 @@ function gerarIndex(D, artigos) {
 /* ============================================================
    Moldura comum das páginas internas (projetos e artigos)
    ============================================================ */
-function cabecalho({ titulo, descricao, url, imagem, imagemAlt, tipoOg, jsonLd, noindex }) {
+function cabecalho({ titulo, descricao, url, imagem, imagemAlt, tipoOg, jsonLd, noindex, preloadImagem }) {
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -259,10 +259,11 @@ function cabecalho({ titulo, descricao, url, imagem, imagemAlt, tipoOg, jsonLd, 
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css">
+  <!-- Fontes no próprio site (sem esperar o Google Fonts): pré-carregadas para o texto aparecer logo -->
+  <link rel="preload" href="/assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/style.css">${preloadImagem ? `
+  <link rel="preload" href="${preloadImagem}" as="image" fetchpriority="high">` : ""}
   <script src="/js/tema.js"></script>
   <script async src="/js/analytics.js"></script>
   <script defer src="/js/pagina.js"></script>
@@ -271,7 +272,7 @@ function cabecalho({ titulo, descricao, url, imagem, imagemAlt, tipoOg, jsonLd, 
 <body class="pagina-interna">
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
   <header class="topo">
-    <a class="marca" href="/" aria-label="Início">
+    <a class="marca" href="/" aria-label="~/alex-matias: ir para o início">
       <span class="marca-prompt">~/</span><span>alex-matias</span><span class="marca-cursor" aria-hidden="true"></span>
     </a>
     <nav class="nav" aria-label="Seções">
@@ -393,7 +394,7 @@ function paginaProjeto(p, D) {
         <ol class="tour">
           ${a.telas.map((t, i) => `<li class="tela">
             <a class="tela-img" href="${pasta}telas/${t.arquivo}.jpg" data-indice="${i}" data-titulo="${esc(t.titulo)}" data-texto="${esc(t.texto)}" aria-label="Ampliar: ${esc(t.titulo)}">
-              <img src="${pasta}telas/mini/${t.arquivo}.jpg" alt="${esc(p.nome)}: ${esc(t.titulo)}" loading="lazy" width="720" height="405">
+              <img src="${pasta}telas/mini/${t.arquivo}.webp" alt="${esc(p.nome)}: ${esc(t.titulo)}" loading="lazy" width="720" height="405">
               <span class="tela-zoom" aria-hidden="true">${ICONE_ZOOM}</span>
             </a>
             <div class="tela-txt"><b><span class="tela-num mono">${String(i + 1).padStart(2, "0")}</span>${esc(t.titulo)}</b><span>${esc(t.texto)}</span></div>
@@ -402,7 +403,8 @@ function paginaProjeto(p, D) {
       </section>` : "";
 
   const outros = D.projetos.filter((x) => x !== p);
-  const html = cabecalho({ titulo, descricao, url, imagem: imagemDoProjeto(p), imagemAlt: `${p.nome}: ${p.resumo}`, jsonLd }) + `
+  const preloadImagem = a && a.capa ? `${pasta}${a.capa}` : "";
+  const html = cabecalho({ titulo, descricao, url, imagem: imagemDoProjeto(p), imagemAlt: `${p.nome}: ${p.resumo}`, jsonLd, preloadImagem }) + `
   <main id="conteudo" class="pagina">
     ${migalhas(trilha)}
     <header class="pagina-cab">
@@ -664,6 +666,54 @@ function gerarRobots() {
 }
 
 /* ============================================================
+   5. Otimização: CSS compactado e versão nos arquivos
+   ------------------------------------------------------------
+   O CSS perde comentários e espaços (os textos entre aspas ficam
+   intactos). Cada referência a css/*.css e js/*.js nas páginas
+   ganha "?v=<hash do conteúdo>": o Vercel pode guardar esses
+   arquivos em cache por um ano, e quando um deles muda o
+   endereço muda junto e o navegador baixa a versão nova.
+   ============================================================ */
+function minificarCss(css) {
+  // Separa os textos entre aspas, que não podem ser mexidos (ex.: content: " →")
+  return css.split(/("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')/).map((parte, i) => {
+    if (i % 2 === 1) return parte;
+    return parte
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\s+/g, " ")
+      .replace(/\s*([{};,])\s*/g, "$1")
+      .replace(/:\s+/g, ":") // só o espaço DEPOIS dos dois-pontos: ".x :not(a)" continua igual
+      .replace(/;}/g, "}");
+  }).join("").trim();
+}
+
+function otimizarArquivos() {
+  const crypto = require("crypto");
+  const css = path.join(DIST, "css", "style.css");
+  const original = fs.statSync(css).size;
+  fs.writeFileSync(css, minificarCss(fs.readFileSync(css, "utf8")));
+  const versao = {};
+  const arquivos = ["css/style.css"].concat(fs.readdirSync(path.join(DIST, "js")).map((f) => "js/" + f));
+  arquivos.forEach((rel) => {
+    versao[rel] = crypto.createHash("sha1").update(fs.readFileSync(path.join(DIST, rel))).digest("hex").slice(0, 8);
+  });
+  const paginas = [];
+  (function varrer(dir) {
+    fs.readdirSync(dir, { withFileTypes: true }).forEach((d) => {
+      const p = path.join(dir, d.name);
+      if (d.isDirectory()) varrer(p);
+      else if (d.name.endsWith(".html")) paginas.push(p);
+    });
+  })(DIST);
+  paginas.forEach((pagina) => {
+    const html = fs.readFileSync(pagina, "utf8").replace(/(href|src)="(\/?)(css\/[\w.-]+\.css|js\/[\w.-]+\.js)"/g,
+      (m, attr, barra, rel) => (versao[rel] ? `${attr}="${barra}${rel}?v=${versao[rel]}"` : m));
+    fs.writeFileSync(pagina, html);
+  });
+  return { cssAntes: original, cssDepois: fs.statSync(css).size, paginas: paginas.length };
+}
+
+/* ============================================================
    Execução
    ============================================================ */
 function main() {
@@ -683,11 +733,13 @@ function main() {
   if (publicados.length) paginaIndiceArtigos(publicados);
   const n = gerarSitemap(D, artigos);
   gerarRobots();
+  const otim = otimizarArquivos();
 
   console.log(`build ok em ${Date.now() - inicio} ms → dist/`);
   console.log(`  páginas de projeto: ${D.projetos.map((p) => "/projetos/" + p.slug).join(", ")}`);
   console.log(`  artigos: ${publicados.length} publicado(s)` + (COM_RASCUNHOS ? `, ${artigos.length - publicados.length} rascunho(s) gerado(s) para revisão` : ""));
   console.log(`  sitemap: ${n} endereço(s)`);
+  console.log(`  css: ${(otim.cssAntes / 1024).toFixed(1)} KB → ${(otim.cssDepois / 1024).toFixed(1)} KB; versão nos arquivos de ${otim.paginas} página(s)`);
 }
 
 main();

@@ -38,7 +38,7 @@ Todo o conteúdo fica em [`js/data.js`](js/data.js):
 | `formacao` | `curso`, `instituicao`, `inicio` e `fim` |
 | `certificados` | `titulo`, `emissor`, `data` de conclusão (`"AAAA-MM"`), `categoria` (vira o filtro), `skills` e `url` de verificação |
 | `projetos` | `nome`, `slug` (endereço da página), `resumo`, `seo` (`titulo` até ~60 caracteres, `descricao` até ~155, `categoria` e `sistema` para o Google), `sobre` (texto da página, um parágrafo por item), `detalhes`, `tags`, `linguagens` (%), `repo` (vazio = privado), `demo` e `destaque` |
-| `projetos[].apresentacao` | opcional: `pasta`, `video`, `capa`, `intro` e `telas` (`arquivo`, `titulo`, `texto`). Mostra o vídeo e o tour pelas telas, no README em janela e na página do projeto. A pasta tem `telas/<arquivo>.jpg` (1920×1080) e `telas/mini/<arquivo>.jpg` (720px). Link direto para a demo: `/#demo-<nome do projeto>` |
+| `projetos[].apresentacao` | opcional: `pasta`, `video`, `capa`, `intro` e `telas` (`arquivo`, `titulo`, `texto`). Mostra o vídeo e o tour pelas telas, no README em janela e na página do projeto. A pasta tem `telas/<arquivo>.jpg` (1920×1080) e `telas/mini/<arquivo>.webp` (720px). Link direto para a demo: `/#demo-<nome do projeto>` |
 
 O formulário de contato envia pelo [FormSubmit](https://formsubmit.co) usando o código apelido `formsubmitId`, para o e-mail não aparecer na requisição. A ativação do FormSubmit é por domínio: se o site mudar de endereço, a primeira mensagem dispara um novo e-mail de ativação.
 

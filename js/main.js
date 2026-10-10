@@ -156,7 +156,10 @@
     var p = D.perfil;
     $("#marca-usuario").textContent = p.usuario;
     $("#hero-nome").textContent = p.nome;
-    $("#hero-frase").textContent = p.frase;
+    // A frase já vem no HTML (build). Regravar o mesmo texto faria o navegador "pintar de novo"
+    // o maior elemento do topo no fim do carregamento, piorando o LCP.
+    var frase = $("#hero-frase");
+    if (frase.textContent.trim() !== p.frase) frase.textContent = p.frase;
     $("#hero-hash").textContent = hashCurto(p.nome + p.cargo);
 
     var numeros = [
@@ -888,7 +891,7 @@
           type: "button", class: "tela-img", "aria-label": "Ampliar: " + t.titulo,
           onclick: function () { abrirGaleria(a, i); },
         },
-          h("img", { src: pasta + "telas/mini/" + t.arquivo + ".jpg", alt: t.titulo, loading: "lazy", width: 720, height: 405 }),
+          h("img", { src: pasta + "telas/mini/" + t.arquivo + ".webp", alt: t.titulo, loading: "lazy", width: 720, height: 405 }),
           h("span", { class: "tela-zoom", "aria-hidden": "true", html: ICONES.zoom })),
         h("div", { class: "tela-txt" },
           h("b", null, h("span", { class: "tela-num mono", text: num }), t.titulo),
