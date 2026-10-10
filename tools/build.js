@@ -3,16 +3,20 @@
  * ============================================================
  *  Build do portfólio
  * ============================================================
- *  Gera o site final em dist/ a partir dos arquivos da raiz e de js/data.js:
+ *  Gera o site final em dist/ a partir dos arquivos da raiz, de js/data.js
+ *  e de js/i18n.js, em português ("/") e inglês ("/en"):
  *
  *  1. index.html com o conteúdo já no HTML (sobre, stack, experiência, formação,
  *     certificados e projetos), para o Google ler sem depender do JavaScript.
  *     No navegador, o main.js monta tudo de novo por cima (animações, filtros etc.).
- *  2. Uma página por projeto em /projetos/<slug>, com texto, vídeo, galeria de telas,
- *     dados estruturados e links para os outros projetos.
- *  3. Artigos em /artigos/<slug> a partir de artigos/*.md (os marcados como
- *     rascunho só são gerados com --rascunhos, sem índice e fora do sitemap).
- *  4. sitemap.xml e robots.txt.
+ *     A versão em inglês traduz os textos marcados com data-t / data-ta.
+ *  2. Uma página por projeto em /projetos/<slug> e /en/projetos/<slug>, com texto,
+ *     vídeo, galeria de telas, dados estruturados e links para os outros projetos.
+ *  3. Artigos em /artigos/<slug> a partir de artigos/*.md, só em português (os
+ *     marcados como rascunho só são gerados com --rascunhos, sem índice e fora do sitemap).
+ *  4. sitemap.xml (com as versões de cada idioma) e robots.txt.
+ *
+ *  Para antes de tudo se algum texto marcado não tiver tradução em js/i18n.js.
  *
  *  Uso:  node tools/build.js              (o Vercel roda isto a cada deploy)
  *        node tools/build.js --rascunhos  (inclui os rascunhos, para revisar)
@@ -29,6 +33,7 @@ const vm = require("vm");
 const RAIZ = path.resolve(__dirname, "..");
 const DIST = path.join(RAIZ, "dist");
 const SITE = "https://www.alexmatias.dev.br";
+const IDIOMAS = ["pt", "en"];
 const COM_RASCUNHOS = process.argv.includes("--rascunhos");
 const HOJE = new Date().toISOString().slice(0, 10);
 
@@ -54,27 +59,6 @@ function hashCurto(texto) {
     h = Math.imul(h, 0x01000193);
   }
   return ("0000000" + (h >>> 0).toString(16)).slice(-7);
-}
-
-const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-function formatarMes(aaaamm) {
-  const p = String(aaaamm || "").split("-");
-  const m = parseInt(p[1], 10);
-  if (!p[0] || !m) return aaaamm || "";
-  return MESES[m - 1] + " " + p[0];
-}
-const periodo = (ini, fim) => formatarMes(ini) + " → " + (fim ? formatarMes(fim) : "hoje");
-
-function duracao(inicio, fim) {
-  const a = String(inicio).split("-").map(Number);
-  const h = new Date();
-  const b = fim ? String(fim).split("-").map(Number) : [h.getFullYear(), h.getMonth() + 1];
-  const meses = Math.max(1, (b[0] - a[0]) * 12 + (b[1] - a[1]));
-  const anos = Math.floor(meses / 12), resto = meses % 12;
-  const partes = [];
-  if (anos) partes.push(anos + (anos === 1 ? " ano" : " anos"));
-  if (resto) partes.push(resto + (resto === 1 ? " mês" : " meses"));
-  return partes.join(" e ");
 }
 
 // "GestaoComercial" → "gestao-comercial"
@@ -107,14 +91,78 @@ function preencher(html, nome, conteudo) {
   return html.slice(0, a + ini.length) + conteudo + html.slice(b);
 }
 
+function trocarUmaVez(html, de, para) {
+  if (html.split(de).length !== 2) throw new Error(`Esperava achar uma vez no index.html: ${de}`);
+  return html.replace(de, para);
+}
+
+/* ============================================================
+   Idiomas
+   ------------------------------------------------------------
+   `I` é o ajudante do idioma da página que está sendo gerada
+   (vem de js/i18n.js): I.t(), I.periodo(), I.duracao() etc.
+   ============================================================ */
+const I18N = (function () {
+  const ctx = { window: { document: { documentElement: { lang: "pt" } } } };
+  vm.runInNewContext(ler("js/i18n.js"), ctx, { filename: "js/i18n.js" });
+  return ctx.window.I18N;
+})();
+let I = I18N.criar("pt");
+const tx = (s, vars) => I.t(s, vars);
+
+// Endereço de uma página num idioma. caminho: "/" ou "/projetos/x". O inglês da página
+// inicial é "/en" (sem barra no fim, como o Vercel serve com trailingSlash: false).
+const caminhoEm = (lang, caminho) => (lang === "en" ? (caminho === "/" ? "/en" : "/en" + caminho) : caminho);
+const urlEm = (lang, caminho) => SITE + caminhoEm(lang, caminho);
+const hreflang = (lang) => (lang === "en" ? "en" : "pt-BR");
+const ogLocale = (lang) => (lang === "en" ? "en_US" : "pt_BR");
+
+// Tags <link rel="alternate" hreflang> de uma página que existe nos dois idiomas
+const tagsAlternadas = (caminho) => IDIOMAS.map((l) => `  <link rel="alternate" hreflang="${hreflang(l)}" href="${urlEm(l, caminho)}">`).join("\n") +
+  `\n  <link rel="alternate" hreflang="x-default" href="${urlEm("pt", caminho)}">`;
+
+// Seletor pt | en do topo. `caminhos`: endereço desta página em cada idioma (ou da página inicial)
+function seletorIdioma(lang, caminhos) {
+  return `<div class="idiomas mono" role="group" aria-label="${esc(tx("Idioma"))}">` +
+    IDIOMAS.map((l) => `<a href="${caminhos[l]}" hreflang="${hreflang(l)}" lang="${hreflang(l)}" data-idioma="${l}"${l === lang ? ' aria-current="true"' : ""}>${l}</a>`).join("\n        ") +
+    `</div>`;
+}
+
+// Traduz os textos fixos marcados no HTML (data-t: o texto do elemento; data-ta: atributos)
+// e tira as marcas. Para se faltar tradução, para nada ir ao ar pela metade.
+function traduzirMarcados(html, lang) {
+  const EN = I18N.EN;
+  const traduzir = (txt) => {
+    if (lang !== "en") return txt;
+    const chave = txt.trim();
+    if (!Object.prototype.hasOwnProperty.call(EN, chave)) throw new Error(`Sem tradução em js/i18n.js: "${chave}"`);
+    return txt.replace(chave, EN[chave]);
+  };
+  html = html.replace(/<([a-z][a-z0-9]*)\b([^>]*?)\sdata-t(?=[\s>])([^>]*)>([^<]*)<\/\1>/g,
+    (m, tag, antes, depois, texto) => `<${tag}${antes}${depois}>${traduzir(texto)}</${tag}>`);
+  html = html.replace(/<([a-z][a-z0-9]*)\b([^>]*?)\sdata-ta="([^"]*)"([^>]*)>/g, (m, tag, antes, lista, depois) => {
+    let attrs = antes + depois;
+    lista.split(/\s+/).filter(Boolean).forEach((nome) => {
+      attrs = attrs.replace(new RegExp("(\\s" + nome + '=")([^"]*)(")'), (mm, a, valor, b) => a + esc(traduzir(valor.replace(/&quot;/g, '"'))) + b);
+    });
+    return `<${tag}${attrs}>`;
+  });
+  if (/\sdata-t(?=[\s>])|\sdata-ta=/.test(html)) throw new Error("Sobrou marca data-t sem tratar (elemento com outro elemento dentro?)");
+  return html;
+}
+
 /* ============================================================
    Dados
    ============================================================ */
-function carregarDados() {
+function carregarDadosBrutos() {
   const ctx = { window: {}, atob: (b) => Buffer.from(b, "base64").toString("binary") };
   vm.runInNewContext(ler("js/data.js"), ctx, { filename: "js/data.js" });
-  const D = ctx.window.PORTFOLIO;
-  if (!D) throw new Error("js/data.js não definiu window.PORTFOLIO");
+  if (!ctx.window.PORTFOLIO) throw new Error("js/data.js não definiu window.PORTFOLIO");
+  return ctx.window.PORTFOLIO;
+}
+
+function dadosEm(bruto) {
+  const D = I.resolver(bruto);
   D.projetos.forEach((p) => { p.slug = p.slug || slugify(p.nome); });
   return D;
 }
@@ -151,7 +199,7 @@ function htmlExperiencia(exp) {
     return `<li class="commit" style="--cor: var(${CORES[i % CORES.length]})">` +
       `<p class="commit-meta mono"><span class="amarelo">commit ${hashCurto(e.empresa + e.inicio)}</span>` +
       (atual ? `<span class="ref ref-atual">(HEAD → main)</span>` : "") +
-      `<span class="commit-data">${esc(periodo(e.inicio, e.fim))}<span class="commit-duracao"> · ${esc(duracao(e.inicio, e.fim))}</span></span></p>` +
+      `<span class="commit-data">${esc(I.periodo(e.inicio, e.fim))}<span class="commit-duracao"> · ${esc(I.duracao(e.inicio, e.fim))}</span></span></p>` +
       `<h3>${esc(e.cargo)}<span class="commit-empresa"> @ ${esc(e.empresa)}</span></h3>` +
       (e.local ? `<p class="commit-local mono">${esc(e.local)}</p>` : "") +
       (e.resumo ? `<p class="commit-resumo">${esc(e.resumo)}</p>` : "") +
@@ -164,7 +212,7 @@ function htmlExperiencia(exp) {
 function htmlFormacao(form) {
   return form.map((f) => `<li class="commit" style="--cor: var(--ambar)">` +
     `<p class="commit-meta mono"><span class="amarelo">commit ${hashCurto(f.instituicao + f.curso)}</span>` +
-    `<span class="commit-data">${esc(periodo(f.inicio, f.fim))}</span></p>` +
+    `<span class="commit-data">${esc(I.periodo(f.inicio, f.fim))}</span></p>` +
     `<h3>${esc(f.curso)}<span class="commit-empresa"> @ ${esc(f.instituicao)}</span></h3></li>`).join("");
 }
 
@@ -175,10 +223,10 @@ function htmlCertificados(certificados) {
     .reverse();
   return certs.map((c) => {
     const corpo = `<div class="tag-topo"><span class="tag-versao">${c.versao}</span>` +
-      `<span class="tag-data">${esc(formatarMes(c.data))}</span></div>` +
+      `<span class="tag-data">${esc(I.formatarMes(c.data))}</span></div>` +
       `<h3>${esc(c.titulo)}</h3><p class="tag-emissor">${esc(c.emissor)}</p>` +
       chips(c.skills, "tag-skills") +
-      `<span class="tag-verificar${c.url ? "" : " sem-link"}">${c.url ? "verificar →" : "link em breve"}</span>`;
+      `<span class="tag-verificar${c.url ? "" : " sem-link"}">${c.url ? tx("verificar →") : tx("link em breve")}</span>`;
     return `<li>` + (c.url
       ? `<a class="tag" href="${esc(c.url)}" target="_blank" rel="noopener noreferrer" style="--cor: var(${c.cor})">${corpo}</a>`
       : `<div class="tag" style="--cor: var(${c.cor})">${corpo}</div>`) + `</li>`;
@@ -187,16 +235,19 @@ function htmlCertificados(certificados) {
 
 function htmlCardsProjetos(projetos) {
   const ordem = projetos.slice().sort((a, b) => (b.destaque ? 1 : 0) - (a.destaque ? 1 : 0));
-  return ordem.map((p) => `<article class="repo${p.destaque ? " destaque" : ""}">` +
-    `<div class="repo-cab">${ICONE_REPO}<h3><a href="/projetos/${p.slug}">${esc(p.nome)}</a></h3>` +
-    `<span class="repo-visib">${p.repo ? "público" : "privado"}</span></div>` +
-    `<p class="repo-resumo">${esc(p.resumo)}</p>` +
-    barraLinguagens(p.linguagens) +
-    chips(p.tags, "repo-tags") +
-    `<div class="repo-acoes"><a class="btn-peq" href="/projetos/${p.slug}">${ICONE_LIVRO} detalhes</a>` +
-    (p.repo ? `<a class="btn-peq" href="${esc(p.repo)}" target="_blank" rel="noopener noreferrer">${ICONE_GITHUB} código</a>` : "") +
-    (p.demo ? `<a class="btn-peq btn-demo" href="${esc(p.demo)}" target="_blank" rel="noopener noreferrer">${ICONE_PLAY} demo</a>` : "") +
-    `</div></article>`).join("");
+  return ordem.map((p) => {
+    const pagina = caminhoEm(I.idioma, `/projetos/${p.slug}`);
+    return `<article class="repo${p.destaque ? " destaque" : ""}">` +
+      `<div class="repo-cab">${ICONE_REPO}<h3><a href="${pagina}">${esc(p.nome)}</a></h3>` +
+      `<span class="repo-visib">${p.repo ? tx("público") : tx("privado")}</span></div>` +
+      `<p class="repo-resumo">${esc(p.resumo)}</p>` +
+      barraLinguagens(p.linguagens) +
+      chips(p.tags, "repo-tags") +
+      `<div class="repo-acoes"><a class="btn-peq" href="${pagina}">${ICONE_LIVRO} ${tx("detalhes")}</a>` +
+      (p.repo ? `<a class="btn-peq" href="${esc(p.repo)}" target="_blank" rel="noopener noreferrer">${ICONE_GITHUB} ${tx("código")}</a>` : "") +
+      (p.demo ? `<a class="btn-peq btn-demo" href="${esc(p.demo)}" target="_blank" rel="noopener noreferrer">${ICONE_PLAY} demo</a>` : "") +
+      `</div></article>`;
+  }).join("");
 }
 
 // JSON-LD extra da página inicial: a lista de projetos com link para a página de cada um
@@ -204,21 +255,53 @@ function jsonLdProjetos(D) {
   const dados = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": "Projetos de " + D.perfil.nome,
+    "name": tx("Lista de projetos de {nome}", { nome: D.perfil.nome }),
     "itemListElement": D.projetos.map((p, i) => ({
       "@type": "ListItem",
       "position": i + 1,
-      "url": `${SITE}/projetos/${p.slug}`,
+      "url": urlEm(I.idioma, `/projetos/${p.slug}`),
       "name": p.nome,
     })),
   };
   return `<script type="application/ld+json">${JSON.stringify(dados)}</script>`;
 }
 
+// O JSON-LD principal (ProfilePage + WebSite + Person) vem escrito no index.html em português;
+// aqui ele ganha a data de publicação e, na versão em inglês, os textos e endereços em inglês.
+function ajustarJsonLdPrincipal(html, D) {
+  const re = /(<script type="application\/ld\+json">)([\s\S]*?)(<\/script>)/;
+  const m = re.exec(html);
+  if (!m) throw new Error("JSON-LD principal não encontrado no index.html");
+  const dados = JSON.parse(m[2]);
+  const no = (tipo) => dados["@graph"].find((n) => n["@type"] === tipo);
+  const pagina = no("ProfilePage"), site = no("WebSite"), pessoa = no("Person");
+  pagina.dateModified = dataHoraBr();
+  pessoa.knowsLanguage = ["pt-BR", "en"];
+  site.inLanguage = ["pt-BR", "en"];
+  if (I.idioma === "en") {
+    pagina.url = urlEm("en", "/");
+    pagina["@id"] = urlEm("en", "/") + "#pagina";
+    pagina.name = tx("Alex Matias · Desenvolvedor de Software .NET");
+    pagina.inLanguage = "en";
+    pessoa.jobTitle = D.perfil.cargo;
+    pessoa.description = D.perfil.sobre[0];
+  }
+  return html.replace(re, (mm, a, b, c) => a + "\n  " + JSON.stringify(dados, null, 2).replace(/\n/g, "\n  ") + "\n  " + c);
+}
+
+const NOSCRIPT_EN = `
+    <div class="noscript">
+      <p><strong>Alex Matias, .NET Software Developer</strong> based in Divinópolis, Brazil. Over 3 years building, modernizing and integrating business systems with C#, .NET, Entity Framework, SQL Server, MySQL and ASP.NET Core.</p>
+      <p>Currently at CartSys Software (ERP for notary and registry offices). Before that: Condumig (industrial automation) and Petrarca Software. Bachelor's in Computer Science from Faculdade Pitágoras.</p>
+      <p>Turn on JavaScript to see the full experience, certificates and projects, or reach me on <a href="https://www.linkedin.com/in/alex-matias-silva">LinkedIn</a> or <a href="https://github.com/alex-m-silva">GitHub</a>.</p>
+    </div>
+  `;
+
 function gerarIndex(D, artigos) {
+  const lang = I.idioma;
   let html = ler("index.html");
   const p = D.perfil;
-  html = html.replace(/"dateModified": "[^"]*"/, `"dateModified": "${dataHoraBr()}"`);
+  html = ajustarJsonLdPrincipal(html, D);
   html = preencher(html, "frase", esc(p.frase));
   html = preencher(html, "sobre", p.sobre.map((t) => `<p>${esc(t)}</p>`).join(""));
   html = preencher(html, "stack", p.stack.map((t, i) => `<li style="--i:${i}">${esc(t)}</li>`).join(""));
@@ -228,18 +311,37 @@ function gerarIndex(D, artigos) {
   html = preencher(html, "certificados", htmlCertificados(D.certificados || []));
   html = preencher(html, "projetos", htmlCardsProjetos(D.projetos));
   html = preencher(html, "jsonld-projetos", jsonLdProjetos(D));
-  html = preencher(html, "artigos", artigos.length ? htmlSecaoArtigos(artigos) : "");
-  html = preencher(html, "nav-artigos", artigos.length
+  // Artigos só existem em português
+  const comArtigos = lang === "pt" && artigos.length;
+  html = preencher(html, "artigos", comArtigos ? htmlSecaoArtigos(artigos) : "");
+  html = preencher(html, "nav-artigos", comArtigos
     ? `<li><a href="#artigos"><span class="ramo" aria-hidden="true">⎇</span> artigos</a></li>` : "");
-  gravar("index.html", html);
+
+  if (lang === "en") {
+    html = trocarUmaVez(html, '<html lang="pt-BR">', '<html lang="en">');
+    html = trocarUmaVez(html, '<link rel="canonical" href="https://www.alexmatias.dev.br/">', `<link rel="canonical" href="${urlEm("en", "/")}">`);
+    html = trocarUmaVez(html, '<meta property="og:url" content="https://www.alexmatias.dev.br/">', `<meta property="og:url" content="${urlEm("en", "/")}">`);
+    html = trocarUmaVez(html, '<a href="/" hreflang="pt-BR" lang="pt-BR" data-idioma="pt" aria-current="true">pt</a>', '<a href="/" hreflang="pt-BR" lang="pt-BR" data-idioma="pt">pt</a>');
+    html = trocarUmaVez(html, '<a href="/en" hreflang="en" lang="en" data-idioma="en">en</a>', '<a href="/en" hreflang="en" lang="en" data-idioma="en" aria-current="true">en</a>');
+    html = preencher(html, "noscript", NOSCRIPT_EN);
+  }
+  html = trocarUmaVez(html, `<meta property="og:locale" content="pt_BR">`,
+    `<meta property="og:locale" content="${ogLocale(lang)}">\n  <meta property="og:locale:alternate" content="${ogLocale(lang === "en" ? "pt" : "en")}">`);
+  html = traduzirMarcados(html, lang);
+  gravar(lang === "en" ? "en/index.html" : "index.html", html);
 }
 
 /* ============================================================
    Moldura comum das páginas internas (projetos e artigos)
    ============================================================ */
-function cabecalho({ titulo, descricao, url, imagem, imagemAlt, tipoOg, jsonLd, noindex, preloadImagem }) {
+// caminho: endereço da página sem o prefixo do idioma ("/projetos/x"); bilingue: se existe em inglês também
+function cabecalho({ caminho, bilingue, titulo, descricao, imagem, imagemAlt, tipoOg, jsonLd, noindex, preloadImagem }) {
+  const lang = I.idioma;
+  const url = urlEm(lang, caminho);
+  const base = I.prefixo; // "" ou "/en": links do menu levam à página inicial do mesmo idioma
+  const caminhos = bilingue ? { pt: caminhoEm("pt", caminho), en: caminhoEm("en", caminho) } : { pt: caminhoEm("pt", caminho), en: "/en" };
   return `<!doctype html>
-<html lang="pt-BR">
+<html lang="${hreflang(lang)}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -250,8 +352,9 @@ function cabecalho({ titulo, descricao, url, imagem, imagemAlt, tipoOg, jsonLd, 
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#0b0f14">
   <link rel="canonical" href="${url}">
-  <meta property="og:type" content="${tipoOg || "website"}">
-  <meta property="og:locale" content="pt_BR">
+${bilingue ? tagsAlternadas(caminho) + "\n" : ""}  <meta property="og:type" content="${tipoOg || "website"}">
+  <meta property="og:locale" content="${ogLocale(lang)}">${bilingue ? `
+  <meta property="og:locale:alternate" content="${ogLocale(lang === "en" ? "pt" : "en")}">` : ""}
   <meta property="og:site_name" content="Alex Matias">
   <meta property="og:url" content="${url}">
   <meta property="og:title" content="${esc(titulo)}">
@@ -275,27 +378,29 @@ function cabecalho({ titulo, descricao, url, imagem, imagemAlt, tipoOg, jsonLd, 
   <link rel="stylesheet" href="/css/style.css">${preloadImagem ? `
   <link rel="preload" href="${preloadImagem}" as="image" fetchpriority="high">` : ""}
   <script src="/js/tema.js"></script>
+  <script src="/js/i18n.js"></script>
   <script async src="/js/analytics.js"></script>
   <script defer src="/js/pagina.js"></script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 </head>
 <body class="pagina-interna">
-  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+  <a class="pular" href="#conteudo">${esc(tx("Pular para o conteúdo"))}</a>
   <header class="topo">
-    <a class="marca" href="/" aria-label="~/alex-matias: ir para o início">
+    <a class="marca" href="${base || "/"}" aria-label="${esc(tx("~/alex-matias: ir para o início"))}">
       <span class="marca-prompt">~/</span><span>alex-matias</span><span class="marca-cursor" aria-hidden="true"></span>
     </a>
-    <nav class="nav" aria-label="Seções">
+    <nav class="nav" aria-label="${esc(tx("Seções"))}">
       <ul>
-        <li><a href="/#sobre"><span class="ramo" aria-hidden="true">⎇</span> sobre</a></li>
-        <li><a href="/#experiencia"><span class="ramo" aria-hidden="true">⎇</span> carreira</a></li>
-        <li><a href="/#certificados"><span class="ramo" aria-hidden="true">⎇</span> certificados</a></li>
-        <li><a href="/#projetos"><span class="ramo" aria-hidden="true">⎇</span> projetos</a></li>
-        <li><a href="/#contato"><span class="ramo" aria-hidden="true">⎇</span> contato</a></li>
+        <li><a href="${base}/#sobre"><span class="ramo" aria-hidden="true">⎇</span> ${tx("sobre")}</a></li>
+        <li><a href="${base}/#experiencia"><span class="ramo" aria-hidden="true">⎇</span> ${tx("carreira")}</a></li>
+        <li><a href="${base}/#certificados"><span class="ramo" aria-hidden="true">⎇</span> ${tx("certificados")}</a></li>
+        <li><a href="${base}/#projetos"><span class="ramo" aria-hidden="true">⎇</span> ${tx("projetos")}</a></li>
+        <li><a href="${base}/#contato"><span class="ramo" aria-hidden="true">⎇</span> ${tx("contato")}</a></li>
       </ul>
     </nav>
     <div class="topo-acoes">
-      <button class="btn-icone" type="button" id="alternar-tema" aria-label="Alternar tema claro e escuro">
+      ${seletorIdioma(lang, caminhos)}
+      <button class="btn-icone" type="button" id="alternar-tema" aria-label="${esc(tx("Alternar tema claro e escuro"))}">
         <svg class="ico-sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
         <svg class="ico-lua" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
       </button>
@@ -307,7 +412,7 @@ function cabecalho({ titulo, descricao, url, imagem, imagemAlt, tipoOg, jsonLd, 
 function rodape() {
   return `
   <footer class="rodape">
-    <p class="mono"><span class="ref">HEAD → main</span> · feito à mão com HTML, CSS e JavaScript, sem framework · ${new Date().getFullYear()}</p>
+    <p class="mono"><span class="ref">HEAD → main</span> · ${tx("feito à mão com HTML, CSS e JavaScript, sem framework")} · ${new Date().getFullYear()}</p>
   </footer>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
@@ -315,7 +420,7 @@ function rodape() {
 `;
 }
 
-const migalhas = (itens) => `<nav aria-label="Você está em"><ol class="migalhas">` +
+const migalhas = (itens) => `<nav aria-label="${esc(tx("Você está em"))}"><ol class="migalhas">` +
   itens.map((it, i) => i === itens.length - 1
     ? `<li aria-current="page">${esc(it.nome)}</li>`
     : `<li><a href="${it.url}">${esc(it.nome)}</a></li>`).join("") + `</ol></nav>`;
@@ -341,25 +446,32 @@ function galeriaDialogo() {
     <div class="galeria-corpo">
       <div class="galeria-barra mono">
         <span id="galeria-num"></span>
-        <span class="galeria-dica">clique na imagem para ver no tamanho real</span>
-        <button class="btn-icone" type="button" data-fechar aria-label="Fechar">✕</button>
+        <span class="galeria-dica">${tx("clique na imagem para ver no tamanho real")}</span>
+        <button class="btn-icone" type="button" data-fechar aria-label="${esc(tx("Fechar"))}">✕</button>
       </div>
       <div class="galeria-quadro" id="galeria-quadro"><img id="galeria-img" alt=""></div>
-      <button class="galeria-seta galeria-ant" id="galeria-ant" type="button" aria-label="Tela anterior">‹</button>
-      <button class="galeria-seta galeria-prox" id="galeria-prox" type="button" aria-label="Próxima tela">›</button>
+      <button class="galeria-seta galeria-ant" id="galeria-ant" type="button" aria-label="${esc(tx("Tela anterior"))}">‹</button>
+      <button class="galeria-seta galeria-prox" id="galeria-prox" type="button" aria-label="${esc(tx("Próxima tela"))}">›</button>
       <div class="galeria-legenda"><h3 id="galeria-titulo"></h3><p id="galeria-texto"></p></div>
     </div>
   </dialog>`;
 }
 
 function paginaProjeto(p, D) {
-  const url = `${SITE}/projetos/${p.slug}`;
+  const lang = I.idioma;
+  const base = I.prefixo;
+  const caminho = `/projetos/${p.slug}`;
+  const url = urlEm(lang, caminho);
   const seo = p.seo || {};
   const titulo = (seo.titulo || `${p.nome}: ${p.resumo}`) + " · Alex Matias";
   const descricao = seo.descricao || p.resumo;
   const a = p.apresentacao;
   const pasta = a ? "/" + String(a.pasta || "").replace(/^\/+/, "") : "";
-  const trilha = [{ nome: "Início", url: "/" }, { nome: "Projetos", url: "/#projetos" }, { nome: p.nome, url: `/projetos/${p.slug}` }];
+  const trilha = [
+    { nome: tx("Início"), url: base || "/" },
+    { nome: tx("Projetos"), url: `${base}/#projetos` },
+    { nome: p.nome, url: caminhoEm(lang, caminho) },
+  ];
 
   const app = {
     "@type": "SoftwareApplication",
@@ -370,7 +482,7 @@ function paginaProjeto(p, D) {
     "image": imagemDoProjeto(p),
     "applicationCategory": seo.categoria || "BusinessApplication",
     "operatingSystem": seo.sistema || "Windows",
-    "inLanguage": "pt-BR",
+    "inLanguage": hreflang(lang),
     "author": PESSOA,
     "keywords": (p.tags || []).join(", "),
   };
@@ -379,7 +491,7 @@ function paginaProjeto(p, D) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
-      { "@type": "WebPage", "@id": url, "url": url, "name": titulo, "description": descricao, "inLanguage": "pt-BR", "about": { "@id": app["@id"] }, "isPartOf": { "@id": `${SITE}/#site` } },
+      { "@type": "WebPage", "@id": url, "url": url, "name": titulo, "description": descricao, "inLanguage": hreflang(lang), "about": { "@id": app["@id"] }, "isPartOf": { "@id": `${SITE}/#site` } },
       app,
       jsonLdMigalhas(trilha),
     ],
@@ -387,23 +499,23 @@ function paginaProjeto(p, D) {
   if (p.repo) jsonLd["@graph"].push({ "@type": "SoftwareSourceCode", "name": p.nome, "codeRepository": p.repo, "programmingLanguage": Object.keys(p.linguagens || {}), "author": PESSOA });
 
   const acoes = `<div class="projeto-acoes">` +
-    (p.demo ? `<a class="btn btn-primario" href="${esc(p.demo)}" target="_blank" rel="noopener noreferrer">${ICONE_PLAY} abrir a demo</a>` : "") +
-    (!p.demo && a ? `<a class="btn btn-primario" href="#apresentacao">${ICONE_PLAY} ver a demonstração</a>` : "") +
-    (p.repo ? `<a class="btn btn-secundario" href="${esc(p.repo)}" target="_blank" rel="noopener noreferrer">${ICONE_GITHUB} código no GitHub</a>` : "") +
-    `<a class="btn btn-secundario" href="/#contato">falar comigo →</a></div>` +
-    (p.repo ? "" : `<p class="projeto-nota mono">Repositório privado: código disponível sob consulta.</p>`);
+    (p.demo ? `<a class="btn btn-primario" href="${esc(p.demo)}" target="_blank" rel="noopener noreferrer">${ICONE_PLAY} ${tx("abrir a demo")}</a>` : "") +
+    (!p.demo && a ? `<a class="btn btn-primario" href="#apresentacao">${ICONE_PLAY} ${tx("ver a demonstração")}</a>` : "") +
+    (p.repo ? `<a class="btn btn-secundario" href="${esc(p.repo)}" target="_blank" rel="noopener noreferrer">${ICONE_GITHUB} ${tx("código no GitHub")}</a>` : "") +
+    `<a class="btn btn-secundario" href="${base}/#contato">${tx("falar comigo →")}</a></div>` +
+    (p.repo ? "" : `<p class="projeto-nota mono">${tx("Repositório privado: código disponível sob consulta.")}</p>`);
 
   const apresentacao = a ? `
       <section class="projeto-secao" id="apresentacao" aria-labelledby="t-apresentacao">
-        <h2 id="t-apresentacao"><span class="sinal mono">##</span> Apresentação</h2>
-        <video class="proj-video" src="${pasta}${esc(a.video)}"${a.capa ? ` poster="${pasta}${esc(a.capa)}"` : ""} controls playsinline preload="none" aria-label="Vídeo de apresentação do ${esc(p.nome)}"></video>
+        <h2 id="t-apresentacao"><span class="sinal mono">##</span> ${tx("Apresentação")}</h2>
+        <video class="proj-video" src="${pasta}${esc(a.video)}"${a.capa ? ` poster="${pasta}${esc(a.capa)}"` : ""} controls playsinline preload="none" aria-label="${esc(tx("Vídeo de apresentação do {nome}", { nome: p.nome }))}"></video>
       </section>
       <section class="projeto-secao" aria-labelledby="t-tour">
-        <h2 id="t-tour"><span class="sinal mono">##</span> Tour pelas telas</h2>
+        <h2 id="t-tour"><span class="sinal mono">##</span> ${tx("Tour pelas telas")}</h2>
         ${a.intro ? `<p class="tour-intro">${esc(a.intro)}</p>` : ""}
         <ol class="tour">
           ${a.telas.map((t, i) => `<li class="tela">
-            <a class="tela-img" href="${pasta}telas/${t.arquivo}.jpg" data-indice="${i}" data-titulo="${esc(t.titulo)}" data-texto="${esc(t.texto)}" aria-label="Ampliar: ${esc(t.titulo)}">
+            <a class="tela-img" href="${pasta}telas/${t.arquivo}.jpg" data-indice="${i}" data-titulo="${esc(t.titulo)}" data-texto="${esc(t.texto)}" aria-label="${esc(tx("Ampliar: {titulo}", { titulo: t.titulo }))}">
               <img src="${pasta}telas/mini/${t.arquivo}.webp" alt="${esc(p.nome)}: ${esc(t.titulo)}" loading="lazy" width="720" height="405">
               <span class="tela-zoom" aria-hidden="true">${ICONE_ZOOM}</span>
             </a>
@@ -414,7 +526,7 @@ function paginaProjeto(p, D) {
 
   const outros = D.projetos.filter((x) => x !== p);
   const preloadImagem = a && a.capa ? `${pasta}${a.capa}` : "";
-  const html = cabecalho({ titulo, descricao, url, imagem: imagemDoProjeto(p), imagemAlt: `${p.nome}: ${p.resumo}`, jsonLd, preloadImagem }) + `
+  const html = cabecalho({ caminho, bilingue: true, titulo, descricao, imagem: imagemDoProjeto(p), imagemAlt: `${p.nome}: ${p.resumo}`, jsonLd, preloadImagem }) + `
   <main id="conteudo" class="pagina">
     ${migalhas(trilha)}
     <header class="pagina-cab">
@@ -426,38 +538,38 @@ function paginaProjeto(p, D) {
     </header>
     ${apresentacao}
     <section class="projeto-secao" aria-labelledby="t-sobre">
-      <h2 id="t-sobre"><span class="sinal mono">##</span> Sobre o projeto</h2>
+      <h2 id="t-sobre"><span class="sinal mono">##</span> ${tx("Sobre o projeto")}</h2>
       <div class="pagina-texto">${(p.sobre && p.sobre.length ? p.sobre : [p.resumo]).map((t) => `<p>${esc(t)}</p>`).join("")}</div>
     </section>
     ${(p.detalhes || []).length ? `<section class="projeto-secao" aria-labelledby="t-destaques">
-      <h2 id="t-destaques"><span class="sinal mono">##</span> Destaques</h2>
+      <h2 id="t-destaques"><span class="sinal mono">##</span> ${tx("Destaques")}</h2>
       <ul class="commit-itens">${p.detalhes.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>
     </section>` : ""}
     <section class="projeto-secao" aria-labelledby="t-stack">
-      <h2 id="t-stack"><span class="sinal mono">##</span> Stack e linguagens</h2>
+      <h2 id="t-stack"><span class="sinal mono">##</span> ${tx("Stack e linguagens")}</h2>
       ${chips(p.tags, "repo-tags")}
       <div class="pagina-linguagens">${barraLinguagens(p.linguagens)}</div>
     </section>
     <section class="projeto-secao" aria-labelledby="t-outros">
-      <h2 id="t-outros"><span class="sinal mono">##</span> Outros projetos</h2>
+      <h2 id="t-outros"><span class="sinal mono">##</span> ${tx("Outros projetos")}</h2>
       <ul class="outros-projetos">
-        ${outros.map((o) => `<li><a href="/projetos/${o.slug}"><b>${esc(o.nome)}</b><span>${esc(o.resumo)}</span></a></li>`).join("\n        ")}
+        ${outros.map((o) => `<li><a href="${caminhoEm(lang, `/projetos/${o.slug}`)}"><b>${esc(o.nome)}</b><span>${esc(o.resumo)}</span></a></li>`).join("\n        ")}
       </ul>
     </section>
     <aside class="pagina-cta">
       <div>
-        <h2>Precisa de um sistema assim?</h2>
-        <p>Sistemas de gestão, integrações e APIs em C# e .NET. Me conta o que você precisa.</p>
+        <h2>${tx("Precisa de um sistema assim?")}</h2>
+        <p>${tx("Sistemas de gestão, integrações e APIs em C# e .NET. Me conta o que você precisa.")}</p>
       </div>
-      <a class="btn btn-primario" href="/#contato">abrir um PR →</a>
+      <a class="btn btn-primario" href="${base}/#contato">${tx("abrir um PR →")}</a>
     </aside>
   </main>` + (a ? galeriaDialogo() : "") + rodape();
 
-  gravar(`projetos/${p.slug}.html`, html);
+  gravar(`${lang === "en" ? "en/" : ""}projetos/${p.slug}.html`, html);
 }
 
 /* ============================================================
-   3. Artigos (artigos/*.md)
+   3. Artigos (artigos/*.md), só em português
    ============================================================ */
 // Cabeçalho do arquivo entre "---": linhas "chave: valor"; listas como [a, b]
 function lerFrontMatter(texto) {
@@ -477,7 +589,7 @@ function lerFrontMatter(texto) {
   return { meta, corpo: m[2] };
 }
 
-// Markdown simples: títulos, parágrafos, listas, citações, código, negrito, itálico, links e linha
+// Markdown simples: títulos, parágrafos, listas, citações, código, tabelas, negrito, itálico, links e linha
 function markdown(md) {
   const inline = (t) => esc(t)
     .replace(/`([^`]+)`/g, "<code>$1</code>")
@@ -569,9 +681,10 @@ function carregarArtigos() {
 const dataLonga = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
 
 function paginaArtigo(art) {
-  const url = `${SITE}/artigos/${art.slug}`;
+  const caminho = `/artigos/${art.slug}`;
+  const url = SITE + caminho;
   const titulo = `${art.titulo} · Alex Matias`;
-  const trilha = [{ nome: "Início", url: "/" }, { nome: "Artigos", url: "/artigos" }, { nome: art.titulo, url: `/artigos/${art.slug}` }];
+  const trilha = [{ nome: "Início", url: "/" }, { nome: "Artigos", url: "/artigos" }, { nome: art.titulo, url: caminho }];
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -584,7 +697,7 @@ function paginaArtigo(art) {
       jsonLdMigalhas(trilha),
     ],
   };
-  const html = cabecalho({ titulo, descricao: art.descricao, url, imagem: `${SITE}/assets/og-image.png`, tipoOg: "article", jsonLd, noindex: art.rascunho }) + `
+  const html = cabecalho({ caminho, bilingue: false, titulo, descricao: art.descricao, imagem: `${SITE}/assets/og-image.png`, tipoOg: "article", jsonLd, noindex: art.rascunho }) + `
   <main id="conteudo" class="pagina">
     ${migalhas(trilha)}
     <article class="artigo">
@@ -626,16 +739,17 @@ function htmlSecaoArtigos(artigos) {
 }
 
 function paginaIndiceArtigos(artigos) {
-  const url = `${SITE}/artigos`;
+  const caminho = "/artigos";
+  const url = SITE + caminho;
   const titulo = "Artigos sobre C#, .NET e Entity Framework · Alex Matias";
   const descricao = "Artigos de Alex Matias sobre C#, .NET, Entity Framework, SQL e performance, a partir de problemas reais em sistemas corporativos.";
-  const trilha = [{ nome: "Início", url: "/" }, { nome: "Artigos", url: "/artigos" }];
+  const trilha = [{ nome: "Início", url: "/" }, { nome: "Artigos", url: caminho }];
   const jsonLd = { "@context": "https://schema.org", "@graph": [
     { "@type": "Blog", "@id": url, "name": "Artigos de Alex Matias", "url": url, "author": PESSOA, "inLanguage": "pt-BR",
       "blogPost": artigos.map((a) => ({ "@type": "TechArticle", "headline": a.titulo, "url": `${SITE}/artigos/${a.slug}`, "datePublished": dataHoraBr(a.data) })) },
     jsonLdMigalhas(trilha),
   ] };
-  const html = cabecalho({ titulo, descricao, url, imagem: `${SITE}/assets/og-image.png`, jsonLd }) + `
+  const html = cabecalho({ caminho, bilingue: false, titulo, descricao, imagem: `${SITE}/assets/og-image.png`, jsonLd }) + `
   <main id="conteudo" class="pagina">
     ${migalhas(trilha)}
     <header class="pagina-cab">
@@ -650,25 +764,38 @@ function paginaIndiceArtigos(artigos) {
 
 /* ============================================================
    4. sitemap.xml e robots.txt
+   ------------------------------------------------------------
+   Páginas nos dois idiomas entram uma vez por idioma, cada uma
+   com os links (xhtml:link) para a versão no outro idioma.
    ============================================================ */
 function gerarSitemap(D, artigos) {
   const urls = [];
-  const url = (loc, imagens, prioridade) => urls.push(
+  const entrada = (loc, { imagens, prioridade, alternadas }) => urls.push(
     `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${HOJE}</lastmod>\n    <priority>${prioridade}</priority>\n` +
+    (alternadas || []).map((alt) => `    <xhtml:link rel="alternate" hreflang="${alt.lang}" href="${alt.href}"/>\n`).join("") +
     (imagens || []).map((im) => `    <image:image><image:loc>${im}</image:loc></image:image>\n`).join("") +
     `  </url>`);
-  url(`${SITE}/`, [`${SITE}/assets/og-image.png`], "1.0");
+  const bilingue = (caminho, opcoes) => {
+    const alternadas = IDIOMAS.map((l) => ({ lang: hreflang(l), href: urlEm(l, caminho) }))
+      .concat([{ lang: "x-default", href: urlEm("pt", caminho) }]);
+    IDIOMAS.forEach((l) => entrada(urlEm(l, caminho), Object.assign({}, opcoes, { alternadas })));
+  };
+
+  bilingue("/", { imagens: [`${SITE}/assets/og-image.png`], prioridade: "1.0" });
   D.projetos.forEach((p) => {
     const a = p.apresentacao;
     const pasta = a ? "/" + String(a.pasta || "").replace(/^\/+/, "") : "";
-    url(`${SITE}/projetos/${p.slug}`, a ? a.telas.map((t) => `${SITE}${pasta}telas/${t.arquivo}.jpg`) : [imagemDoProjeto(p)], p.destaque ? "0.8" : "0.6");
+    bilingue(`/projetos/${p.slug}`, {
+      imagens: a ? a.telas.map((t) => `${SITE}${pasta}telas/${t.arquivo}.jpg`) : [imagemDoProjeto(p)],
+      prioridade: p.destaque ? "0.8" : "0.6",
+    });
   });
   const publicados = artigos.filter((a) => !a.rascunho);
   if (publicados.length) {
-    url(`${SITE}/artigos`, [], "0.7");
-    publicados.forEach((a) => url(`${SITE}/artigos/${a.slug}`, [], "0.7"));
+    entrada(`${SITE}/artigos`, { prioridade: "0.7" });
+    publicados.forEach((a) => entrada(`${SITE}/artigos/${a.slug}`, { prioridade: "0.7" }));
   }
-  gravar("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls.join("\n")}\n</urlset>\n`);
+  gravar("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls.join("\n")}\n</urlset>\n`);
   return urls.length;
 }
 
@@ -729,7 +856,12 @@ function otimizarArquivos() {
    ============================================================ */
 function main() {
   const inicio = Date.now();
-  const D = carregarDados();
+
+  // Para antes de tudo se algum texto do código estiver sem tradução
+  const faltando = require("./checar-traducoes").checar();
+  if (faltando.length) throw new Error("Textos sem tradução em js/i18n.js:\n  " + faltando.join("\n  "));
+
+  const bruto = carregarDadosBrutos();
   const artigos = carregarArtigos();
   const publicados = artigos.filter((a) => !a.rascunho);
 
@@ -738,8 +870,17 @@ function main() {
   fs.readdirSync(DIST).forEach((item) => fs.rmSync(path.join(DIST, item), { recursive: true, force: true }));
   ["css", "js", "assets", "404.html", "favicon.ico", "site.webmanifest"].forEach(copiar);
 
-  gerarIndex(D, publicados);
-  D.projetos.forEach((p) => paginaProjeto(p, D));
+  let D = null;
+  IDIOMAS.forEach((lang) => {
+    I = I18N.criar(lang);
+    D = dadosEm(bruto);
+    gerarIndex(D, publicados);
+    D.projetos.forEach((p) => paginaProjeto(p, D));
+  });
+
+  // Artigos, sitemap e robots (em português)
+  I = I18N.criar("pt");
+  D = dadosEm(bruto);
   artigos.forEach(paginaArtigo);
   if (publicados.length) paginaIndiceArtigos(publicados);
   const n = gerarSitemap(D, artigos);
@@ -747,7 +888,8 @@ function main() {
   const otim = otimizarArquivos();
 
   console.log(`build ok em ${Date.now() - inicio} ms → dist/`);
-  console.log(`  páginas de projeto: ${D.projetos.map((p) => "/projetos/" + p.slug).join(", ")}`);
+  console.log(`  idiomas: ${IDIOMAS.join(", ")} (/ e /en)`);
+  console.log(`  páginas de projeto: ${D.projetos.map((p) => "/projetos/" + p.slug).join(", ")} (e /en/projetos/...)`);
   console.log(`  artigos: ${publicados.length} publicado(s)` + (COM_RASCUNHOS ? `, ${artigos.length - publicados.length} rascunho(s) gerado(s) para revisão` : ""));
   console.log(`  sitemap: ${n} endereço(s)`);
   console.log(`  css: ${(otim.cssAntes / 1024).toFixed(1)} KB → ${(otim.cssDepois / 1024).toFixed(1)} KB; versão nos arquivos de ${otim.paginas} página(s)`);

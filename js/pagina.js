@@ -7,6 +7,8 @@
   "use strict";
 
   var reduzirMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Textos no idioma da página (js/i18n.js); sem ele, fica o português
+  var tx = window.I18N ? window.I18N.t : function (s) { return s; };
   function $(sel, raiz) { return (raiz || document).querySelector(sel); }
   function $$(sel, raiz) { return Array.prototype.slice.call((raiz || document).querySelectorAll(sel)); }
 
@@ -37,7 +39,7 @@
       var novo = temaAtual() === "claro" ? "escuro" : "claro";
       document.documentElement.dataset.tema = novo;
       try { localStorage.setItem("tema", novo); } catch (e) { /* sem armazenamento */ }
-      toast("tema: " + novo);
+      toast(tx("tema: {tema}", { tema: tx(novo) }));
     });
   }
 
@@ -133,7 +135,7 @@
       document.addEventListener(tipo, function (e) {
         if (liberado(e.target) || liberado(window.getSelection && window.getSelection().anchorNode && window.getSelection().anchorNode.parentElement)) return;
         e.preventDefault();
-        if (Date.now() - ultimoAviso > 2500) { ultimoAviso = Date.now(); toast("Conteúdo protegido"); }
+        if (Date.now() - ultimoAviso > 2500) { ultimoAviso = Date.now(); toast(tx("Conteúdo protegido")); }
       });
     });
     document.addEventListener("contextmenu", function (e) {

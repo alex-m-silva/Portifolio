@@ -1515,3 +1515,71 @@ dialog[open] { animation: surgir 0.25s ease; }
 .artigo-corpo th { background: var(--sup-2); font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--texto-2); }
 /* Código dos artigos sem ligaduras: "=>" e "==" aparecem como foram digitados */
 .artigo-corpo pre.codigo, .artigo-corpo code { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+
+/* ============================================================
+   Idiomas: seletor pt | en no topo e aviso de idioma (js/i18n.js)
+   ============================================================ */
+.idiomas {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 3px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--sup);
+  font-size: 12.5px;
+}
+.idiomas a {
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  height: 100%;
+  padding: 0 8px;
+  border-radius: 7px;
+  color: var(--texto-3);
+  text-decoration: none;
+  transition: color 0.2s, background 0.2s;
+}
+.idiomas a:hover { color: var(--texto); }
+.idiomas a[aria-current] { background: var(--add-bg); color: var(--acento); font-weight: 700; }
+
+.aviso-idioma {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 12px 12px 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--acento) 45%, var(--borda));
+  border-radius: 12px;
+  background: var(--sup);
+  box-shadow: var(--sombra);
+  font-size: 14px;
+  opacity: 0;
+  translate: 0 12px;
+  transition: opacity 0.35s var(--suave), translate 0.35s var(--suave);
+}
+.aviso-idioma.mostrar { opacity: 1; translate: 0 0; }
+.aviso-idioma-ico { color: var(--acento); font-family: var(--mono); font-size: 18px; }
+.aviso-idioma p { color: var(--texto-2); }
+.aviso-idioma-link { color: var(--acento); font-weight: 700; white-space: nowrap; }
+.aviso-idioma-x {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  background: var(--sup-2);
+  color: var(--texto-2);
+  cursor: pointer;
+}
+.aviso-idioma-x:hover { border-color: var(--borda-forte); color: var(--texto); }
+@media (max-width: 720px) {
+  .aviso-idioma { bottom: 76px; } /* acima da barra de navegação do celular */
+  .idiomas { height: 34px; }
+  .idiomas a { min-width: 28px; padding: 0 6px; }
+}
+.erro-acoes { display: flex; flex-wrap: wrap; gap: 10px; }

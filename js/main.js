@@ -1,7 +1,11 @@
 (function () {
   "use strict";
 
-  var D = window.PORTFOLIO;
+  // Idioma da página (pt em "/", en em "/en/"): textos passam por tx(), escritos em português
+  // e dados já resolvidos para o idioma (os L("pt", "en") do data.js viram texto simples)
+  var I = window.I18N;
+  var tx = I.t;
+  var D = I.resolver(window.PORTFOLIO);
   var reduzirMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ============================================================
@@ -44,13 +48,10 @@
     return ("0000000" + (h1 >>> 0).toString(16)).slice(-7);
   }
 
-  var MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-  function formatarMes(aaaamm) {
-    var p = String(aaaamm || "").split("-");
-    var m = parseInt(p[1], 10);
-    if (!p[0] || !m) return aaaamm || "";
-    return MESES[m - 1] + " " + p[0];
-  }
+  // Datas no idioma da página ("mai 2023" / "May 2023", "hoje" / "present")
+  var formatarMes = I.formatarMes;
+  var periodo = I.periodo;
+  var duracao = I.duracao;
 
   var toastTimer;
   function toast(msg) {
@@ -63,7 +64,7 @@
 
   // O aviso aparece na hora do clique; se a API moderna falhar, cai no método antigo
   function copiar(texto, aviso) {
-    toast(aviso || "Copiado!");
+    toast(aviso || tx("Copiado!"));
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(texto).catch(function () { copiarAntigo(texto); });
     } else {
@@ -163,12 +164,12 @@
     $("#hero-hash").textContent = hashCurto(p.nome + p.cargo);
 
     var numeros = [
-      { valor: D.projetos.length, rotulo: "repositórios" },
-      { valor: D.certificados.length, rotulo: "tags (certificados)" },
-      { valor: p.stack.length, rotulo: "ferramentas" },
+      { valor: D.projetos.length, rotulo: tx("repositórios") },
+      { valor: D.certificados.length, rotulo: tx("tags (certificados)") },
+      { valor: p.stack.length, rotulo: tx("ferramentas") },
     ];
     var anos = anosDeCarreira();
-    if (anos) numeros.unshift({ valor: anos, rotulo: "anos de carreira" });
+    if (anos) numeros.unshift({ valor: anos, rotulo: tx("anos de carreira") });
     var dl = $("#hero-numeros");
     numeros.forEach(function (n) {
       var dd = h("dd", null, h("span", { "data-contar": n.valor, text: reduzirMovimento ? String(n.valor) : "0" }), h("small", { text: "+" }));
@@ -255,7 +256,22 @@
     if (!ctx) return;
 
     var MAX_LANES = 5;
-    var MENSAGENS = [
+    var MENSAGENS = I.idioma === "en" ? [
+      "feat: PDF quotes",
+      "feat: WhatsApp notifications",
+      "fix: offline postal code lookup",
+      "feat: compatible products by model",
+      "refactor: generic repositories",
+      "feat: quick counter sale",
+      "chore: migration script 005",
+      "feat: sales by department report",
+      "fix: aligned grid on the orders screen",
+      "feat: .msi installer",
+      "perf: indexed queries on PostgreSQL",
+      "test: order rules",
+      "feat: SQLite without admin rights",
+      "docs: updated README",
+    ] : [
       "feat: orçamento em PDF",
       "feat: aviso pelo WhatsApp",
       "fix: busca de CEP sem internet",
@@ -487,7 +503,7 @@
     $("#sobre-hash").textContent = hashCurto(p.sobre.join(" ")) + hashCurto(p.nome) + hashCurto(p.cargo).slice(0, 4);
     $("#sobre-autor").textContent = p.nome + " <" + p.usuario + "@dev>";
     var hoje = new Date();
-    $("#sobre-data").textContent = hoje.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
+    $("#sobre-data").textContent = hoje.toLocaleDateString(I.locale, { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
 
     // O build (tools/build.js) já deixa este conteúdo no HTML para o Google; aqui é montado de novo
     var texto = $("#sobre-texto");
@@ -548,7 +564,7 @@
     });
     form.forEach(function (f) {
       if (!f.inicio) return;
-      ramos.push({ inicio: f.inicio, fim: f.fim && f.fim <= hojeStr ? f.fim : "", nome: "graduação", rotulo: f.instituicao, merge: "merge: graduação ✓", dica: f.curso + " @ " + f.instituicao });
+      ramos.push({ inicio: f.inicio, fim: f.fim && f.fim <= hojeStr ? f.fim : "", nome: tx("graduação"), rotulo: f.instituicao, merge: "merge: " + tx("graduação") + " ✓", dica: f.curso + " @ " + f.instituicao });
     });
 
     // Cada ramo ganha a menor faixa livre (≥ 1) no período dele. Os mais curtos escolhem
@@ -562,10 +578,10 @@
       while (!livre(l, r)) l++;
       (ocupacao[l] = ocupacao[l] || []).push([r.inicio, r.fim || "9999"]);
       r.lane = l;
-      r.fork = { data: r.inicio, lane: l, tipo: "fork", rotulo: r.rotulo, dica: r.dica + " (início " + formatarMes(r.inicio) + ")" };
+      r.fork = { data: r.inicio, lane: l, tipo: "fork", rotulo: r.rotulo, dica: tx("{dica} (início {mes})", { dica: r.dica, mes: formatarMes(r.inicio) }) };
       eventos.push(r.fork);
       if (r.fim) {
-        r.mergeEv = { data: r.fim, lane: 0, tipo: "merge", rotulo: r.merge, dica: r.dica + " (concluído " + formatarMes(r.fim) + ")" };
+        r.mergeEv = { data: r.fim, lane: 0, tipo: "merge", rotulo: r.merge, dica: tx("{dica} (concluído {mes})", { dica: r.dica, mes: formatarMes(r.fim) }) };
         eventos.push(r.mergeEv);
       }
     });
@@ -584,7 +600,7 @@
     var corFaixa = function (l) { return l === 0 ? "var(--menta)" : "var(" + ["--ambar", "--lilas", "--ceu", "--coral"][(l - 1) % 4] + ")"; };
     var atrasoLinha = function (i) { return (n - 1 - i) * 140; }; // de baixo (antigo) para cima (novo)
 
-    var svg = s("svg", { viewBox: "0 0 " + larg + " " + alt, width: larg, height: alt, role: "img", "aria-label": "Linha do tempo da carreira em forma de grafo de commits" });
+    var svg = s("svg", { viewBox: "0 0 " + larg + " " + alt, width: larg, height: alt, role: "img", "aria-label": tx("Linha do tempo da carreira em forma de grafo de commits") });
 
     // Linha da main, desenhada de baixo para cima
     svg.appendChild(s("path", {
@@ -658,23 +674,6 @@
     return Math.max(0, Math.floor(meses / 12));
   }
 
-  // "2 anos e 10 meses", do mês de início até o de saída (ou até hoje)
-  function duracao(inicio, fim) {
-    var a = String(inicio).split("-").map(Number);
-    var hoje = new Date();
-    var b = fim ? String(fim).split("-").map(Number) : [hoje.getFullYear(), hoje.getMonth() + 1];
-    var meses = Math.max(1, (b[0] - a[0]) * 12 + (b[1] - a[1]));
-    var anos = Math.floor(meses / 12), resto = meses % 12;
-    var partes = [];
-    if (anos) partes.push(anos + (anos === 1 ? " ano" : " anos"));
-    if (resto) partes.push(resto + (resto === 1 ? " mês" : " meses"));
-    return partes.join(" e ");
-  }
-
-  function periodo(inicio, fim) {
-    return formatarMes(inicio) + " → " + (fim ? formatarMes(fim) : "hoje");
-  }
-
   function montarExperiencia() {
     var secao = $("#experiencia");
     var exp = D.experiencia || [];
@@ -731,7 +730,7 @@
         },
       });
     }
-    container.appendChild(chip("todos", "todos"));
+    container.appendChild(chip("todos", tx("todos")));
     opcoes.forEach(function (o) { container.appendChild(chip(o, o)); });
   }
 
@@ -755,7 +754,7 @@
     var porCategoria = certs.some(function (c) { return !!c.categoria; });
 
     if (!certs.length) {
-      lista.replaceWith(h("p", { class: "vazio", text: "fatal: No names found, cannot describe anything. (nenhum certificado ainda)" }));
+      lista.replaceWith(h("p", { class: "vazio", text: tx("fatal: No names found, cannot describe anything. (nenhum certificado ainda)") }));
       return;
     }
 
@@ -767,15 +766,15 @@
           var corpo = [
             h("div", { class: "tag-topo" },
               h("span", { class: "tag-versao", text: c._versao }),
-              c.exemplo ? h("span", { class: "selo-exemplo", text: "exemplo" }) : null,
+              c.exemplo ? h("span", { class: "selo-exemplo", text: tx("exemplo") }) : null,
               h("span", { class: "tag-data", text: formatarMes(c.data) })),
             h("h3", { text: c.titulo }),
             h("p", { class: "tag-emissor", text: c.emissor }),
             h("div", { class: "tag-skills" }, (c.skills || []).map(function (s) { return h("span", { text: s }); })),
-            h("span", { class: "tag-verificar" + (temLink ? "" : " sem-link"), text: temLink ? "verificar →" : "link em breve" }),
+            h("span", { class: "tag-verificar" + (temLink ? "" : " sem-link"), text: temLink ? tx("verificar →") : tx("link em breve") }),
           ];
           var cartao = temLink
-            ? h("a", { class: "tag", href: c.url, target: "_blank", rel: "noopener noreferrer", style: "--cor: var(" + c._cor + ")", "aria-label": c.titulo + ", " + c.emissor + " — verificar certificado" }, corpo)
+            ? h("a", { class: "tag", href: c.url, target: "_blank", rel: "noopener noreferrer", style: "--cor: var(" + c._cor + ")", "aria-label": tx("{titulo}, {emissor} — verificar certificado", { titulo: c.titulo, emissor: c.emissor }) }, corpo)
             : h("div", { class: "tag", style: "--cor: var(" + c._cor + ")" }, corpo);
           var item = h("li", null, cartao);
           lista.appendChild(item);
@@ -807,17 +806,17 @@
   // Página própria de cada projeto, gerada pelo build em /projetos/<slug>
   function urlProjeto(p) {
     var slug = p.slug || p.nome.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    return "/projetos/" + slug;
+    return I.prefixo + "/projetos/" + slug;
   }
 
   function botoesProjeto(p, comReadme) {
     return h("div", { class: "repo-acoes" },
       comReadme ? h("button", { class: "btn-peq", type: "button", html: ICONES.livro + " README", onclick: function () { abrirProjeto(p); } }) : null,
-      p.repo ? h("a", { class: "btn-peq", href: p.repo, target: "_blank", rel: "noopener noreferrer", html: ICONES.github + " código" }) : null,
+      p.repo ? h("a", { class: "btn-peq", href: p.repo, target: "_blank", rel: "noopener noreferrer", html: ICONES.github + " " + tx("código") }) : null,
       // Demo no ar (site): mesmo botão de destaque da apresentação, abrindo em outra aba
-      p.demo ? h("a", { class: "btn-peq btn-demo", href: p.demo, target: "_blank", rel: "noopener noreferrer", html: ICONES.play + " demo", "aria-label": "Abrir a demonstração do " + p.nome + " (nova aba)" }) : null,
+      p.demo ? h("a", { class: "btn-peq btn-demo", href: p.demo, target: "_blank", rel: "noopener noreferrer", html: ICONES.play + " demo", "aria-label": tx("Abrir a demonstração do {nome} (nova aba)", { nome: p.nome }) }) : null,
       // Sistema desktop não roda no navegador: a demo é o vídeo e o tour pelas telas
-      comReadme && !p.demo && p.apresentacao ? h("button", { class: "btn-peq btn-demo", type: "button", html: ICONES.play + " demo", "aria-label": "Ver a demonstração do " + p.nome, onclick: function () { abrirProjeto(p, true); } }) : null);
+      comReadme && !p.demo && p.apresentacao ? h("button", { class: "btn-peq btn-demo", type: "button", html: ICONES.play + " demo", "aria-label": tx("Ver a demonstração do {nome}", { nome: p.nome }), onclick: function () { abrirProjeto(p, true); } }) : null);
   }
 
   // Link direto para a demo: www.alexmatias.dev.br/#demo-gestaocomercial
@@ -845,7 +844,7 @@
             h("div", { class: "repo-cab" },
               h("span", { html: ICONES.repo }),
               h("h3", null, h("a", { href: urlProjeto(p), text: p.nome })),
-              h("span", { class: "repo-visib", text: p.repo ? "público" : "privado" })),
+              h("span", { class: "repo-visib", text: p.repo ? tx("público") : tx("privado") })),
             h("p", { class: "repo-resumo", text: p.resumo }),
             barraLinguagens(p.linguagens),
             h("div", { class: "repo-tags" }, (p.tags || []).map(function (t) { return h("span", { text: t }); })),
@@ -871,15 +870,15 @@
   function montarApresentacao(a) {
     var pasta = a.pasta || "";
     var frag = document.createDocumentFragment();
-    frag.appendChild(h("h4", { id: "proj-apresentacao", text: "## Apresentação" }));
+    frag.appendChild(h("h4", { id: "proj-apresentacao", text: tx("## Apresentação") }));
     var video = h("video", {
       class: "proj-video", src: pasta + a.video, poster: a.capa ? pasta + a.capa : null,
       controls: true, playsinline: true, preload: "none",
-      "aria-label": "Vídeo de apresentação do sistema",
+      "aria-label": tx("Vídeo de apresentação do sistema"),
     });
     frag.appendChild(video);
 
-    frag.appendChild(h("h4", { text: "## Tour pelas telas" }));
+    frag.appendChild(h("h4", { text: tx("## Tour pelas telas") }));
     if (a.intro) frag.appendChild(h("p", { class: "tour-intro", text: a.intro }));
 
     var lista = h("ol", { class: "tour" });
@@ -887,7 +886,7 @@
       var num = String(i + 1).padStart(2, "0");
       lista.appendChild(h("li", { class: "tela" },
         h("button", {
-          type: "button", class: "tela-img", "aria-label": "Ampliar: " + t.titulo,
+          type: "button", class: "tela-img", "aria-label": tx("Ampliar: {titulo}", { titulo: t.titulo }),
           onclick: function () { abrirGaleria(a, i); },
         },
           h("img", { src: pasta + "telas/mini/" + t.arquivo + ".webp", alt: t.titulo, loading: "lazy", width: 720, height: 405 }),
@@ -965,7 +964,7 @@
     alvo.appendChild(h("p", { text: p.resumo }));
     if (p.apresentacao) alvo.appendChild(montarApresentacao(p.apresentacao));
     if (p.detalhes && p.detalhes.length) {
-      alvo.appendChild(h("h4", { text: "## Destaques" }));
+      alvo.appendChild(h("h4", { text: tx("## Destaques") }));
       alvo.appendChild(h("ul", null, p.detalhes.map(function (d) { return h("li", { text: d }); })));
     }
     if (p.tags && p.tags.length) {
@@ -974,12 +973,12 @@
     }
     var barra = barraLinguagens(p.linguagens);
     if (barra) {
-      alvo.appendChild(h("h4", { text: "## Linguagens" }));
+      alvo.appendChild(h("h4", { text: tx("## Linguagens") }));
       alvo.appendChild(barra);
     }
-    if (!p.repo) alvo.appendChild(h("p", { class: "mono", style: "margin-top:18px;font-size:13px;color:var(--texto-3)", text: "Repositório privado. Código disponível sob consulta." }));
+    if (!p.repo) alvo.appendChild(h("p", { class: "mono", style: "margin-top:18px;font-size:13px;color:var(--texto-3)", text: tx("Repositório privado. Código disponível sob consulta.") }));
     alvo.appendChild(botoesProjeto(p, false));
-    alvo.appendChild(h("p", { class: "modal-pagina" }, h("a", { href: urlProjeto(p), text: "Ver a página completa do projeto →" })));
+    alvo.appendChild(h("p", { class: "modal-pagina" }, h("a", { href: urlProjeto(p), text: tx("Ver a página completa do projeto →") })));
     var modal = $("#modal-proj");
     if (!modal.dataset.pararVideos) {
       modal.addEventListener("close", pararVideosProjeto);
@@ -1099,18 +1098,18 @@
       if (copia) {
         var botao = h("button", {
           type: "button", class: "canal-copiar", html: ICONES.copiar,
-          "aria-label": "Copiar " + rotulo, "data-dica": "copiar",
+          "aria-label": tx("Copiar {rotulo}", { rotulo: rotulo }), "data-dica": tx("copiar"),
           onclick: function () {
             copiar(copia.texto, copia.aviso);
             rastrear("copiar_contato", { canal: rotulo });
             botao.innerHTML = ICONES.check;
             botao.classList.add("copiado");
-            botao.setAttribute("data-dica", "copiado!");
+            botao.setAttribute("data-dica", tx("copiado!"));
             clearTimeout(botao._t);
             botao._t = setTimeout(function () {
               botao.innerHTML = ICONES.copiar;
               botao.classList.remove("copiado");
-              botao.setAttribute("data-dica", "copiar");
+              botao.setAttribute("data-dica", tx("copiar"));
             }, 1800);
           },
         });
@@ -1119,15 +1118,15 @@
       ul.appendChild(li);
     }
 
-    if (c.email) canal(ICONES.email, "email", c.email, { href: "mailto:" + c.email }, { texto: c.email, aviso: "E-mail copiado!" });
-    if (c.github) canal(ICONES.github, "origin", c.github.replace(/^https?:\/\/(www\.)?/, ""), { href: c.github, target: "_blank", rel: "noopener noreferrer" }, { texto: c.github, aviso: "Link do GitHub copiado!" });
-    if (c.linkedin) canal(ICONES.linkedin, "linkedin", c.linkedin.replace(/^https?:\/\/(www\.)?/, ""), { href: c.linkedin, target: "_blank", rel: "noopener noreferrer" }, { texto: c.linkedin, aviso: "Link do LinkedIn copiado!" });
+    if (c.email) canal(ICONES.email, "email", c.email, { href: "mailto:" + c.email }, { texto: c.email, aviso: tx("E-mail copiado!") });
+    if (c.github) canal(ICONES.github, "origin", c.github.replace(/^https?:\/\/(www\.)?/, ""), { href: c.github, target: "_blank", rel: "noopener noreferrer" }, { texto: c.github, aviso: tx("Link do GitHub copiado!") });
+    if (c.linkedin) canal(ICONES.linkedin, "linkedin", c.linkedin.replace(/^https?:\/\/(www\.)?/, ""), { href: c.linkedin, target: "_blank", rel: "noopener noreferrer" }, { texto: c.linkedin, aviso: tx("Link do LinkedIn copiado!") });
     if (c.instagram) canal(ICONES.instagram, "instagram", "@" + c.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/+$/, ""), { href: c.instagram, target: "_blank", rel: "noopener noreferrer" });
     if (c.whatsapp) {
       var num = String(c.whatsapp).replace(/\D/g, "");
-      canal(ICONES.whatsapp, "whatsapp", "mandar mensagem", { href: "https://wa.me/" + num + (c.whatsappMensagem ? "?text=" + encodeURIComponent(c.whatsappMensagem) : ""), target: "_blank", rel: "noopener noreferrer" });
+      canal(ICONES.whatsapp, "whatsapp", tx("mandar mensagem"), { href: "https://wa.me/" + num + (c.whatsappMensagem ? "?text=" + encodeURIComponent(c.whatsappMensagem) : ""), target: "_blank", rel: "noopener noreferrer" });
     }
-    if (!ul.children.length) ul.appendChild(h("li", { class: "mono", style: "color:var(--texto-3);font-size:13px", text: "Nenhum canal configurado em js/data.js" }));
+    if (!ul.children.length) ul.appendChild(h("li", { class: "mono", style: "color:var(--texto-3);font-size:13px", text: tx("Nenhum canal configurado em js/data.js") }));
 
     var form = $("#form-pr");
     var campos = { nome: $("#pr-nome"), email: $("#pr-email"), titulo: $("#pr-titulo"), mensagem: $("#pr-msg") };
@@ -1150,7 +1149,7 @@
         if (!ok) tudoOk = false;
       });
       var primeiroNome = campos.nome.value.trim().split(/\s+/)[0];
-      $("#pr-saudacao").textContent = (primeiroNome ? "Olá, " + primeiroNome + "! " : "") + "Sua mensagem chega direto no meu e-mail, e eu respondo pessoalmente.";
+      $("#pr-saudacao").textContent = (primeiroNome ? tx("Olá, {nome}! ", { nome: primeiroNome }) : "") + tx("Sua mensagem chega direto no meu e-mail, e eu respondo pessoalmente.");
       return tudoOk;
     }
 
@@ -1160,17 +1159,17 @@
       tentou = true;
       var status = $("#pr-status");
       if (!verificar()) {
-        status.textContent = "✗ Alguns checks falharam. Confira os campos marcados.";
+        status.textContent = tx("✗ Alguns checks falharam. Confira os campos marcados.");
         var primeiro = Object.keys(regras).filter(function (k) { return !regras[k](campos[k].value); })[0];
         if (primeiro) campos[primeiro].focus();
         return;
       }
       if (!c.email) {
-        status.textContent = "✗ O e-mail de destino ainda não foi configurado em js/data.js.";
+        status.textContent = tx("✗ O e-mail de destino ainda não foi configurado em js/data.js.");
         return;
       }
       // Robô preencheu o campo invisível: finge que deu certo e não envia nada
-      if ($("#pr-site").value) { status.textContent = "✓ Mensagem enviada."; form.reset(); return; }
+      if ($("#pr-site").value) { status.textContent = tx("✓ Mensagem enviada."); form.reset(); return; }
 
       status.textContent = "";
       revisarPR({
@@ -1201,21 +1200,21 @@
 
     function revisarPR(msg) {
       var numero = Math.floor(Math.random() * 90) + 10;
-      tela("Revisar pull request",
+      tela(tx("Revisar pull request"),
         h("p", { class: "pr-rev-cab mono" },
           h("span", { class: "pr-badge", text: "● Open" }),
-          h("span", { text: " #" + numero + " · de " + msg.nome + " para " }),
+          h("span", { text: tx(" #{numero} · de {nome} para ", { numero: numero, nome: msg.nome }) }),
           h("code", { text: "alex:main" })),
         h("h3", { class: "pr-rev-titulo", id: "pr-modal-titulo", text: msg.titulo }),
         h("dl", { class: "pr-rev-dados" },
-          h("div", null, h("dt", { text: "de" }), h("dd", { text: msg.nome + " <" + msg.email + ">" })),
-          h("div", null, h("dt", { text: "para" }), h("dd", { text: "Alex Matias" }))),
-        h("div", { class: "pr-rev-diff mono", "aria-label": "Mensagem" },
+          h("div", null, h("dt", { text: tx("de") }), h("dd", { text: msg.nome + " <" + msg.email + ">" })),
+          h("div", null, h("dt", { text: tx("para") }), h("dd", { text: "Alex Matias" }))),
+        h("div", { class: "pr-rev-diff mono", "aria-label": tx("Mensagem") },
           msg.mensagem.split("\n").map(function (l) { return h("p", { text: "+ " + l }); })),
-        h("p", { class: "pr-rev-aviso", text: "Confira se o seu e-mail está certo: é por ele que eu vou responder." }),
+        h("p", { class: "pr-rev-aviso", text: tx("Confira se o seu e-mail está certo: é por ele que eu vou responder.") }),
         h("div", { class: "pr-rev-acoes" },
-          botaoAcao("Voltar e editar", "btn-secundario", function () { fecharDialogo(dlg); campos.mensagem.focus(); }),
-          botaoAcao("Confirmar e enviar", "btn-primario", function () { enviarPR(msg, numero); })));
+          botaoAcao(tx("Voltar e editar"), "btn-secundario", function () { fecharDialogo(dlg); campos.mensagem.focus(); }),
+          botaoAcao(tx("Confirmar e enviar"), "btn-primario", function () { enviarPR(msg, numero); })));
       abrirDialogo(dlg);
       var confirmar = $(".pr-rev-acoes .btn-primario", corpoDlg);
       if (confirmar) confirmar.focus();
@@ -1223,11 +1222,11 @@
 
     function enviarPR(msg, numero) {
       travar(true);
-      tela("Enviando…",
+      tela(tx("Enviando…"),
         h("div", { class: "pr-enviando", role: "status" },
           h("span", { class: "pr-spinner", "aria-hidden": "true" }),
           h("p", { class: "mono", text: "git push origin pr/" + numero }),
-          h("p", { class: "pr-rev-aviso", text: "Enviando sua mensagem, só um instante." })));
+          h("p", { class: "pr-rev-aviso", text: tx("Enviando sua mensagem, só um instante.") })));
 
       // FormSubmit: envia o formulário para o e-mail sem precisar de servidor próprio
       fetch("https://formsubmit.co/ajax/" + (c.formsubmitId || c.email), {
@@ -1254,15 +1253,15 @@
           form.reset();
           tentou = false;
           verificar();
-          $("#pr-status").textContent = "✓ PR #" + numero + " enviado. Obrigado pelo contato!";
+          $("#pr-status").textContent = tx("✓ PR #{numero} enviado. Obrigado pelo contato!", { numero: numero });
           tela("Pull request merged",
             h("div", { class: "pr-sucesso", role: "status" },
               h("span", { class: "pr-sucesso-ico", "aria-hidden": "true", text: "✓" }),
-              h("h3", { id: "pr-modal-titulo", text: "Mensagem enviada!" }),
+              h("h3", { id: "pr-modal-titulo", text: tx("Mensagem enviada!") }),
               h("p", { class: "mono pr-merged", text: "PR #" + numero + " merged into alex:main" }),
-              h("p", { text: "Obrigado, " + msg.nome.split(/\s+/)[0] + ". Recebi sua mensagem e vou responder em " + msg.email + "." })),
+              h("p", { text: tx("Obrigado, {nome}. Recebi sua mensagem e vou responder em {email}.", { nome: msg.nome.split(/\s+/)[0], email: msg.email }) })),
             h("div", { class: "pr-rev-acoes" },
-              botaoAcao("Fechar", "btn-primario", function () { fecharDialogo(dlg); })));
+              botaoAcao(tx("Fechar"), "btn-primario", function () { fecharDialogo(dlg); })));
           var fechar = $(".pr-rev-acoes .btn-primario", corpoDlg);
           if (fechar) fechar.focus();
         })
@@ -1271,14 +1270,14 @@
           // Alternativa: o próprio visitante envia pelo app de e-mail (só abre com o clique dele)
           var corpo = msg.mensagem + "\n\n— " + msg.nome + " <" + msg.email + ">";
           var mailto = "mailto:" + c.email + "?subject=" + encodeURIComponent("[Portfólio] " + msg.titulo) + "&body=" + encodeURIComponent(corpo);
-          tela("Falha no envio",
+          tela(tx("Falha no envio"),
             h("div", { class: "pr-sucesso pr-falha", role: "alert" },
               h("span", { class: "pr-sucesso-ico", "aria-hidden": "true", text: "✗" }),
-              h("h3", { id: "pr-modal-titulo", text: "Não consegui enviar agora" }),
-              h("p", { text: "Sua mensagem não se perdeu: ela continua no formulário. Tente de novo ou envie pelo seu e-mail." })),
+              h("h3", { id: "pr-modal-titulo", text: tx("Não consegui enviar agora") }),
+              h("p", { text: tx("Sua mensagem não se perdeu: ela continua no formulário. Tente de novo ou envie pelo seu e-mail.") })),
             h("div", { class: "pr-rev-acoes" },
-              h("a", { class: "btn btn-secundario", href: mailto, text: "Enviar pelo meu e-mail" }),
-              botaoAcao("Tentar de novo", "btn-primario", function () { enviarPR(msg, numero); })));
+              h("a", { class: "btn btn-secundario", href: mailto, text: tx("Enviar pelo meu e-mail") }),
+              botaoAcao(tx("Tentar de novo"), "btn-primario", function () { enviarPR(msg, numero); })));
         });
     }
   }
@@ -1297,7 +1296,7 @@
     try { localStorage.setItem("tema", novo); } catch (e) { /* sem armazenamento */ }
     atualizarCorTema();
     document.dispatchEvent(new Event("tema-alterado"));
-    toast("tema: " + novo);
+    toast(tx("tema: {tema}", { tema: tx(novo) }));
   }
   function atualizarCorTema() {
     var meta = $('meta[name="theme-color"]');
@@ -1317,9 +1316,9 @@
     // Cada ponto do trilho é um botão que leva até a seção
     var nos = secoes.map(function (s) {
       var titulo = $("h1 #hero-nome, h2", s);
-      var nome = s.id === "inicio" ? "Início" : (titulo ? titulo.textContent.trim() : s.id);
+      var nome = s.id === "inicio" ? tx("Início") : (titulo ? titulo.textContent.trim() : s.id);
       var botao = h("button", {
-        type: "button", class: "trilho-no", "aria-label": "Ir para " + nome, title: nome,
+        type: "button", class: "trilho-no", "aria-label": tx("Ir para {nome}", { nome: nome }), title: nome,
         onclick: function () { irPara(s.id); },
       }, h("span", { text: s.getAttribute("data-commit") }));
       var li = h("li", null, botao);
@@ -1406,18 +1405,28 @@
 
     function ir(id) { return function () { irPara(id); }; }
     var comandos = [
-      { rotulo: "Ir para o início", dica: "git checkout main", acao: ir("inicio") },
-      { rotulo: "Ir para sobre", dica: "git show sobre", acao: ir("sobre") },
-      { rotulo: "Ir para experiência (carreira)", dica: "git log", acao: ir("experiencia") },
-      { rotulo: "Ir para certificados", dica: "git tag", acao: ir("certificados") },
-      { rotulo: "Ir para projetos", dica: "ls ~/repos", acao: ir("projetos") },
-      { rotulo: "Ir para contato", dica: "gh pr create", acao: ir("contato") },
-      { rotulo: "Alternar tema claro/escuro", dica: "tema", acao: alternarTema },
+      { rotulo: tx("Ir para o início"), dica: "git checkout main", acao: ir("inicio") },
+      { rotulo: tx("Ir para sobre"), dica: tx("git show sobre"), acao: ir("sobre") },
+      { rotulo: tx("Ir para experiência (carreira)"), dica: "git log", acao: ir("experiencia") },
+      { rotulo: tx("Ir para certificados"), dica: "git tag", acao: ir("certificados") },
+      { rotulo: tx("Ir para projetos"), dica: "ls ~/repos", acao: ir("projetos") },
+      { rotulo: tx("Ir para contato"), dica: "gh pr create", acao: ir("contato") },
+      { rotulo: tx("Alternar tema claro/escuro"), dica: tx("tema"), acao: alternarTema },
     ];
-    if (D.contato.email) comandos.push({ rotulo: "Copiar e-mail", dica: D.contato.email, acao: function () { copiar(D.contato.email, "E-mail copiado!"); } });
-    if (D.contato.github) comandos.push({ rotulo: "Abrir GitHub", dica: "git remote -v", acao: function () { window.open(D.contato.github, "_blank", "noopener"); } });
-    if (D.contato.linkedin) comandos.push({ rotulo: "Abrir LinkedIn", dica: "linkedin", acao: function () { window.open(D.contato.linkedin, "_blank", "noopener"); } });
-    if (D.contato.instagram) comandos.push({ rotulo: "Abrir Instagram", dica: "instagram", acao: function () { window.open(D.contato.instagram, "_blank", "noopener"); } });
+    // Trocar de idioma: vai para esta página no outro idioma e guarda a escolha
+    var outroIdioma = I.idioma === "en" ? "pt" : "en";
+    var linkOutro = document.querySelector('link[rel="alternate"][hreflang="' + (outroIdioma === "en" ? "en" : "pt-BR") + '"]');
+    if (linkOutro) comandos.push({
+      rotulo: outroIdioma === "en" ? tx("Ler em inglês") : tx("Ler em português"), dica: "git checkout " + outroIdioma,
+      acao: function () {
+        try { localStorage.setItem("idioma", outroIdioma); } catch (e) { /* sem armazenamento */ }
+        location.href = new URL(linkOutro.href).pathname;
+      },
+    });
+    if (D.contato.email) comandos.push({ rotulo: tx("Copiar e-mail"), dica: D.contato.email, acao: function () { copiar(D.contato.email, tx("E-mail copiado!")); } });
+    if (D.contato.github) comandos.push({ rotulo: tx("Abrir GitHub"), dica: "git remote -v", acao: function () { window.open(D.contato.github, "_blank", "noopener"); } });
+    if (D.contato.linkedin) comandos.push({ rotulo: tx("Abrir LinkedIn"), dica: "linkedin", acao: function () { window.open(D.contato.linkedin, "_blank", "noopener"); } });
+    if (D.contato.instagram) comandos.push({ rotulo: tx("Abrir Instagram"), dica: "instagram", acao: function () { window.open(D.contato.instagram, "_blank", "noopener"); } });
     D.projetos.forEach(function (p) {
       comandos.push({ rotulo: "README: " + p.nome, dica: "cat " + p.nome + "/README.md", acao: function () { abrirProjeto(p); } });
     });
@@ -1430,7 +1439,7 @@
       selecionado = Math.min(selecionado, Math.max(0, filtrados.length - 1));
       lista.textContent = "";
       if (!filtrados.length) {
-        lista.appendChild(h("li", { class: "nada", text: "comando não encontrado: " + input.value }));
+        lista.appendChild(h("li", { class: "nada", text: tx("comando não encontrado: {q}", { q: input.value }) }));
         input.removeAttribute("aria-activedescendant");
         return;
       }
@@ -1502,7 +1511,7 @@
       var agora = Date.now();
       if (agora - ultimoAviso < 2500) return;
       ultimoAviso = agora;
-      toast(D.contato.email ? "Conteúdo protegido · use \"copiar email\" no contato" : "Conteúdo protegido");
+      toast(D.contato.email ? tx("Conteúdo protegido · use \"copiar email\" no contato") : tx("Conteúdo protegido"));
     }
     ["copy", "cut"].forEach(function (tipo) {
       document.addEventListener(tipo, function (e) {
@@ -1533,28 +1542,29 @@
     var texto = "font: 14px/1.6 'JetBrains Mono', Consolas, monospace; color: #9fb0c0;";
     var link = "font: 14px/1.6 'JetBrains Mono', Consolas, monospace; color: #5cc8ff;";
     var grafo = [
-      "  * a1c3e47 (HEAD -> main) você abriu o console",
+      "  * a1c3e47 (HEAD -> main) " + tx("você abriu o console"),
       "  |\\",
-      "  | * 5f0d2b1 feat: curiosidade de dev",
+      "  | * 5f0d2b1 " + tx("feat: curiosidade de dev"),
       "  |/",
       "  * 0c0ffee init",
     ].join("\n");
-    var linhas = ["%cOlá, dev curioso! 👋", "%c" + grafo + "\n\nJá que você está aqui… que tal a gente conversar?"];
+    var linhas = ["%c" + tx("Olá, dev curioso! 👋"), "%c" + grafo + "\n\n" + tx("Já que você está aqui… que tal a gente conversar?")];
     var estilos = [titulo, texto];
     if (c.linkedin) { linhas.push("%cLinkedIn  → %c" + c.linkedin); estilos.push(texto, link); }
     if (c.github) { linhas.push("%cGitHub    → %c" + c.github); estilos.push(texto, link); }
     if (c.whatsapp) { linhas.push("%cWhatsApp  → %chttps://wa.me/" + String(c.whatsapp).replace(/\D/g, "")); estilos.push(texto, link); }
     if (c.instagram) { linhas.push("%cInstagram → %c" + c.instagram); estilos.push(texto, link); }
     if (c.email) { linhas.push("%cE-mail    → %c" + c.email); estilos.push(texto, link); }
-    linhas.push("%cDigite %cvamosConversar()%c para ir direto ao formulário de contato.");
+    linhas.push("%c" + tx("Digite ") + "%c" + (I.idioma === "en" ? "letsTalk()" : "vamosConversar()") + "%c" + tx(" para ir direto ao formulário de contato."));
     estilos.push(texto, link, texto);
     console.log.apply(console, [linhas.join("\n")].concat(estilos));
 
     window.vamosConversar = function () {
       irPara("contato");
       setTimeout(function () { $("#pr-nome").focus({ preventScroll: true }); }, 600);
-      return "Abrindo o contato… até já! 🚀";
+      return tx("Abrindo o contato… até já! 🚀");
     };
+    window.letsTalk = window.vamosConversar;
   }
 
   /* ============================================================

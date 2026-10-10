@@ -69,10 +69,13 @@
   </div>
   <p class="rodape mono"><b>alexmatias.dev.br</b> · projeto de Alex Matias</p>
 
+  <script src="../js/i18n.js"></script>
   <script src="../js/data.js"></script>
   <script>
     var slug = new URLSearchParams(location.search).get("slug");
-    var p = window.PORTFOLIO.projetos.filter(function (x) { return x.slug === slug; })[0];
+    // Imagem em português (os textos dos dados vêm como L("pt", "en"))
+    var dados = window.I18N ? window.I18N.criar("pt").resolver(window.PORTFOLIO) : window.PORTFOLIO;
+    var p = dados.projetos.filter(function (x) { return x.slug === slug; })[0];
     document.getElementById("slug").textContent = slug;
     document.getElementById("nome").textContent = p.nome;
     // Resumo curto: a primeira frase, que cabe bem na imagem
@@ -92,7 +95,7 @@
       document.body.classList.add("com-tela");
       var div = document.createElement("div");
       div.className = "tela";
-      div.innerHTML = '<img src="../' + p.apresentacao.pasta + "telas/" + p.apresentacao.telas[0].arquivo + '.jpg" alt="">';
+      div.innerHTML = '<img src="../' + p.apresentacao.pasta.replace(/^\/+/, "") + "telas/" + p.apresentacao.telas[0].arquivo + '.jpg" alt="">';
       document.body.appendChild(div);
     } else {
       // Sem prints: um grafo de commits, como no resto do site
