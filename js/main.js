@@ -80,12 +80,46 @@
   }
 
   // Rola até uma seção e atualiza o endereço (#secao) sem pular a página
-  function irPara(id) {
+  // Rola até uma seção sem pôr "#secao" no endereço: a barra fica sempre alexmatias.dev.br
+  function irPara(id, instantaneo) {
     var el = document.getElementById(id);
     if (!el) return;
-    // Atualiza o endereço antes de rolar: trocar a URL no meio da rolagem suave a interrompe no Chrome
-    if (history.replaceState) history.replaceState(null, "", id === "inicio" ? location.pathname : "#" + id);
-    el.scrollIntoView({ behavior: reduzirMovimento ? "auto" : "smooth" });
+    limparEndereco(); // antes de rolar: trocar a URL no meio da rolagem suave a interrompe no Chrome
+    // "instant" ignora o scroll-behavior: smooth do CSS (usado ao abrir um link antigo com #secao)
+    el.scrollIntoView({ behavior: instantaneo ? "instant" : reduzirMovimento ? "auto" : "smooth" });
+  }
+
+  function limparEndereco() {
+    if (location.hash && history.replaceState) history.replaceState(null, "", location.pathname + location.search);
+  }
+
+  // Links internos (menu, botões "#secao") navegam por irPara em vez de mexer na URL.
+  // Links antigos com #secao (ex.: compartilhados antes) ainda funcionam: rola até lá e limpa a URL.
+  function prepararLinksInternos() {
+    document.addEventListener("click", function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+      var link = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!link) return;
+      var id = link.getAttribute("href").slice(1);
+      var alvo = id && document.getElementById(id);
+      if (!alvo) return;
+      e.preventDefault();
+      if (id === "conteudo") { // "Pular para o conteúdo": leva o foco junto
+        alvo.setAttribute("tabindex", "-1");
+        alvo.focus({ preventScroll: true });
+      }
+      irPara(id);
+    });
+
+    // "#demo-<projeto>" é tratado por abrirDemoPeloEndereco, que abre a demonstração
+    if (location.hash && !/^#demo-/i.test(location.hash)) {
+      var id = decodeURIComponent(location.hash.slice(1));
+      limparEndereco();
+      // Espera a página terminar de carregar (fontes e imagens) para cair no lugar certo
+      var rolar = function () { setTimeout(function () { irPara(id, true); }, 30); };
+      if (document.readyState === "complete") rolar();
+      else window.addEventListener("load", rolar, { once: true });
+    }
   }
 
   // Evento no Google Analytics (se ele estiver ligado; fora do domínio oficial não faz nada)
@@ -107,6 +141,8 @@
     whatsapp: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.6-.3Z"/></svg>',
     instagram: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"/></svg>',
     check: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>',
+    play: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.8v10.4a.8.8 0 0 0 1.22.68l8.3-5.2a.8.8 0 0 0 0-1.36l-8.3-5.2A.8.8 0 0 0 4 2.8Z"/></svg>',
+    zoom: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 3a7.5 7.5 0 0 1 5.96 12.05l4.25 4.24a1 1 0 0 1-1.42 1.42l-4.24-4.25A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Zm0 2a1 1 0 0 1 1 1v1.5H13a1 1 0 1 1 0 2h-1.5V13a1 1 0 1 1-2 0v-1.5H8a1 1 0 1 1 0-2h1.5V8a1 1 0 0 1 1-1Z"/></svg>',
     copiar: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 6.75C0 5.78.78 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .14.11.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Zm5-5C5 .78 5.78 0 6.75 0h7.5C15.22 0 16 .78 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .14.11.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>',
   };
 
@@ -763,9 +799,23 @@
   function botoesProjeto(p, comReadme) {
     return h("div", { class: "repo-acoes" },
       comReadme ? h("button", { class: "btn-peq", type: "button", html: ICONES.livro + " README", onclick: function () { abrirProjeto(p); } }) : null,
-      comReadme && p.apresentacao ? h("button", { class: "btn-peq", type: "button", text: "▶ apresentação", onclick: function () { abrirProjeto(p, true); } }) : null,
       p.repo ? h("a", { class: "btn-peq", href: p.repo, target: "_blank", rel: "noopener noreferrer", html: ICONES.github + " código" }) : null,
-      p.demo ? h("a", { class: "btn-peq", href: p.demo, target: "_blank", rel: "noopener noreferrer", html: ICONES.link + " demo" }) : null);
+      p.demo ? h("a", { class: "btn-peq", href: p.demo, target: "_blank", rel: "noopener noreferrer", html: ICONES.link + " demo" }) : null,
+      // Sistema desktop não roda no navegador: a demo é o vídeo e o tour pelas telas
+      comReadme && !p.demo && p.apresentacao ? h("button", { class: "btn-peq btn-demo", type: "button", html: ICONES.play + " demo", "aria-label": "Ver a demonstração do " + p.nome, onclick: function () { abrirProjeto(p, true); } }) : null);
+  }
+
+  // Link direto para a demo: www.alexmatias.dev.br/#demo-gestaocomercial
+  function abrirDemoPeloEndereco() {
+    var m = /^#demo-(.+)$/i.exec(location.hash);
+    if (!m) return;
+    var alvo = decodeURIComponent(m[1]).toLowerCase();
+    var p = D.projetos.filter(function (x) { return x.apresentacao && x.nome.toLowerCase() === alvo; })[0];
+    if (!p) return;
+    var secao = $("#projetos");
+    if (secao) secao.scrollIntoView();
+    abrirProjeto(p, true);
+    limparEndereco(); // o link funciona, mas a barra de endereço fica limpa
   }
 
   function montarProjetos() {
@@ -800,48 +850,103 @@
     render("todos");
   }
 
-  // Vídeo de apresentação e tour pelas telas (só para projetos com `apresentacao`)
-  var observadorClipes = null;
-
+  // Vídeo de apresentação e tour pelas telas (só para projetos com `apresentacao`).
+  // O vídeo roda sozinho (mudo, em loop) enquanto a janela está aberta; as telas são
+  // imagens que abrem ampliadas numa galeria (setas, teclado e arrastar no celular).
   function montarApresentacao(a) {
     var pasta = a.pasta || "";
     var frag = document.createDocumentFragment();
     frag.appendChild(h("h4", { id: "proj-apresentacao", text: "## Apresentação" }));
-    frag.appendChild(h("video", { class: "proj-video", src: pasta + a.video, poster: a.capa ? pasta + a.capa : null,
-      controls: true, muted: true, playsinline: true, preload: "none" }));
+    var video = h("video", {
+      class: "proj-video", src: pasta + a.video, poster: a.capa ? pasta + a.capa : null,
+      controls: true, loop: true, playsinline: true, preload: "metadata",
+      "aria-label": "Vídeo de apresentação do sistema",
+    });
+    video.muted = true; // a propriedade (não o atributo) é que libera o autoplay
+    frag.appendChild(video);
+
     frag.appendChild(h("h4", { text: "## Tour pelas telas" }));
     if (a.intro) frag.appendChild(h("p", { class: "tour-intro", text: a.intro }));
 
     var lista = h("ol", { class: "tour" });
     a.telas.forEach(function (t, i) {
-      var clipe = h("video", { src: pasta + "videos/" + t.arquivo + ".mp4", poster: pasta + "telas/" + t.arquivo + ".jpg",
-        muted: true, loop: true, playsinline: true, preload: "none", controls: reduzirMovimento, "aria-label": t.titulo });
-      lista.appendChild(h("li", { class: "tela" }, clipe,
+      var num = String(i + 1).padStart(2, "0");
+      lista.appendChild(h("li", { class: "tela" },
+        h("button", {
+          type: "button", class: "tela-img", "aria-label": "Ampliar: " + t.titulo,
+          onclick: function () { abrirGaleria(a, i); },
+        },
+          h("img", { src: pasta + "telas/mini/" + t.arquivo + ".jpg", alt: t.titulo, loading: "lazy", width: 720, height: 405 }),
+          h("span", { class: "tela-zoom", "aria-hidden": "true", html: ICONES.zoom })),
         h("div", { class: "tela-txt" },
-          h("b", null, h("span", { class: "tela-num mono", text: String(i + 1).padStart(2, "0") }), t.titulo),
+          h("b", null, h("span", { class: "tela-num mono", text: num }), t.titulo),
           h("span", { text: t.texto }))));
     });
     frag.appendChild(lista);
-    // O atributo `muted` criado depois do elemento não silencia; o autoplay exige a propriedade
-    $$("video", frag).forEach(function (v) { v.muted = true; });
-
-    // Os clipes rodam sozinhos só enquanto estão visíveis na janela
-    if (!reduzirMovimento && "IntersectionObserver" in window) {
-      if (observadorClipes) observadorClipes.disconnect();
-      observadorClipes = new IntersectionObserver(function (entradas) {
-        entradas.forEach(function (e) {
-          if (e.isIntersecting) { var tentativa = e.target.play(); if (tentativa && tentativa.catch) tentativa.catch(function () {}); }
-          else e.target.pause();
-        });
-      }, { root: $("#modal-conteudo"), threshold: 0.5 });
-      $$("video", lista).forEach(function (v) { observadorClipes.observe(v); });
-    }
     return frag;
   }
 
+  function tocarVideoProjeto() {
+    if (reduzirMovimento) return;
+    var v = $("#modal-conteudo .proj-video");
+    if (!v) return;
+    var tentativa = v.play();
+    if (tentativa && tentativa.catch) tentativa.catch(function () { /* navegador bloqueou: fica o botão play */ });
+  }
+
   function pararVideosProjeto() {
-    if (observadorClipes) { observadorClipes.disconnect(); observadorClipes = null; }
     $$("#modal-conteudo video").forEach(function (v) { v.pause(); });
+  }
+
+  /* --- Galeria: tela ampliada com anterior/próxima --- */
+  var galeria = { a: null, i: 0 };
+
+  function mostrarTela(i) {
+    var a = galeria.a, total = a.telas.length;
+    galeria.i = (i + total) % total;
+    var t = a.telas[galeria.i];
+    var img = $("#galeria-img");
+    img.classList.remove("zoom");
+    img.src = (a.pasta || "") + "telas/" + t.arquivo + ".jpg";
+    img.alt = t.titulo;
+    $("#galeria-num").textContent = String(galeria.i + 1).padStart(2, "0") + " / " + String(total).padStart(2, "0");
+    $("#galeria-titulo").textContent = t.titulo;
+    $("#galeria-texto").textContent = t.texto;
+    $("#galeria-quadro").scrollTo(0, 0);
+    // Pré-carrega as vizinhas para a troca ser instantânea
+    [galeria.i + 1, galeria.i - 1].forEach(function (k) {
+      var viz = a.telas[(k + total) % total];
+      new Image().src = (a.pasta || "") + "telas/" + viz.arquivo + ".jpg";
+    });
+  }
+
+  function abrirGaleria(a, i) {
+    galeria.a = a;
+    mostrarTela(i);
+    abrirDialogo($("#galeria"));
+    rastrear("ver_tela", { tela: a.telas[i].titulo });
+  }
+
+  function prepararGaleria() {
+    var dlg = $("#galeria");
+    if (!dlg) return;
+    $("#galeria-ant").addEventListener("click", function () { mostrarTela(galeria.i - 1); });
+    $("#galeria-prox").addEventListener("click", function () { mostrarTela(galeria.i + 1); });
+    // Clique na imagem alterna entre caber na tela e o tamanho real (com rolagem)
+    $("#galeria-img").addEventListener("click", function () { this.classList.toggle("zoom"); });
+    dlg.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") { e.preventDefault(); mostrarTela(galeria.i + 1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); mostrarTela(galeria.i - 1); }
+    });
+    // Arrastar para o lado no celular
+    var x0 = null;
+    dlg.addEventListener("pointerdown", function (e) { if (e.pointerType !== "mouse") x0 = e.clientX; });
+    dlg.addEventListener("pointerup", function (e) {
+      if (x0 === null) return;
+      var dx = e.clientX - x0;
+      x0 = null;
+      if (Math.abs(dx) > 50 && !$("#galeria-img").classList.contains("zoom")) mostrarTela(galeria.i + (dx < 0 ? 1 : -1));
+    });
   }
 
   function abrirProjeto(p, irParaApresentacao) {
@@ -874,6 +979,7 @@
       modal.dataset.pararVideos = "1";
     }
     abrirDialogo(modal);
+    tocarVideoProjeto();
     alvo.scrollTop = 0;
     var ancora = irParaApresentacao && $("#proj-apresentacao");
     if (ancora) alvo.scrollTop = ancora.getBoundingClientRect().top - alvo.getBoundingClientRect().top - 12;
@@ -1457,6 +1563,8 @@
     montarProjetos();
     montarContato();
     prepararDialogos();
+    prepararGaleria();
+    prepararLinksInternos();
     prepararPaleta();
     prepararRolagem();
     iniciarGrafo();
@@ -1466,6 +1574,8 @@
     recadoNoConsole();
     $("#ano").textContent = String(new Date().getFullYear());
     $("#alternar-tema").addEventListener("click", alternarTema);
+    abrirDemoPeloEndereco();
+    window.addEventListener("hashchange", abrirDemoPeloEndereco);
 
     // Se o tema segue o sistema, acompanha a mudança
     window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", function () {
