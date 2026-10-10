@@ -29,16 +29,34 @@ window.PORTFOLIO = {
       "I turn a shop counter into software: orders, inventory, PDF quotes and WhatsApp messages."
     ),
     sobre: L([
-      "Sou desenvolvedor de software .NET com mais de 3 anos de experiência no desenvolvimento, modernização e integração de sistemas corporativos, com foco em regras de negócio, dados e performance.",
+      "Sou desenvolvedor de software .NET com 4 anos de experiência no desenvolvimento, modernização e integração de sistemas corporativos, com foco em regras de negócio, dados e performance.",
       "Hoje trabalho na CartSys, no ERP desktop usado por cartórios de Protesto, RTD/PJ, Registro de Imóveis e Notas. Antes, passei quase três anos na indústria, sustentando sistemas legados críticos e automatizando processos de fábrica em C#.",
       "Por conta própria, desenvolvo sistemas de gestão para pequenos comércios: oficinas, lojas de suprimentos de impressão e lojas de roupas. Cada sistema nasce de um anterior, que vira base para o próximo, com a infraestrutura comum reaproveitada e o que é específico de cada ramo separado.",
       "Trabalho principalmente com C# e .NET (Windows Forms, WPF, .NET Framework 4.8 e .NET 8), Entity Framework / EF Core, SQL Server, MySQL, PostgreSQL e SQLite, além de APIs em camadas (Domain, Application, Infrastructure).",
     ], [
-      "I'm a .NET software developer with over 3 years of experience building, modernizing and integrating business systems, focused on business rules, data and performance.",
+      "I'm a .NET software developer with 4 years of experience building, modernizing and integrating business systems, focused on business rules, data and performance.",
       "Today I work at CartSys on the desktop ERP used by Brazilian notary and registry offices (protests, deeds, real estate and corporate registries). Before that, I spent almost three years in manufacturing, maintaining critical legacy systems and automating factory processes in C#.",
       "On my own, I build management systems for small businesses: auto repair shops, printer supply stores and clothing stores. Each system grows out of the previous one, reusing the shared infrastructure and keeping what is specific to each business separate.",
       "I work mainly with C# and .NET (Windows Forms, WPF, .NET Framework 4.8 and .NET 8), Entity Framework / EF Core, SQL Server, MySQL, PostgreSQL and SQLite, as well as layered APIs (Domain, Application, Infrastructure).",
     ]),
+    // Resultados com número, em destaque no "Quem sou eu" (os mesmos da experiência)
+    resultados: [
+      {
+        valor: "−75%",
+        texto: L("no tempo de resposta de um sistema legado: de 40s para 10s", "response time of a legacy system: from 40s to 10s"),
+        onde: "Condumig · VB6 + MySQL",
+      },
+      {
+        valor: "−25%",
+        texto: L("no cálculo de custas de 1.608 títulos: de 7min20s para 5min30s", "fee calculation for 1,608 records: from 7m20s to 5m30s"),
+        onde: "CartSys · Entity Framework",
+      },
+      {
+        valor: "−10%+",
+        texto: L("de desperdício de materiais, com indicadores de BI por máquina", "material waste, with per-machine BI dashboards"),
+        onde: "Condumig · MySQL + QlikView",
+      },
+    ],
     stack: [
       "C#",
       ".NET 8 / .NET Framework 4.8",

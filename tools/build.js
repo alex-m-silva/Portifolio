@@ -292,11 +292,30 @@ function ajustarJsonLdPrincipal(html, D) {
 
 const NOSCRIPT_EN = `
     <div class="noscript">
-      <p><strong>Alex Matias, .NET Software Developer</strong> based in Divinópolis, Brazil. Over 3 years building, modernizing and integrating business systems with C#, .NET, Entity Framework, SQL Server, MySQL and ASP.NET Core.</p>
+      <p><strong>Alex Matias, .NET Software Developer</strong> based in Divinópolis, Brazil. 4 years building, modernizing and integrating business systems with C#, .NET, Entity Framework, SQL Server, MySQL and ASP.NET Core.</p>
       <p>Currently at CartSys Software (ERP for notary and registry offices). Before that: Condumig (industrial automation) and Petrarca Software. Bachelor's in Computer Science from Faculdade Pitágoras.</p>
       <p>Turn on JavaScript to see the full experience, certificates and projects, or reach me on <a href="https://www.linkedin.com/in/alex-matias-silva">LinkedIn</a> or <a href="https://github.com/alex-m-silva">GitHub</a>.</p>
     </div>
   `;
+
+// Linha fixa abaixo do nome: o cargo, a empresa atual e a cidade, sem depender da animação
+function htmlCargo(D) {
+  const atual = (D.experiencia || []).find((e) => !e.fim);
+  return `<b>${esc(D.perfil.cargo)}</b>` +
+    (atual ? ` <span class="hero-cargo-empresa">@ ${esc(atual.empresa)}</span>` : "") +
+    (atual && atual.local ? ` <span class="hero-cargo-local">· ${esc(atual.local)}</span>` : "");
+}
+
+// Resultados com número (perfil.resultados), no topo do "Quem sou eu"
+function htmlResultados(resultados) {
+  if (!resultados.length) return "";
+  return `<div class="resultados" role="group" aria-label="${esc(tx("Resultados com antes e depois"))}">` +
+    `<p class="resultados-cab mono"><span class="sinal">$</span> git diff --stat <span class="resultados-dica"># ${tx("o que mudou, medido antes e depois")}</span></p>` +
+    `<ul>${resultados.map((r, i) => `<li style="--cor: var(${CORES[i % CORES.length]})">` +
+      `<b class="resultados-valor">${esc(r.valor)}</b>` +
+      `<span class="resultados-txt">${esc(r.texto)}</span>` +
+      `<span class="resultados-onde mono">${esc(r.onde)}</span></li>`).join("")}</ul></div>`;
+}
 
 function gerarIndex(D, artigos) {
   const lang = I.idioma;
@@ -304,6 +323,8 @@ function gerarIndex(D, artigos) {
   const p = D.perfil;
   html = ajustarJsonLdPrincipal(html, D);
   html = preencher(html, "frase", esc(p.frase));
+  html = preencher(html, "cargo", htmlCargo(D));
+  html = preencher(html, "resultados", htmlResultados(p.resultados || []));
   html = preencher(html, "sobre", p.sobre.map((t) => `<p>${esc(t)}</p>`).join(""));
   html = preencher(html, "stack", p.stack.map((t, i) => `<li style="--i:${i}">${esc(t)}</li>`).join(""));
   html = preencher(html, "experiencia", htmlExperiencia(D.experiencia || []));

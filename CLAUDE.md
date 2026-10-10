@@ -27,11 +27,15 @@ Site pessoal em HTML/CSS/JS puros, sem framework, publicado no Vercel em https:/
 | `vercel.json` | build, `dist/`, cabeçalhos e cache |
 
 ## Pendências (em ordem)
-2. **Avaliação do portfólio** (pedido do usuário): análise honesta para recrutador/cliente
-   (primeira impressão, clareza do que ele faz, provas de resultado, CTA, acessibilidade,
-   desempenho) e propor/implementar melhorias.
-3. Revisar com o usuário e publicar os 2 rascunhos em `artigos/` (`rascunho: false`).
-4. Do lado do usuário: criar o serviço do pdf-para-epub no Render (`render.yaml` pronto no repo
+1. **Sugestões da avaliação (2026-10-10), dependem do usuário**:
+   - Currículo em PDF para baixar (pt e en): recrutador costuma pedir; não existe arquivo no repo.
+   - Reconsiderar a proteção contra cópia: impede recrutador de copiar nome/empresa/trechos e
+     atrapalha quem seleciona texto para ler; hoje é decisão do usuário (ver "Fatos já decididos").
+   - Dizer se está aberto a propostas/freelas (uma linha no topo ou no contato).
+   - Desempenho: o maior custo é JS da página inicial (main.js 77 KB + data.js 48 KB sem compactar,
+     grafo em canvas e digitação); compactar os JS no build é o próximo passo se quiser subir o Lighthouse.
+2. Revisar com o usuário e publicar os 2 rascunhos em `artigos/` (`rascunho: false`).
+3. Do lado do usuário: criar o serviço do pdf-para-epub no Render (`render.yaml` pronto no repo
    `alex-m-silva/pdf-para-epub`); Search Console já cadastrado.
 
 ## Fatos já decididos
@@ -44,8 +48,11 @@ Site pessoal em HTML/CSS/JS puros, sem framework, publicado no Vercel em https:/
   e só então baixa o gtag.js (modo básico: quem recusa não envia nada ao Google). Escolha em `localStorage.consentimento`;
   recusar depois de aceitar apaga os cookies `_ga*`. Página `/privacidade` (e `/en/privacidade`) gerada em `paginaPrivacidade()`
   no build, com botão `data-consentimento` para rever a escolha. O aviso de idioma espera a escolha de cookies (um aviso por vez).
+- Avaliação (feita em 2026-10-10): topo ganhou a linha fixa do cargo (`htmlCargo`, empresa atual e cidade);
+  "Quem sou eu" abre com 3 resultados com número (`perfil.resultados` no data.js, `htmlResultados` no build);
+  "mais de 3 anos" virou "4 anos" em todo lugar, batendo com o contador "4+" (48 meses somando os empregos).
 - Desempenho: Lighthouse ~84-87, SEO/Acessibilidade/Boas práticas 100.
 
 ## Prompt para retomar
-"Leia o CLAUDE.md e faça a pendência 1 (cookies/LGPD com Consent Mode e página de privacidade),
-depois a 2 (avaliação do portfólio). Teste no navegador, sem erros no console, e faça commit e push."
+"Leia o CLAUDE.md e veja comigo as pendências (sugestões da avaliação e os rascunhos dos artigos).
+Teste no navegador, sem erros no console, e faça commit e push."

@@ -21,8 +21,8 @@
   var EN = {
     /* --- index.html: cabeçalho, menu e acessibilidade --- */
     "Alex Matias · Desenvolvedor de Software .NET e C# | Divinópolis, MG": "Alex Matias · .NET and C# Software Developer | Brazil",
-    "Alex Matias, desenvolvedor de software .NET em Divinópolis, MG. Mais de 3 anos com C#, .NET 8, Entity Framework, SQL Server e ASP.NET Core: ERP, integrações, automação industrial e sistemas de gestão.":
-      "Alex Matias, .NET software developer based in Brazil. Over 3 years with C#, .NET 8, Entity Framework, SQL Server and ASP.NET Core: ERP, integrations, industrial automation and business systems.",
+    "Alex Matias, desenvolvedor de software .NET em Divinópolis, MG. 4 anos com C#, .NET 8, Entity Framework, SQL Server e ASP.NET Core: ERP, integrações, automação industrial e sistemas de gestão.":
+      "Alex Matias, .NET software developer based in Brazil. 4 years with C#, .NET 8, Entity Framework, SQL Server and ASP.NET Core: ERP, integrations, industrial automation and business systems.",
     "Alex Matias · Desenvolvedor de Software .NET": "Alex Matias · .NET Software Developer",
     "C#, .NET, Entity Framework e SQL Server: ERP, integrações bancárias, automação industrial e sistemas de gestão. Veja experiência, certificados e projetos.":
       "C#, .NET, Entity Framework and SQL Server: ERP, banking integrations, industrial automation and business systems. See my experience, certificates and projects.",
@@ -204,6 +204,10 @@
     "Sistemas de gestão, integrações e APIs em C# e .NET. Me conta o que você precisa.": "Business systems, integrations and APIs in C# and .NET. Tell me what you need.",
     "detalhes": "details",
     "Lista de projetos de {nome}": "{nome}'s projects",
+
+    /* --- Página inicial: resultados (build) --- */
+    "Resultados com antes e depois": "Results with before and after numbers",
+    "o que mudou, medido antes e depois": "what changed, measured before and after",
 
     /* --- Cookies (js/analytics.js) e página de privacidade (build) --- */
     "Aviso de cookies": "Cookie notice",
