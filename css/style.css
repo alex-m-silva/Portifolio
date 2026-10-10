@@ -853,6 +853,42 @@ dialog[open] { animation: surgir 0.25s ease; }
 .modal-conteudo li::marker { color: var(--acento); }
 .modal-conteudo .repo-acoes { margin-top: 22px; }
 
+/* Apresentação do projeto: vídeo e tour pelas telas */
+.modal.modal-largo { width: 900px; }
+.modal-largo .modal-conteudo { max-height: 82vh; }
+.proj-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  border: 1px solid var(--borda);
+  background: #000;
+}
+.modal-conteudo .tour-intro { color: var(--texto-2); margin: 0 0 14px; }
+.modal-conteudo .tour {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.tela { display: grid; gap: 10px; align-content: start; }
+.tela video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  border: 1px solid var(--borda);
+  background: #fff;
+}
+.tela-txt { display: grid; gap: 4px; font-size: 14px; color: var(--texto-2); }
+.tela-txt b { color: var(--texto); font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.tela-num { color: var(--acento); font-size: 13px; }
+@media (max-width: 720px) {
+  .modal-conteudo .tour { grid-template-columns: 1fr; }
+  .modal-largo .modal-conteudo { padding: 18px; }
+}
+
 .paleta { width: 560px; margin-top: 12vh; }
 .paleta-busca {
   display: flex;

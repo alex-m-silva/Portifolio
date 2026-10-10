@@ -763,6 +763,7 @@
   function botoesProjeto(p, comReadme) {
     return h("div", { class: "repo-acoes" },
       comReadme ? h("button", { class: "btn-peq", type: "button", html: ICONES.livro + " README", onclick: function () { abrirProjeto(p); } }) : null,
+      comReadme && p.apresentacao ? h("button", { class: "btn-peq", type: "button", text: "▶ apresentação", onclick: function () { abrirProjeto(p, true); } }) : null,
       p.repo ? h("a", { class: "btn-peq", href: p.repo, target: "_blank", rel: "noopener noreferrer", html: ICONES.github + " código" }) : null,
       p.demo ? h("a", { class: "btn-peq", href: p.demo, target: "_blank", rel: "noopener noreferrer", html: ICONES.link + " demo" }) : null);
   }
@@ -799,12 +800,59 @@
     render("todos");
   }
 
-  function abrirProjeto(p) {
-    rastrear("ver_readme", { projeto: p.nome });
+  // Vídeo de apresentação e tour pelas telas (só para projetos com `apresentacao`)
+  var observadorClipes = null;
+
+  function montarApresentacao(a) {
+    var pasta = a.pasta || "";
+    var frag = document.createDocumentFragment();
+    frag.appendChild(h("h4", { id: "proj-apresentacao", text: "## Apresentação" }));
+    frag.appendChild(h("video", { class: "proj-video", src: pasta + a.video, poster: a.capa ? pasta + a.capa : null,
+      controls: true, muted: true, playsinline: true, preload: "none" }));
+    frag.appendChild(h("h4", { text: "## Tour pelas telas" }));
+    if (a.intro) frag.appendChild(h("p", { class: "tour-intro", text: a.intro }));
+
+    var lista = h("ol", { class: "tour" });
+    a.telas.forEach(function (t, i) {
+      var clipe = h("video", { src: pasta + "videos/" + t.arquivo + ".mp4", poster: pasta + "telas/" + t.arquivo + ".jpg",
+        muted: true, loop: true, playsinline: true, preload: "none", controls: reduzirMovimento, "aria-label": t.titulo });
+      lista.appendChild(h("li", { class: "tela" }, clipe,
+        h("div", { class: "tela-txt" },
+          h("b", null, h("span", { class: "tela-num mono", text: String(i + 1).padStart(2, "0") }), t.titulo),
+          h("span", { text: t.texto }))));
+    });
+    frag.appendChild(lista);
+    // O atributo `muted` criado depois do elemento não silencia; o autoplay exige a propriedade
+    $$("video", frag).forEach(function (v) { v.muted = true; });
+
+    // Os clipes rodam sozinhos só enquanto estão visíveis na janela
+    if (!reduzirMovimento && "IntersectionObserver" in window) {
+      if (observadorClipes) observadorClipes.disconnect();
+      observadorClipes = new IntersectionObserver(function (entradas) {
+        entradas.forEach(function (e) {
+          if (e.isIntersecting) { var tentativa = e.target.play(); if (tentativa && tentativa.catch) tentativa.catch(function () {}); }
+          else e.target.pause();
+        });
+      }, { root: $("#modal-conteudo"), threshold: 0.5 });
+      $$("video", lista).forEach(function (v) { observadorClipes.observe(v); });
+    }
+    return frag;
+  }
+
+  function pararVideosProjeto() {
+    if (observadorClipes) { observadorClipes.disconnect(); observadorClipes = null; }
+    $$("#modal-conteudo video").forEach(function (v) { v.pause(); });
+  }
+
+  function abrirProjeto(p, irParaApresentacao) {
+    rastrear(irParaApresentacao ? "ver_apresentacao" : "ver_readme", { projeto: p.nome });
     var alvo = $("#modal-conteudo");
+    pararVideosProjeto();
     alvo.textContent = "";
+    $("#modal-proj").classList.toggle("modal-largo", !!p.apresentacao);
     alvo.appendChild(h("h3", { id: "modal-titulo", text: "# " + p.nome }));
     alvo.appendChild(h("p", { text: p.resumo }));
+    if (p.apresentacao) alvo.appendChild(montarApresentacao(p.apresentacao));
     if (p.detalhes && p.detalhes.length) {
       alvo.appendChild(h("h4", { text: "## Destaques" }));
       alvo.appendChild(h("ul", null, p.detalhes.map(function (d) { return h("li", { text: d }); })));
@@ -820,7 +868,15 @@
     }
     if (!p.repo) alvo.appendChild(h("p", { class: "mono", style: "margin-top:18px;font-size:13px;color:var(--texto-3)", text: "Repositório privado. Código disponível sob consulta." }));
     alvo.appendChild(botoesProjeto(p, false));
-    abrirDialogo($("#modal-proj"));
+    var modal = $("#modal-proj");
+    if (!modal.dataset.pararVideos) {
+      modal.addEventListener("close", pararVideosProjeto);
+      modal.dataset.pararVideos = "1";
+    }
+    abrirDialogo(modal);
+    alvo.scrollTop = 0;
+    var ancora = irParaApresentacao && $("#proj-apresentacao");
+    if (ancora) alvo.scrollTop = ancora.getBoundingClientRect().top - alvo.getBoundingClientRect().top - 12;
   }
 
   /* ============================================================

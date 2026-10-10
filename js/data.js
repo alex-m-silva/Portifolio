@@ -190,6 +190,24 @@ window.PORTFOLIO = {
       repo: "https://github.com/alex-m-silva/GestaoComercial",
       demo: "",
       destaque: true,
+      // Vídeo e tour pelas telas, mostrados na janela do README
+      apresentacao: {
+        pasta: "assets/projetos/gestao-comercial/",
+        video: "apresentacao.mp4",
+        capa: "capa-video.jpg",
+        intro: "O cliente chega com a impressora, sai um orçamento, ele aprova pelo WhatsApp, a loja faz o serviço, finaliza e o estoque se ajusta sozinho. Bora dar uma volta pelas telas:",
+        telas: [
+          { arquivo: "01-pedidos", titulo: "Pedidos e orçamentos", texto: "A tela que fica aberta o dia todo. Vermelho é orçamento esperando resposta, verde é aprovado, azul é finalizado." },
+          { arquivo: "02-clientes", titulo: "Clientes", texto: "CPF ou CNPJ e endereço pela busca de CEP. Os equipamentos do cliente já mostram os toners que servem neles." },
+          { arquivo: "03-servicos", titulo: "Serviços", texto: "O cardápio da loja, com preço e tempo estimado. Entra no orçamento com um clique." },
+          { arquivo: "04-funcionarios", titulo: "Funcionários", texto: "Dados pessoais e de contrato. O funcionário vira o responsável pelo serviço e pode ter login próprio." },
+          { arquivo: "05-produtos", titulo: "Produtos e estoque", texto: "Estoque mínimo, preço de compra e venda e margem calculada na hora. Cada toner sabe em quais impressoras serve." },
+          { arquivo: "06-relatorios", titulo: "Relatórios", texto: "Orçamentos parados, vendas por departamento, o que repor e quem mais volta. Exporta para o Excel e imprime." },
+          { arquivo: "07-usuarios", titulo: "Usuários e permissões", texto: "Cada pessoa com o seu login, e o administrador marca o que ela pode fazer." },
+          { arquivo: "08-orcamento", titulo: "Montando um orçamento", texto: "Cliente → equipamento → serviços → detalhes → produtos, já filtrados pelos compatíveis. O total sai pronto, com os descontos." },
+          { arquivo: "09-aprovar", titulo: "Aprovar, finalizar e enviar", texto: "Aprovou, fica verde. Finalizou, o estoque baixa sozinho. O orçamento vai pelo WhatsApp, em PDF ou dos dois jeitos." },
+        ],
+      },
     },
     {
       nome: "GestaoModa",

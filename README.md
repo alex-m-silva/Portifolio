@@ -27,6 +27,7 @@ Todo o conteúdo fica em [`js/data.js`](js/data.js):
 | `formacao` | `curso`, `instituicao`, `inicio` e `fim` |
 | `certificados` | `titulo`, `emissor`, `data` de conclusão (`"AAAA-MM"`), `categoria` (vira o filtro), `skills` e `url` de verificação |
 | `projetos` | `nome`, `resumo`, `detalhes`, `tags`, `linguagens` (%), `repo`, `demo` e `destaque` |
+| `projetos[].apresentacao` | opcional: `pasta`, `video`, `capa`, `intro` e `telas` (`arquivo`, `titulo`, `texto`). Mostra o vídeo e o tour pelas telas na janela do README e o botão "▶ apresentação" no card. A pasta tem `videos/<arquivo>.mp4` e `telas/<arquivo>.jpg` |
 
 Um certificado com `exemplo: true` aparece com um selo "exemplo"; sem `url`, aparece como "link em breve".
 
