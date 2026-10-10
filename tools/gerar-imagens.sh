@@ -21,6 +21,12 @@ foto assets/icon-maskable-512.png 512 512 "icone.html?tam=512&maskable=1"
 foto assets/apple-touch-icon.png 180 180 "icone.html?tam=180&maskable=1"
 foto assets/favicon-32.png        32  32 "icone.html?tam=32"
 
+# Uma imagem de compartilhamento por projeto (assets/og/<slug>.png), lida pelo build
+mkdir -p assets/og
+for slug in $(node -e "global.window={};global.atob=b=>Buffer.from(b,'base64').toString('binary');eval(require('fs').readFileSync('js/data.js','utf8'));console.log(window.PORTFOLIO.projetos.map(p=>p.slug).join(' '))"); do
+  foto "assets/og/$slug.png" 1200 630 "og-projeto.html?slug=$slug"
+done
+
 # favicon.ico com o PNG de 32px dentro (formato aceito por todos os navegadores atuais)
 python - <<'PY'
 import struct

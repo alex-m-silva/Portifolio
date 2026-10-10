@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /tools/
-
-Sitemap: https://www.alexmatias.dev.br/sitemap.xml

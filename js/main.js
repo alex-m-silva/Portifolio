@@ -486,10 +486,13 @@
     var hoje = new Date();
     $("#sobre-data").textContent = hoje.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
 
+    // O build (tools/build.js) já deixa este conteúdo no HTML para o Google; aqui é montado de novo
     var texto = $("#sobre-texto");
+    texto.textContent = "";
     p.sobre.forEach(function (par) { texto.appendChild(h("p", { text: par })); });
 
     var lista = $("#stack");
+    lista.textContent = "";
     p.stack.forEach(function (item, i) { lista.appendChild(h("li", { text: item, style: "--i:" + i })); });
     $("#stack-qtd").textContent = String(p.stack.length);
     desenharUmaVez(lista); // as linhas do diff entram uma a uma
@@ -680,6 +683,7 @@
     }
 
     var lista = $("#lista-exp");
+    lista.textContent = ""; // tira a versão pré-renderizada pelo build
     exp.forEach(function (e, i) {
       var atual = !e.fim;
       lista.appendChild(h("li", { class: "commit", style: "--cor: var(" + CORES_ROTACAO[i % CORES_ROTACAO.length] + ")" },
@@ -698,6 +702,7 @@
     if (form.length) {
       $("#bloco-formacao").hidden = false;
       var listaForm = $("#lista-form");
+      listaForm.textContent = "";
       form.forEach(function (f) {
         listaForm.appendChild(h("li", { class: "commit", style: "--cor: var(--ambar)" },
           h("p", { class: "commit-meta mono" },
@@ -796,6 +801,12 @@
         nomes.map(function (n) { return h("span", null, h("i", { style: "background:" + cor(n) }), n + " " + linguagens[n] + "%"); })));
   }
 
+  // Página própria de cada projeto, gerada pelo build em /projetos/<slug>
+  function urlProjeto(p) {
+    var slug = p.slug || p.nome.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    return "/projetos/" + slug;
+  }
+
   function botoesProjeto(p, comReadme) {
     return h("div", { class: "repo-acoes" },
       comReadme ? h("button", { class: "btn-peq", type: "button", html: ICONES.livro + " README", onclick: function () { abrirProjeto(p); } }) : null,
@@ -830,7 +841,7 @@
           var card = h("article", { class: "repo" + (p.destaque ? " destaque" : "") },
             h("div", { class: "repo-cab" },
               h("span", { html: ICONES.repo }),
-              h("h3", { text: p.nome }),
+              h("h3", null, h("a", { href: urlProjeto(p), text: p.nome })),
               h("span", { class: "repo-visib", text: p.repo ? "público" : "privado" })),
             h("p", { class: "repo-resumo", text: p.resumo }),
             barraLinguagens(p.linguagens),
@@ -974,6 +985,7 @@
     }
     if (!p.repo) alvo.appendChild(h("p", { class: "mono", style: "margin-top:18px;font-size:13px;color:var(--texto-3)", text: "Repositório privado. Código disponível sob consulta." }));
     alvo.appendChild(botoesProjeto(p, false));
+    alvo.appendChild(h("p", { class: "modal-pagina" }, h("a", { href: urlProjeto(p), text: "Ver a página completa do projeto →" })));
     var modal = $("#modal-proj");
     if (!modal.dataset.pararVideos) {
       modal.addEventListener("close", pararVideosProjeto);

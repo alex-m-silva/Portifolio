@@ -174,23 +174,42 @@ window.PORTFOLIO = {
     { titulo: "SAP Crystal Reports - Do Básico ao Avançado", emissor: "Udemy", data: "", categoria: "interface & relatórios", skills: ["Crystal Reports"], url: "https://www.udemy.com/certificate/UC-5cae22f4-44fb-4286-8c5c-f4849b796327/" },
   ],
 
-  // Projetos: `linguagens` em porcentagem (soma 100) desenha a barra de cores.
+  // Projetos. Cada um vira um card na página inicial e uma página própria em /projetos/<slug>.
+  //   slug        endereço da página (/projetos/<slug>); sem ele, é gerado a partir do nome
+  //   seo         título e descrição da página do projeto no Google (até ~60 e ~155 caracteres)
+  //   sobre       texto da página do projeto (um parágrafo por item)
+  //   linguagens  porcentagem (soma 100), desenha a barra de cores
+  //   repo        vazio = repositório privado ("código disponível sob consulta")
   projetos: [
     {
       nome: "GestaoComercial",
+      slug: "gestao-comercial",
       resumo: "Sistema desktop para lojas que vendem produtos e prestam serviço nos equipamentos dos clientes. Primeiro uso: loja de toners, impressoras e papelaria.",
+      seo: {
+        titulo: "GestaoComercial: sistema para loja de toner e impressoras",
+        descricao: "Sistema de gestão em C# para loja de toner, impressoras e papelaria: orçamentos, pedidos, estoque com produtos compatíveis, PDF e WhatsApp.",
+        categoria: "BusinessApplication", // tipo de aplicação para o Google (schema.org)
+        sistema: "Windows",
+      },
+      sobre: [
+        "O GestaoComercial é um sistema desktop em Windows Forms (.NET Framework 4.8) para lojas que vendem produtos e também prestam serviço nos equipamentos dos clientes. Nasceu da estrutura do sistema de oficina, com nomes genéricos para servir a outros ramos, e o primeiro uso é uma loja de toners e impressoras com papelaria.",
+        "O fluxo acompanha o dia a dia do balcão: o cliente chega com a impressora, sai um orçamento, ele aprova pelo WhatsApp, a loja faz o serviço, finaliza o pedido e o estoque se ajusta sozinho. Para vendas rápidas, a venda de balcão já nasce finalizada.",
+        "O ponto forte é a ligação entre equipamento e suprimento. Cada produto guarda os modelos em que serve (por exemplo, \"HP P1102; HP M1132\"), e a comparação ignora maiúsculas, espaços e traços e aceita o modelo com ou sem a marca. Assim, no pedido de uma impressora a lista de produtos já abre filtrada pelos toners compatíveis, e o cadastro do cliente mostra, para cada equipamento, os suprimentos que servem e o estoque deles.",
+        "Os produtos são separados por departamento (impressão e papelaria), o que alimenta os filtros do catálogo e o relatório de vendas por departamento. O sistema roda em SQLite, sem servidor, ou em PostgreSQL para vários computadores, com scripts de migração versionados e instalador .msi gerado pelo CriadorInstalador.",
+      ],
       detalhes: [
         "Pedido com fluxo orçamento → aprovado → finalizado, e venda rápida de balcão",
         "Produtos com modelos compatíveis: o pedido de uma impressora já filtra os toners que servem nela",
-        "Orçamento em PDF, envio pelo WhatsApp e relatório de vendas por departamento",
+        "Orçamento em PDF com os dados da loja e envio pelo WhatsApp com a mensagem pronta",
+        "Relatórios: orçamentos parados, vendas por departamento, o que repor, serviços mais pedidos e clientes que mais voltam, com exportação para Excel",
+        "Usuários com permissões por área (vender, orçar, aprovar, finalizar, ver relatórios)",
         "Roda em SQLite (sem servidor) ou PostgreSQL, com scripts de migração versionados",
       ],
       tags: ["C#", ".NET Framework 4.8", "WinForms", "SQLite", "PostgreSQL"],
       linguagens: { "C#": 94, "SQL": 6 },
-      repo: "https://github.com/alex-m-silva/GestaoComercial",
+      repo: "",            // repositório privado
       demo: "",
       destaque: true,
-      // Vídeo e tour pelas telas, mostrados na janela do README
       apresentacao: {
         pasta: "assets/projetos/gestao-comercial/",
         video: "apresentacao.mp4",
@@ -211,13 +230,30 @@ window.PORTFOLIO = {
     },
     {
       nome: "GestaoModa",
-      resumo: "Gestão para loja de roupas, reconstruída sobre a base do GestaoComercial e migrada para .NET 8, com as telas montadas em código.",
-      detalhes: [
-        "Reaproveita a infraestrutura comum da família de sistemas",
-        "Migração de um sistema antigo em MySQL para SQLite/PostgreSQL",
-        "Projeto de testes automatizados",
+      slug: "gestao-moda",
+      resumo: "Vendas e estoque para lojas de roupas: PDV pelo teclado, grade de tamanhos e cores, crediário, trocas, caixa e 22 relatórios. Reconstruído em .NET 8 sobre a base do GestaoComercial.",
+      seo: {
+        titulo: "GestaoModa: sistema de vendas e estoque para loja de roupas",
+        descricao: "Sistema para loja de roupas em C# e .NET 8: PDV, grade de tamanhos e cores com código de barras, crediário, trocas e vale-troca, caixa e relatórios.",
+        categoria: "BusinessApplication", // tipo de aplicação para o Google (schema.org)
+        sistema: "Windows",
+      },
+      sobre: [
+        "O GestaoModa é um sistema desktop de vendas e estoque para lojas de roupas e moda: boutiques, moda feminina, masculina, infantil, moda praia, fitness e acessórios. Ele nasceu do NewBronx, um sistema em MySQL de uma loja de roupas, e foi reconstruído em .NET 8 sobre a mesma base do GestaoComercial.",
+        "O PDV foi pensado para ser usado pelo teclado (F2 a F9): leitor de código de barras, busca por nome, cor e tamanho, \"3*código\" para várias peças, desconto por peça ou geral e várias formas de pagamento na mesma venda, incluindo Pix, cartão parcelado, crediário e vale-troca.",
+        "Cada peça tem a sua grade de tamanhos × cores, e cada combinação tem código de barras (EAN-13 gerado pelo sistema ou o do fornecedor) e estoque próprio. Entrada de mercadoria pelo leitor, inventário com motivo, histórico de cada movimento e etiquetas com preço \"de/por\" completam o controle de estoque.",
+        "No financeiro, o sistema cuida do crediário no carnê (com limite por cliente, multa e juros de atraso), de trocas e vales-troca, da abertura e do fechamento do caixa com conferência e das contas a pagar. São 22 relatórios, entre eles curva ABC, produtos parados, clientes sumidas e um DRE simples, além de avisos do dia e mensagens prontas pelo WhatsApp.",
+        "As telas são montadas em código, sem o designer do Visual Studio, e um projeto de testes percorre o sistema de ponta a ponta num banco temporário: cadastro, vendas, crediário, trocas, caixa e relatórios.",
       ],
-      tags: ["C#", ".NET 8", "WinForms", "SQLite", "PostgreSQL"],
+      detalhes: [
+        "PDV pelo teclado com leitor de código de barras e várias formas de pagamento na mesma venda",
+        "Grade de tamanhos × cores com código de barras EAN-13 e estoque por variação",
+        "Crediário no carnê com limite por cliente, multa e juros de atraso",
+        "Trocas, vale-troca com validade, caixa com conferência e contas a pagar",
+        "22 relatórios (curva ABC, DRE simples, produtos parados) com exportação para Excel",
+        "Testes de ponta a ponta das regras de negócio num banco temporário",
+      ],
+      tags: ["C#", ".NET 8", "WinForms", "EF Core", "SQLite", "PostgreSQL"],
       linguagens: { "C#": 96, "SQL": 4 },
       repo: "",            // repositório privado
       demo: "",
@@ -225,7 +261,20 @@ window.PORTFOLIO = {
     },
     {
       nome: "pdf-para-epub",
+      slug: "pdf-para-epub",
       resumo: "Conversor online de PDF para EPUB, para ler no Kindle, Kobo e apps de leitura. Front estático no GitHub Pages e API em Python que roda o Calibre num container Docker.",
+      seo: {
+        titulo: "pdf-para-epub: conversor online de PDF para EPUB",
+        descricao: "Conversor de PDF para EPUB com front no GitHub Pages e API em Python (FastAPI) rodando o Calibre em Docker, com rate limit e arquivos temporários.",
+        categoria: "UtilitiesApplication", // tipo de aplicação para o Google (schema.org)
+        sistema: "Web",
+      },
+      sobre: [
+        "O pdf-para-epub é um conversor online de PDF para EPUB, o formato que se adapta à tela do Kindle, do Kobo e dos aplicativos de leitura. A pessoa escolhe um ou mais PDFs, converte e baixa o EPUB, sem login.",
+        "A conversão é feita pelo Calibre (ebook-convert), que precisa de um servidor com os binários do sistema. Por isso o projeto tem duas partes: as páginas, em HTML, CSS e JavaScript puros, publicadas no GitHub Pages; e uma API em Python com FastAPI, empacotada em Docker com o Calibre instalado e publicada no Render.",
+        "A API foi feita para aguentar uso público: limite de tamanho verificado no cabeçalho e durante o recebimento, rate limit por IP, limite de conversões simultâneas, timeout e uma segunda tentativa sem as opções heurísticas quando a primeira falha. Os arquivos ficam em pastas temporárias com nome aleatório e são apagados depois da resposta e numa limpeza periódica.",
+        "Como o servidor gratuito dorme quando fica sem uso, a página já manda um sinal para acordá-lo assim que abre e mostra o status (conectando, acordando, online). O site também traz guias sobre leitura digital, como enviar EPUB para o Kindle e por que alguns PDFs não convertem bem.",
+      ],
       detalhes: [
         "API FastAPI que recebe o PDF, roda o ebook-convert do Calibre e devolve o EPUB",
         "Rate limit por IP, limite de conversões simultâneas, timeout e validação de tamanho do upload",
@@ -241,42 +290,82 @@ window.PORTFOLIO = {
     },
     {
       nome: "ProjetoOficina",
+      slug: "projeto-oficina",
       resumo: "O sistema que deu origem à família: ordens de serviço, clientes e veículos para oficinas mecânicas.",
+      seo: {
+        titulo: "ProjetoOficina: sistema para oficina mecânica em C#",
+        descricao: "Sistema para oficina mecânica em C# e Windows Forms: ordens de serviço, clientes, veículos, peças, serviços, funcionários, relatórios e usuários.",
+        categoria: "BusinessApplication", // tipo de aplicação para o Google (schema.org)
+        sistema: "Windows",
+      },
+      sobre: [
+        "O ProjetoOficina é um sistema desktop em Windows Forms para oficinas mecânicas, e foi o primeiro da família. Ele organiza o atendimento do orçamento à entrega: o cliente, o veículo, as peças e os serviços entram na ordem de serviço, que acompanha o trabalho até a conclusão.",
+        "Tem cadastros de clientes, veículos, produtos (peças), serviços e funcionários, relatórios com impressão, e controle de acesso com login, usuários e troca de senha. Os dados ficam no Entity Framework Core, com SQLite ou PostgreSQL.",
+        "Foi da estrutura dele que saiu o GestaoComercial, com os nomes generalizados (veículo virou equipamento) para atender outros ramos, e depois o GestaoModa. A infraestrutura comum (telas base, máscaras, impressão, banco) passou de um sistema para o outro.",
+      ],
       detalhes: [
-        "Cadastro de clientes, veículos, peças e serviços",
-        "Ordem de serviço do orçamento à entrega",
+        "Ordem de serviço do orçamento à entrega, com peças e serviços",
+        "Cadastro de clientes, veículos, peças, serviços e funcionários",
+        "Relatórios com impressão",
+        "Login, usuários e troca de senha",
         "Base de onde saíram o GestaoComercial e o GestaoModa",
       ],
-      tags: ["C#", "WinForms", "Entity Framework"],
+      tags: ["C#", ".NET Framework 4.8", "WinForms", "EF Core", "SQLite", "PostgreSQL"],
       linguagens: { "C#": 100 },
-      repo: "https://github.com/alex-m-silva/ProjetoOficina",
+      repo: "",            // repositório privado
       demo: "",
     },
     {
       nome: "CriadorInstalador",
+      slug: "criador-instalador",
       resumo: "Programa com tela que gera o instalador .msi de um sistema Windows Forms, com telas em português e pasta de dados compartilhada.",
+      seo: {
+        titulo: "CriadorInstalador: gerador de instalador .msi para WinForms",
+        descricao: "Ferramenta em C# que gera o instalador .msi de sistemas Windows Forms com WiX: telas em português, atalhos, pasta de dados e atualização de versão.",
+        categoria: "DeveloperApplication", // tipo de aplicação para o Google (schema.org)
+        sistema: "Windows",
+      },
+      sobre: [
+        "O CriadorInstalador é um programa com tela que gera o instalador .msi de um sistema Windows Forms. Basta apontar a pasta do programa (ou só o projeto, que ele compila em Release antes) e clicar em \"Gerar instalador\".",
+        "O .msi gerado tem as telas em português (boas-vindas, escolha da pasta de instalação e instalação), cria atalhos no menu Iniciar e na área de trabalho, pode exigir o .NET Framework 4.8 e aparece em \"Adicionar/remover programas\". Instalar por cima atualiza a versão anterior mantendo os arquivos alterados no cliente, como o .exe.config.",
+        "Para os sistemas de gestão, ele cria uma pasta de dados em %ProgramData% com permissão de gravação para todos os usuários (onde fica o banco SQLite) e pode mostrar uma tela de configuração da empresa: nome da loja e escolha entre SQLite e PostgreSQL, gravados só na primeira instalação.",
+        "Por dentro, o programa escreve um projeto WiX Toolset 5 (Package.wxs e .wixproj) e roda o dotnet build nele. As opções de cada sistema ficam num arquivo .instalador (XML) com caminhos relativos, o que permite gerar o instalador de novo a cada versão sem refazer a configuração.",
+      ],
       detalhes: [
-        "Escolha da pasta de instalação e atalhos no menu Iniciar e na área de trabalho",
+        "Telas do instalador em português, com escolha da pasta de instalação e atalhos",
         "Pode exigir o .NET Framework 4.8",
         "Cria pasta de dados em %ProgramData% com permissão para todos os usuários",
+        "Tela de configuração da empresa: nome da loja e banco SQLite ou PostgreSQL",
         "Atualiza a versão anterior mantendo os arquivos alterados no cliente",
+        "Gera o projeto WiX 5 e compila com dotnet build",
       ],
       tags: ["C#", "WiX", "MSI", "WinForms"],
       linguagens: { "C#": 88, "WiX": 12 },
-      repo: "https://github.com/alex-m-silva/CriadorInstalador",
+      repo: "",            // repositório privado
       demo: "",
     },
     {
       nome: "LionFinance",
-      resumo: "API de finanças em ASP.NET Core organizada em camadas: Domain, Application, Infrastructure e API.",
+      slug: "lion-finance",
+      resumo: "API de finanças pessoais em ASP.NET Core organizada em camadas: Domain, Application, Infrastructure e API. Em desenvolvimento.",
+      seo: {
+        titulo: "LionFinance: API de finanças pessoais em ASP.NET Core",
+        descricao: "API de finanças pessoais em ASP.NET Core e EF Core com arquitetura em camadas: transações, categorias, parcelamentos e orçamento mensal.",
+        categoria: "FinanceApplication", // tipo de aplicação para o Google (schema.org)
+        sistema: "Web (API)",
+      },
+      sobre: [
+        "O LionFinance é uma API de finanças pessoais em ASP.NET Core, ainda em desenvolvimento. O objetivo é registrar receitas e despesas, separá-las por categoria, acompanhar compras parceladas e comparar o que foi gasto com o orçamento do mês.",
+        "O projeto é organizado em camadas: Domain (entidades como transação, categoria, parcela e orçamento mensal, e os tipos de transação e formas de pagamento), Application (regras e casos de uso), Infrastructure (persistência com Entity Framework Core) e API (os endpoints).",
+      ],
       detalhes: [
         "Arquitetura em camadas com separação de regras de negócio",
         "Transações, categorias, parcelamentos e orçamento mensal",
-        "Persistência com Entity Framework",
+        "Persistência com Entity Framework Core",
       ],
-      tags: ["C#", "ASP.NET Core", "Clean Architecture"],
+      tags: ["C#", "ASP.NET Core", "EF Core", "Clean Architecture"],
       linguagens: { "C#": 100 },
-      repo: "https://github.com/alex-m-silva/LionFinance",
+      repo: "",            // repositório privado
       demo: "",
     },
   ],

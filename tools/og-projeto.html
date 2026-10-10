@@ -1,0 +1,112 @@
+<!doctype html>
+<!--
+  Modelo da imagem de compartilhamento (1200x630) de cada projeto: tools/og-projeto.html?slug=gestao-comercial
+  Lê os dados de ../js/data.js. Para regerar todas: bash tools/gerar-imagens.sh
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>og-projeto</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=block" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    position: relative;
+    background:
+      radial-gradient(circle at 85% 15%, rgba(61, 220, 151, 0.16), transparent 45%),
+      radial-gradient(circle at 5% 100%, rgba(92, 200, 255, 0.10), transparent 40%),
+      #0b0f14;
+    color: #e6edf3;
+    font-family: "Space Grotesk", sans-serif;
+  }
+  body::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: linear-gradient(#243140 1px, transparent 1px), linear-gradient(90deg, #243140 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.3;
+  }
+  .mono { font-family: "JetBrains Mono", monospace; }
+  .conteudo { position: absolute; left: 72px; top: 64px; width: 640px; }
+  .com-tela .conteudo { width: 560px; }
+  .cmd { font-size: 22px; color: #6b7d8f; }
+  .cmd b { color: #3ddc97; font-weight: 700; }
+  h1 {
+    margin-top: 26px;
+    font-size: 84px; line-height: 1; letter-spacing: -0.03em;
+    background: linear-gradient(100deg, #e6edf3 35%, #3ddc97 75%, #5cc8ff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    padding-bottom: 8px;
+    white-space: nowrap;
+  }
+  .resumo { margin-top: 22px; font-size: 27px; line-height: 1.35; color: #9fb0c0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+  .chips span {
+    font-family: "JetBrains Mono", monospace; font-size: 19px;
+    padding: 5px 14px; border-radius: 999px;
+    color: #5cc8ff; background: rgba(92, 200, 255, 0.10); border: 1px solid rgba(92, 200, 255, 0.35);
+  }
+  .rodape { position: absolute; left: 72px; bottom: 48px; font-size: 21px; color: #6b7d8f; }
+  .rodape b { color: #3ddc97; font-weight: 500; }
+  .tela {
+    position: absolute; right: -40px; top: 92px;
+    width: 600px; border-radius: 14px; overflow: hidden;
+    border: 1px solid #33465a; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.8);
+    transform: perspective(1400px) rotateY(-10deg);
+    transform-origin: right center;
+  }
+  .tela img { display: block; width: 100%; }
+  .grafo { position: absolute; right: 80px; top: 110px; }
+</style>
+</head>
+<body>
+  <div class="conteudo">
+    <p class="cmd mono"><b>$</b> cd ~/repos/<span id="slug"></span></p>
+    <h1 id="nome"></h1>
+    <p class="resumo" id="resumo"></p>
+    <div class="chips" id="chips"></div>
+  </div>
+  <p class="rodape mono"><b>alexmatias.dev.br</b> · projeto de Alex Matias</p>
+
+  <script src="../js/data.js"></script>
+  <script>
+    var slug = new URLSearchParams(location.search).get("slug");
+    var p = window.PORTFOLIO.projetos.filter(function (x) { return x.slug === slug; })[0];
+    document.getElementById("slug").textContent = slug;
+    document.getElementById("nome").textContent = p.nome;
+    // Resumo curto: a primeira frase, que cabe bem na imagem
+    var frase = p.resumo.split(/(?<=\.)\s/)[0];
+    document.getElementById("resumo").textContent = frase.length > 150 ? frase.slice(0, 147) + "…" : frase;
+    document.getElementById("chips").innerHTML = p.tags.slice(0, p.apresentacao ? 4 : 5).map(function (t) { return "<span>" + t + "</span>"; }).join("");
+
+    // Nome sempre numa linha: diminui a fonte até caber na largura do bloco de texto
+    function ajustarTitulo() {
+      var h1 = document.getElementById("nome");
+      var tam = 84;
+      while (h1.scrollWidth > h1.clientWidth && tam > 40) h1.style.fontSize = (tam -= 2) + "px";
+    }
+
+    if (p.apresentacao) {
+      // Com prints: mostra a primeira tela do sistema ao lado
+      document.body.classList.add("com-tela");
+      var div = document.createElement("div");
+      div.className = "tela";
+      div.innerHTML = '<img src="../' + p.apresentacao.pasta + "telas/" + p.apresentacao.telas[0].arquivo + '.jpg" alt="">';
+      document.body.appendChild(div);
+    } else {
+      // Sem prints: um grafo de commits, como no resto do site
+      document.body.insertAdjacentHTML("beforeend",
+        '<svg class="grafo" width="300" height="420" viewBox="0 0 300 420" fill="none" stroke-linecap="round">' +
+        '<g stroke-width="5"><path d="M70 20V400" stroke="#3ddc97"/><path d="M70 110C70 150 160 140 160 180V300C160 340 70 330 70 370" stroke="#5cc8ff"/>' +
+        '<path d="M160 200C160 230 240 225 240 255C240 275 160 275 160 290" stroke="#b799ff"/></g>' +
+        '<g stroke-width="5"><circle cx="70" cy="40" r="13" fill="#0b0f14" stroke="#3ddc97"/><circle cx="70" cy="130" r="11" fill="#3ddc97" stroke="#3ddc97"/>' +
+        '<circle cx="160" cy="190" r="11" fill="#5cc8ff" stroke="#5cc8ff"/><circle cx="240" cy="255" r="11" fill="#b799ff" stroke="#b799ff"/>' +
+        '<circle cx="70" cy="240" r="11" fill="#3ddc97" stroke="#3ddc97"/><circle cx="160" cy="300" r="13" fill="#0b0f14" stroke="#5cc8ff"/>' +
+        '<circle cx="70" cy="370" r="13" fill="#0b0f14" stroke="#3ddc97"/></g></svg>');
+    }
+    ajustarTitulo();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustarTitulo);
+  </script>
+</body>
+</html>

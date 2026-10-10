@@ -138,7 +138,7 @@ code, kbd, .mono { font-family: var(--mono); }
 ::selection { background: var(--acento); color: var(--acento-texto); }
 
 /* Conteúdo protegido contra cópia; campos e paleta continuam editáveis */
-input, textarea, [contenteditable], .paleta { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+input, textarea, [contenteditable], .paleta, pre.codigo { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
 img, svg, canvas { -webkit-user-drag: none; }
 
 .pular {
@@ -867,8 +867,8 @@ dialog[open] { animation: surgir 0.25s ease; }
   border: 1px solid var(--borda);
   background: #000;
 }
-.modal-conteudo .tour-intro { color: var(--texto-2); margin: 0 0 14px; }
-.modal-conteudo .tour {
+.tour-intro { color: var(--texto-2); margin: 0 0 14px; }
+.tour {
   list-style: none;
   padding: 0;
   display: grid;
@@ -912,7 +912,7 @@ dialog[open] { animation: surgir 0.25s ease; }
 .tela-txt b { color: var(--texto); font-size: 15px; display: flex; align-items: center; gap: 8px; }
 .tela-num { color: var(--acento); font-size: 13px; }
 @media (max-width: 720px) {
-  .modal-conteudo .tour { grid-template-columns: 1fr; }
+  .tour { grid-template-columns: 1fr; }
   .modal-largo .modal-conteudo { padding: 18px; }
 }
 
@@ -1322,3 +1322,174 @@ dialog[open] { animation: surgir 0.25s ease; }
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* ============================================================
+   Links dos cards para a página de cada projeto
+   ============================================================ */
+.repo h3 a { color: inherit; text-decoration: none; }
+.repo h3 a:hover { color: var(--acento); }
+.repo h3 a::after { content: " →"; opacity: 0; transition: opacity 0.2s; }
+.repo h3 a:hover::after { opacity: 1; }
+.modal-pagina { margin-top: 18px; font-size: 14px; }
+.modal-pagina a { color: var(--acento); }
+
+/* ============================================================
+   Páginas internas (projetos e artigos), geradas por tools/build.js
+   ============================================================ */
+.pagina {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 28px clamp(16px, 5vw, 48px) 0;
+}
+.migalhas {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 0 0 28px;
+  padding: 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--texto-3);
+}
+.migalhas li + li::before { content: "/"; margin-right: 8px; opacity: 0.6; }
+.migalhas a { color: var(--texto-2); text-decoration: none; }
+.migalhas a:hover { color: var(--acento); }
+.migalhas [aria-current] { color: var(--texto); }
+
+.pagina-cab { display: grid; gap: 14px; margin-bottom: 8px; }
+.pagina-cab h1 { font-size: clamp(36px, 6vw, 56px); }
+.pagina-lead { font-size: clamp(17px, 2vw, 20px); color: var(--texto-2); max-width: 62ch; }
+.projeto-acoes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.projeto-acoes .btn svg { width: 15px; height: 15px; fill: currentColor; }
+.projeto-nota { font-size: 13px; color: var(--texto-3); }
+
+.projeto-secao { margin-top: clamp(40px, 6vw, 64px); }
+.projeto-secao h2 { font-size: clamp(24px, 3.4vw, 32px); margin-bottom: 18px; }
+.projeto-secao h2 .sinal { font-size: 0.7em; margin-right: 6px; }
+.pagina-texto { display: grid; gap: 14px; }
+.pagina-texto p { max-width: 70ch; color: var(--texto); }
+.pagina-linguagens { margin-top: 18px; max-width: 520px; }
+
+.outros-projetos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+.outros-projetos a {
+  display: grid;
+  gap: 6px;
+  height: 100%;
+  padding: 16px 18px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  background: var(--sup);
+  text-decoration: none;
+  transition: border-color 0.2s, translate 0.35s var(--suave), box-shadow 0.3s;
+}
+.outros-projetos a:hover { border-color: var(--acento); translate: 0 -3px; box-shadow: var(--sombra); }
+.outros-projetos b { font-family: var(--mono); font-size: 15px; }
+.outros-projetos span { font-size: 14px; color: var(--texto-2); }
+
+.pagina-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: clamp(48px, 7vw, 80px);
+  padding: 24px 28px;
+  border: 1px solid color-mix(in srgb, var(--acento) 40%, var(--borda));
+  border-radius: var(--raio);
+  background: var(--add-bg);
+}
+.pagina-cta h2 { font-size: 22px; }
+.pagina-cta p { margin-top: 4px; color: var(--texto-2); }
+
+/* Artigos */
+.artigo-meta { font-size: 13px; color: var(--texto-3); }
+.artigo-meta a { color: var(--texto-2); }
+.selo-rascunho {
+  justify-self: start;
+  padding: 2px 10px;
+  border: 1px dashed var(--ambar);
+  border-radius: 6px;
+  color: var(--ambar);
+  font-size: 12px;
+}
+.artigo-corpo { margin-top: 28px; display: grid; gap: 16px; font-size: 17.5px; line-height: 1.75; }
+.artigo-corpo > * { max-width: 72ch; }
+.artigo-corpo h2 { font-size: 28px; margin-top: 20px; }
+.artigo-corpo h3 { font-size: 21px; margin-top: 10px; }
+.artigo-corpo h2, .artigo-corpo h3 { scroll-margin-top: calc(var(--topo-h) + 16px); }
+.artigo-corpo ul, .artigo-corpo ol { margin: 0; padding-left: 24px; display: grid; gap: 6px; }
+.artigo-corpo li::marker { color: var(--acento); }
+.artigo-corpo a { color: var(--acento); }
+.artigo-corpo :not(pre) > code {
+  font-size: 0.88em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--sup-2);
+  border: 1px solid var(--borda);
+}
+.artigo-corpo pre.codigo {
+  position: relative;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--bg-2);
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.artigo-corpo pre.codigo[data-lang]::before {
+  content: attr(data-lang);
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  font-size: 11px;
+  color: var(--texto-3);
+}
+.artigo-corpo blockquote {
+  margin: 0;
+  padding: 10px 18px;
+  border-left: 3px solid var(--acento);
+  border-radius: 0 10px 10px 0;
+  background: var(--add-bg);
+  color: var(--texto-2);
+}
+.artigo-corpo hr { border: 0; border-top: 1px dashed var(--borda-forte); margin: 10px 0; }
+
+.lista-artigos { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.artigo-card {
+  display: grid;
+  gap: 6px;
+  padding: 18px 20px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  background: var(--sup);
+  text-decoration: none;
+  transition: border-color 0.2s, translate 0.35s var(--suave), box-shadow 0.3s;
+}
+.artigo-card:hover { border-color: var(--acento); translate: 0 -3px; box-shadow: var(--sombra); }
+.artigo-card b { font-size: 19px; }
+.artigo-card > span:last-child { color: var(--texto-2); font-size: 15px; }
+
+@media (max-width: 720px) {
+  .pagina-interna .rodape { padding-bottom: 96px; }
+  .pagina-cta { padding: 20px; }
+}
+
+/* Tabelas dos artigos */
+.artigo-corpo .tabela { max-width: 100%; overflow-x: auto; }
+.artigo-corpo table { border-collapse: collapse; font-size: 15px; min-width: 320px; }
+.artigo-corpo th, .artigo-corpo td { padding: 8px 14px; border: 1px solid var(--borda); text-align: left; }
+.artigo-corpo th { background: var(--sup-2); font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--texto-2); }
+/* Código dos artigos sem ligaduras: "=>" e "==" aparecem como foram digitados */
+.artigo-corpo pre.codigo, .artigo-corpo code { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }

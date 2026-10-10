@@ -91,6 +91,8 @@
     ]
   }
   </script>
+  <!-- Gerado pelo build (tools/build.js): lista de projetos para o Google -->
+  <!--pre:jsonld-projetos--><!--/pre:jsonld-projetos-->
 </head>
 <body>
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -105,6 +107,7 @@
         <li><a href="#experiencia"><span class="ramo" aria-hidden="true">⎇</span> carreira</a></li>
         <li><a href="#certificados"><span class="ramo" aria-hidden="true">⎇</span> certificados</a></li>
         <li><a href="#projetos"><span class="ramo" aria-hidden="true">⎇</span> projetos</a></li>
+        <!--pre:nav-artigos--><!--/pre:nav-artigos-->
         <li><a href="#contato"><span class="ramo" aria-hidden="true">⎇</span> contato</a></li>
       </ul>
     </nav>
@@ -137,7 +140,7 @@
         <p class="hero-funcao">
           <span class="mono sinal">&gt;</span> desenvolvo <span class="digitando" id="digitando" aria-live="off"></span><span class="cursor-texto" aria-hidden="true">▍</span>
         </p>
-        <p class="hero-frase" id="hero-frase"></p>
+        <p class="hero-frase" id="hero-frase"><!--pre:frase--><!--/pre:frase--></p>
         <div class="hero-acoes">
           <a class="btn btn-primario" href="#projetos">git checkout projetos</a>
           <a class="btn btn-secundario" href="#contato">abrir um PR →</a>
@@ -163,7 +166,7 @@
           <p>Date:&nbsp;&nbsp; <span id="sobre-data"></span></p>
         </div>
         <div class="git-show-corpo">
-          <div class="git-show-msg" id="sobre-texto"></div>
+          <div class="git-show-msg" id="sobre-texto"><!--pre:sobre--><!--/pre:sobre--></div>
           <figure class="grafo-carreira" id="grafo-carreira" hidden>
             <figcaption class="mono"><span class="sinal">$</span> git log --graph --oneline</figcaption>
           </figure>
@@ -171,7 +174,7 @@
         <div class="diff" aria-label="Tecnologias">
           <p class="diff-cab mono">diff --git a/stack b/stack</p>
           <p class="diff-hunk mono">@@ -0,0 +1,<span id="stack-qtd">0</span> @@ ferramentas do dia a dia</p>
-          <ul class="diff-linhas mono" id="stack"></ul>
+          <ul class="diff-linhas mono" id="stack"><!--pre:stack--><!--/pre:stack--></ul>
         </div>
       </article>
     </section>
@@ -183,10 +186,10 @@
         <h2>Experiência</h2>
         <p class="secao-sub">Cada emprego é um commit na carreira, do mais recente ao mais antigo.</p>
       </header>
-      <ol class="log" id="lista-exp"></ol>
+      <ol class="log" id="lista-exp"><!--pre:experiencia--><!--/pre:experiencia--></ol>
       <div id="bloco-formacao" hidden>
         <p class="log-sub mono"><span class="sinal">$</span> git log --grep=formação</p>
-        <ol class="log" id="lista-form"></ol>
+        <ol class="log" id="lista-form"><!--pre:formacao--><!--/pre:formacao--></ol>
       </div>
     </section>
 
@@ -198,7 +201,7 @@
         <p class="secao-sub">Cada certificado é uma versão lançada. Clique para verificar.</p>
       </header>
       <div class="filtros" id="filtros-cert" role="group" aria-label="Filtrar certificados por habilidade"></div>
-      <ol class="tags" id="lista-cert"></ol>
+      <ol class="tags" id="lista-cert"><!--pre:certificados--><!--/pre:certificados--></ol>
     </section>
 
     <!-- PROJETOS -->
@@ -209,8 +212,11 @@
         <p class="secao-sub">Sistemas de gestão, APIs e ferramentas web, do balcão da loja ao navegador.</p>
       </header>
       <div class="filtros" id="filtros-proj" role="group" aria-label="Filtrar projetos por tecnologia"></div>
-      <div class="repos" id="lista-proj"></div>
+      <div class="repos" id="lista-proj"><!--pre:projetos--><!--/pre:projetos--></div>
     </section>
+
+    <!-- ARTIGOS (gerado pelo build quando houver artigo publicado) -->
+    <!--pre:artigos--><!--/pre:artigos-->
 
     <!-- CONTATO -->
     <section class="secao" id="contato" data-commit="pr">

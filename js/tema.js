@@ -10,7 +10,9 @@
   } catch (e) { /* armazenamento indisponível: segue o sistema */ }
 
   var reduzir = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!reduzir && document.querySelector) {
+  // Só na página inicial: as páginas internas (projetos, artigos, 404) não têm essa animação
+  var inicial = /^\/(index(\.html)?)?$/.test(location.pathname);
+  if (!reduzir && inicial && document.querySelector) {
     raiz.classList.add("intro");
     // Segurança: se o main.js não carregar, o topo aparece normal mesmo assim
     setTimeout(function () { raiz.classList.remove("intro", "intro-menu"); }, 4000);
