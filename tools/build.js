@@ -294,7 +294,7 @@ function ajustarJsonLdPrincipal(html, D) {
 const NOSCRIPT_EN = `
     <div class="noscript">
       <p><strong>Alex Matias, .NET Software Developer</strong> based in Divinópolis, Brazil. 4 years building, modernizing and integrating business systems with C#, .NET, Entity Framework, SQL Server, MySQL and ASP.NET Core.</p>
-      <p>Currently at CartSys Software (ERP for notary and registry offices). Before that: Condumig (industrial automation) and Petrarca Software. Bachelor's in Computer Science from Faculdade Pitágoras.</p>
+      <p>Currently at CartSys Software (ERP for notary and registry offices). Before that: Condumig (industrial automation) and Petrarca Software. Bachelor's in Computer Science from Anhanguera Pitágoras.</p>
       <p>Turn on JavaScript to see the full experience, certificates and projects, or reach me on <a href="https://www.linkedin.com/in/alex-matias-silva">LinkedIn</a> or <a href="https://github.com/alex-m-silva">GitHub</a>.</p>
     </div>
   `;
@@ -316,7 +316,7 @@ function htmlStatus(p) {
 // Botão do currículo em PDF no topo (contato.curriculo; vazio = não mostra)
 function htmlBotaoCv(c) {
   if (!c.curriculo) return "";
-  return `<a class="btn btn-secundario btn-cv" href="${esc(c.curriculo)}" download="Alex-Matias-CV.pdf" data-cv="topo"` +
+  return `<a class="btn btn-secundario btn-cv" href="${esc(c.curriculo)}" download="${esc(c.curriculo.split("/").pop())}" data-cv="topo"` +
     ` aria-label="${esc(tx("Baixar currículo (PDF)"))}" title="${esc(tx("Currículo em PDF"))}">${ICONE_BAIXAR} CV <span class="btn-nota">PDF</span></a>`;
 }
 

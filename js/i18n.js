@@ -208,8 +208,8 @@
     "o que mudou, medido antes e depois": "what changed, measured before and after",
 
     /* --- Currículo e disponibilidade --- */
-    "Currículo em PDF": "CV in PDF (in Portuguese)",
-    "baixar CV em PDF": "download CV (PDF, in Portuguese)",
+    "Currículo em PDF": "CV in PDF",
+    "baixar CV em PDF": "download CV (PDF)",
     "Baixar currículo (PDF)": "Download CV (PDF)",
 
     /* --- Cookies (js/analytics.js) e página de privacidade (build) --- */

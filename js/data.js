@@ -89,8 +89,9 @@ window.PORTFOLIO = {
     github: "https://github.com/alex-m-silva",
     linkedin: "https://www.linkedin.com/in/alex-matias-silva",
     instagram: "", // vazio: não aparece no site
-    // Currículo em PDF (só em português). Vazio: some o botão do topo, do contato e da paleta
-    curriculo: "/assets/curriculo/Alex-Matias-CV.pdf",
+    // Currículo em PDF de cada idioma (o em inglês sai de tools/curriculo-en.html).
+    // Vazio: some o botão do topo, do contato e da paleta
+    curriculo: L("/assets/curriculo/Alex-Matias-CV.pdf", "/assets/curriculo/Alex-Matias-CV-en.pdf"),
     whatsapp: revelar("ODE5MTE0ODg5NzM1NQ=="), // só números com DDI e DDD
     // Texto que já vem escrito ao abrir o WhatsApp
     whatsappMensagem: L(
@@ -198,9 +199,9 @@ window.PORTFOLIO = {
   formacao: [
     {
       curso: L("Ciência da Computação · Bacharelado", "Bachelor's in Computer Science"),
-      instituicao: "Faculdade Pitágoras",
-      inicio: "2023-02",
-      fim: "2026-06",
+      instituicao: "Anhanguera Pitágoras",
+      inicio: "2023-01",
+      fim: "2026-07",
     },
   ],
 

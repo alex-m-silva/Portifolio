@@ -36,9 +36,12 @@ Site pessoal em HTML/CSS/JS puros, sem framework, publicado no Vercel em https:/
   (no site aparecem como "privado", sem link de código). GestaoModa também é privado.
 - Endereço sem `#` na barra (links internos interceptados por `irPara`); `#demo-gestaocomercial` abre a demo.
 - Texto do site pode ser selecionado e copiado (a proteção contra cópia foi retirada em 2026-10-10, a pedido).
-- Currículo: `assets/curriculo/Alex-Matias-CV.pdf` (só pt, feito no FlowCV), em `contato.curriculo` no data.js;
-  aparece no topo ("CV PDF"), no contato e na paleta; evento `baixar_cv` no GA. O vercel.json serve com
+- Currículo: um PDF por idioma em `contato.curriculo` (data.js, com L()). Português: `assets/curriculo/Alex-Matias-CV.pdf`,
+  feito pelo usuário no FlowCV. Inglês: `Alex-Matias-CV-en.pdf`, gerado de `tools/curriculo-en.html` com
+  `bash tools/gerar-curriculo.sh` (Edge sem janela; tem que caber em 1 página). Se o currículo em pt mudar, atualizar o HTML em inglês.
+  Aparece no topo ("CV PDF"), no contato e na paleta; evento `baixar_cv` no GA. O vercel.json serve com
   `X-Robots-Tag: noindex` (telefone e e-mail não vão para a busca) e sem cache longo, para trocar o PDF com o mesmo nome.
+- Formação: Ciência da Computação na Anhanguera Pitágoras, 01/2023 a 07/2026 (igual ao currículo).
 - Disponibilidade: `perfil.disponibilidade` no data.js vira o selo abaixo do cargo; vazio esconde.
 - JS compactado no build (`minificarJs`, sem dependências: tira comentários e espaços, mantém quebras de linha,
   textos, templates e regex; o build para se o resultado não compilar).

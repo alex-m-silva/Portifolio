@@ -1,0 +1,109 @@
+<!doctype html>
+<!--
+  Currículo em inglês (fonte do assets/curriculo/Alex-Matias-CV-en.pdf).
+  A versão em português é feita no FlowCV; quando ela mudar, atualize este arquivo também.
+  Gerar o PDF (Windows, Edge sem janela):
+    bash tools/gerar-curriculo.sh
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Alex Matias da Silva Resume</title>
+<meta name="author" content="Alex Matias da Silva">
+<style>
+  @page { size: A4; margin: 11mm 14mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; font-size: 9.4pt; line-height: 1.33; color: #1d2125; }
+  a { color: inherit; text-decoration: none; }
+  header { text-align: center; margin-bottom: 10px; }
+  h1 { margin: 0; font-size: 21pt; letter-spacing: 0.2px; }
+  .cargo { margin: 2px 0 4px; font-size: 11.5pt; color: #0e7a4c; font-weight: 600; }
+  .contatos { margin: 0; color: #444; font-size: 9pt; }
+  .contatos span + span::before { content: "·"; margin: 0 7px; color: #999; }
+  h2 { margin: 10px 0 5px; padding-bottom: 3px; border-bottom: 1.5px solid #0e7a4c; font-size: 10.5pt; letter-spacing: 1px; text-transform: uppercase; color: #0e7a4c; }
+  .item { margin-bottom: 7px; break-inside: avoid; }
+  .item-cab { display: flex; justify-content: space-between; gap: 12px; }
+  .item-cab b { font-size: 10.3pt; }
+  .item-cab span { color: #555; white-space: nowrap; }
+  .empresa { margin: 0 0 3px; font-weight: 600; color: #333; }
+  ul { margin: 0; padding-left: 15px; }
+  li { margin: 1.5px 0; }
+  .stack { margin: 3px 0 0; color: #444; }
+  .stack b, .linhas b { color: #1d2125; }
+  p { margin: 0; }
+  .linhas p { margin: 2px 0; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Alex Matias da Silva</h1>
+    <p class="cargo">.NET Developer | C#</p>
+    <p class="contatos">
+      <span>Divinópolis, Brazil</span>
+      <span><a href="tel:+5537988411918">+55 37 98841-1918</a></span>
+      <span><a href="mailto:alexmatias.am162@gmail.com?subject=Contact%20from%20your%20CV&amp;body=Hi%20Alex!%20I%20saw%20your%20CV%20and%20would%20like%20to%20talk.">alexmatias.am162@gmail.com</a></span>
+    </p>
+    <p class="contatos">
+      <span><a href="https://www.alexmatias.dev.br/en">alexmatias.dev.br</a></span>
+      <span><a href="https://www.linkedin.com/in/alex-matias-silva">linkedin.com/in/alex-matias-silva</a></span>
+      <span><a href="https://github.com/alex-m-silva">github.com/alex-m-silva</a></span>
+    </p>
+  </header>
+
+  <h2>Professional experience</h2>
+
+  <div class="item">
+    <div class="item-cab"><b>Software Developer</b><span>03/2026 – Present | Divinópolis</span></div>
+    <p class="empresa">CartSys</p>
+    <ul>
+      <li>Cut fee calculation time for 1,608 records by 25% (from 7m20s to 5m30s) by removing N+1 queries with batch loading and tuning Entity Framework's ChangeTracker.</li>
+      <li>Automated the full bank billing cycle by integrating the system with Unicred's REST API: issuing, querying, settling, paying, rescheduling and batch-printing bank slips, with token authentication and HTTP failure handling.</li>
+      <li>Enabled operation on a cloud-hosted SQL Server over VPN. Rewrote critical batch routines (notices, protests, blocks) with reference data caching, grouped audit logs and multi-row inserts, cutting database round trips without changing results.</li>
+      <li>Allowed registry offices to adopt electronic ledgers by implementing digital signing of books: PDF/A, SHA-256 hashing and CMS signatures with a digital certificate, individually, in batches and automatically.</li>
+      <li>Eliminated manual database fixes by repairing the synchronization of electronic service invoices (NFS-e) with municipal and national providers, reconciling authorized invoices without reissuing them.</li>
+      <li>Delivered the unified report for Brazil's National Council of Justice (CNJ) combining SQL Server and Firebird, plus traceability histories of CRA/CENPROT submissions with Excel export.</li>
+    </ul>
+    <p class="stack"><b>Tech stack:</b> C#, .NET Framework 4.8, WinForms, DevExpress, Entity Framework, LINQ, SQL Server, Firebird, REST APIs, JSON, iTextSharp, FastReport, SVN.</p>
+  </div>
+
+  <div class="item">
+    <div class="item-cab"><b>Systems Developer</b><span>05/2023 – 03/2026 | Divinópolis</span></div>
+    <p class="empresa">Condumig</p>
+    <ul>
+      <li>Cut response time by 75% (40s → 10s) in the engineering module of a legacy VB6 system through database normalization, new indexes and rewritten MySQL queries.</li>
+      <li>Automated the printing and industrial control workflow with .NET Framework 4.8, WinForms and Entity Framework on MySQL, removing manual steps.</li>
+      <li>Built in .NET 8 the processing of iPonto time-clock reports with EPPlus, applying the attendance rules to the meal allowance calculation and eliminating manual checks.</li>
+      <li>Reduced material waste by more than 10% with per-machine BI dashboards, integrating MySQL and Progress (Datasul) into QlikView and Grafeno.</li>
+    </ul>
+    <p class="stack"><b>Tech stack:</b> C#, .NET Framework 4.8, .NET 8, WinForms, Entity Framework / EF Core, MySQL, Progress (Datasul), EPPlus, Docker, Git.</p>
+  </div>
+
+  <div class="item">
+    <div class="item-cab"><b>.NET Developer</b><span>07/2022 – 02/2023 | Divinópolis</span></div>
+    <p class="empresa">Petrarca Software</p>
+    <ul>
+      <li>Built new modules for the management system in C# with WPF (MVVM), Entity Framework and SQL Server.</li>
+      <li>Ported critical libraries from VB.NET to C# and rebuilt the management reports with Crystal Reports.</li>
+    </ul>
+    <p class="stack"><b>Tech stack:</b> C#, .NET Framework 4.5.2, SQL Server, WPF, WinForms, VB.NET, MVVM, Crystal Reports, Bitbucket.</p>
+  </div>
+
+  <h2>Education</h2>
+  <div class="item">
+    <div class="item-cab"><b>Bachelor's in Computer Science</b><span>01/2023 – 07/2026 | Divinópolis</span></div>
+    <p class="empresa">Anhanguera Pitágoras</p>
+    <p>Focus on Algorithms and Data Structures, Software Engineering, Distributed Systems, Data Modeling, Databases, Operating Systems, Cloud Computing and Information Security.</p>
+  </div>
+
+  <h2>Skills</h2>
+  <div class="linhas">
+    <p><b>Languages and frameworks:</b> C#, .NET Framework, .NET 8, Entity Framework / EF Core, LINQ, WinForms, DevExpress, WPF, VB.NET, VB6</p>
+    <p><b>Databases:</b> SQL Server, MySQL, Firebird, Progress (Datasul)</p>
+    <p><b>Architecture and integrations:</b> REST APIs, JSON, layered architecture, Repository Pattern, MVC, MVVM, MVP</p>
+    <p><b>Tools:</b> Git, GitHub, SVN, Bitbucket, Docker, CI/CD</p>
+  </div>
+
+  <h2>Languages</h2>
+  <p><b>Portuguese:</b> native &nbsp;·&nbsp; <b>English:</b> intermediate</p>
+</body>
+</html>

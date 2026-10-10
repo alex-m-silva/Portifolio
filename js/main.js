@@ -1123,7 +1123,7 @@
     if (c.github) canal(ICONES.github, "origin", c.github.replace(/^https?:\/\/(www\.)?/, ""), { href: c.github, target: "_blank", rel: "noopener noreferrer" }, { texto: c.github, aviso: tx("Link do GitHub copiado!") });
     if (c.linkedin) canal(ICONES.linkedin, "linkedin", c.linkedin.replace(/^https?:\/\/(www\.)?/, ""), { href: c.linkedin, target: "_blank", rel: "noopener noreferrer" }, { texto: c.linkedin, aviso: tx("Link do LinkedIn copiado!") });
     if (c.instagram) canal(ICONES.instagram, "instagram", "@" + c.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/+$/, ""), { href: c.instagram, target: "_blank", rel: "noopener noreferrer" });
-    if (c.curriculo) canal(ICONES.baixar, "curriculo.pdf", tx("baixar CV em PDF"), { href: c.curriculo, download: "Alex-Matias-CV.pdf", "data-cv": "contato" });
+    if (c.curriculo) canal(ICONES.baixar, "curriculo.pdf", tx("baixar CV em PDF"), { href: c.curriculo, download: c.curriculo.split("/").pop(), "data-cv": "contato" });
     if (c.whatsapp) {
       var num = String(c.whatsapp).replace(/\D/g, "");
       canal(ICONES.whatsapp, "whatsapp", tx("mandar mensagem"), { href: "https://wa.me/" + num + (c.whatsappMensagem ? "?text=" + encodeURIComponent(c.whatsappMensagem) : ""), target: "_blank", rel: "noopener noreferrer" });
@@ -1426,7 +1426,7 @@
       },
     });
     if (D.contato.curriculo) comandos.push({ rotulo: tx("Baixar currículo (PDF)"), dica: "curl -O curriculo.pdf", acao: function () {
-      var a = h("a", { href: D.contato.curriculo, download: "Alex-Matias-CV.pdf", "data-cv": "paleta" });
+      var a = h("a", { href: D.contato.curriculo, download: D.contato.curriculo.split("/").pop(), "data-cv": "paleta" });
       document.body.appendChild(a);
       a.click();
       a.remove();
