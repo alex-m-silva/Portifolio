@@ -2,14 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
-  "redirects": [
-    {
-      "source": "/:caminho*",
-      "has": [{ "type": "host", "value": "www.alexmatias.dev.br" }],
-      "destination": "https://alexmatias.dev.br/:caminho*",
-      "permanent": true
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
