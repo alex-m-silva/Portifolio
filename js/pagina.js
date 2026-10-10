@@ -64,22 +64,14 @@
     });
   }
 
-  /* --- Vídeo de apresentação: toca sozinho (mudo) só enquanto está visível --- */
+  /* --- Vídeo de apresentação: começa pausado e só baixa no play (preload="none" no HTML).
+         Pausa sozinho quando sai da tela, para não ficar tocando escondido. --- */
   function prepararVideo() {
     var v = $(".proj-video");
-    if (!v) return;
-    v.muted = true;
-    if (reduzirMovimento || !("IntersectionObserver" in window)) return;
+    if (!v || !("IntersectionObserver" in window)) return;
     new IntersectionObserver(function (entradas) {
-      entradas.forEach(function (e) {
-        if (e.isIntersecting) {
-          var tentativa = v.play();
-          if (tentativa && tentativa.catch) tentativa.catch(function () { /* bloqueado: fica o botão play */ });
-        } else {
-          v.pause();
-        }
-      });
-    }, { threshold: 0.4 }).observe(v);
+      entradas.forEach(function (e) { if (!e.isIntersecting && !v.paused) v.pause(); });
+    }, { threshold: 0 }).observe(v);
   }
 
   /* --- Galeria: as telas abrem ampliadas (sem JS, o link abre a imagem) --- */

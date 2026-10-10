@@ -396,7 +396,7 @@ function paginaProjeto(p, D) {
   const apresentacao = a ? `
       <section class="projeto-secao" id="apresentacao" aria-labelledby="t-apresentacao">
         <h2 id="t-apresentacao"><span class="sinal mono">##</span> Apresentação</h2>
-        <video class="proj-video" src="${pasta}${esc(a.video)}"${a.capa ? ` poster="${pasta}${esc(a.capa)}"` : ""} controls muted loop playsinline preload="metadata" aria-label="Vídeo de apresentação do ${esc(p.nome)}"></video>
+        <video class="proj-video" src="${pasta}${esc(a.video)}"${a.capa ? ` poster="${pasta}${esc(a.capa)}"` : ""} controls playsinline preload="none" aria-label="Vídeo de apresentação do ${esc(p.nome)}"></video>
       </section>
       <section class="projeto-secao" aria-labelledby="t-tour">
         <h2 id="t-tour"><span class="sinal mono">##</span> Tour pelas telas</h2>

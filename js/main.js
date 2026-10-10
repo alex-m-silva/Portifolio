@@ -866,18 +866,17 @@
   }
 
   // Vídeo de apresentação e tour pelas telas (só para projetos com `apresentacao`).
-  // O vídeo roda sozinho (mudo, em loop) enquanto a janela está aberta; as telas são
-  // imagens que abrem ampliadas numa galeria (setas, teclado e arrastar no celular).
+  // O vídeo começa pausado e só baixa quando a pessoa aperta o play (até lá, só a capa);
+  // as telas são imagens que abrem ampliadas numa galeria (setas, teclado e arrastar no celular).
   function montarApresentacao(a) {
     var pasta = a.pasta || "";
     var frag = document.createDocumentFragment();
     frag.appendChild(h("h4", { id: "proj-apresentacao", text: "## Apresentação" }));
     var video = h("video", {
       class: "proj-video", src: pasta + a.video, poster: a.capa ? pasta + a.capa : null,
-      controls: true, loop: true, playsinline: true, preload: "metadata",
+      controls: true, playsinline: true, preload: "none",
       "aria-label": "Vídeo de apresentação do sistema",
     });
-    video.muted = true; // a propriedade (não o atributo) é que libera o autoplay
     frag.appendChild(video);
 
     frag.appendChild(h("h4", { text: "## Tour pelas telas" }));
@@ -899,14 +898,6 @@
     });
     frag.appendChild(lista);
     return frag;
-  }
-
-  function tocarVideoProjeto() {
-    if (reduzirMovimento) return;
-    var v = $("#modal-conteudo .proj-video");
-    if (!v) return;
-    var tentativa = v.play();
-    if (tentativa && tentativa.catch) tentativa.catch(function () { /* navegador bloqueou: fica o botão play */ });
   }
 
   function pararVideosProjeto() {
@@ -995,7 +986,6 @@
       modal.dataset.pararVideos = "1";
     }
     abrirDialogo(modal);
-    tocarVideoProjeto();
     alvo.scrollTop = 0;
     var ancora = irParaApresentacao && $("#proj-apresentacao");
     if (ancora) alvo.scrollTop = ancora.getBoundingClientRect().top - alvo.getBoundingClientRect().top - 12;
