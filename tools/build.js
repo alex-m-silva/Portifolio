@@ -14,7 +14,8 @@
  *     vídeo, galeria de telas, dados estruturados e links para os outros projetos.
  *  3. Artigos em /artigos/<slug> a partir de artigos/*.md, só em português (os
  *     marcados como rascunho só são gerados com --rascunhos, sem índice e fora do sitemap).
- *  4. sitemap.xml (com as versões de cada idioma) e robots.txt.
+ *  4. Página de privacidade em /privacidade e /en/privacidade (cookies, GA4, FormSubmit, LGPD).
+ *  5. sitemap.xml (com as versões de cada idioma) e robots.txt.
  *
  *  Para antes de tudo se algum texto marcado não tiver tradução em js/i18n.js.
  *
@@ -323,6 +324,7 @@ function gerarIndex(D, artigos) {
     html = trocarUmaVez(html, '<meta property="og:url" content="https://www.alexmatias.dev.br/">', `<meta property="og:url" content="${urlEm("en", "/")}">`);
     html = trocarUmaVez(html, '<a href="/" hreflang="pt-BR" lang="pt-BR" data-idioma="pt" aria-current="true">pt</a>', '<a href="/" hreflang="pt-BR" lang="pt-BR" data-idioma="pt">pt</a>');
     html = trocarUmaVez(html, '<a href="/en" hreflang="en" lang="en" data-idioma="en">en</a>', '<a href="/en" hreflang="en" lang="en" data-idioma="en" aria-current="true">en</a>');
+    html = trocarUmaVez(html, '<a href="/privacidade" data-t>', '<a href="/en/privacidade" data-t>');
     html = preencher(html, "noscript", NOSCRIPT_EN);
   }
   html = trocarUmaVez(html, `<meta property="og:locale" content="pt_BR">`,
@@ -412,7 +414,7 @@ ${bilingue ? tagsAlternadas(caminho) + "\n" : ""}  <meta property="og:type" cont
 function rodape() {
   return `
   <footer class="rodape">
-    <p class="mono"><span class="ref">HEAD → main</span> · ${tx("feito à mão com HTML, CSS e JavaScript, sem framework")} · ${new Date().getFullYear()}</p>
+    <p class="mono"><span class="ref">HEAD → main</span> · ${tx("feito à mão com HTML, CSS e JavaScript, sem framework")} · ${new Date().getFullYear()} · <a href="${I.prefixo}/privacidade">${tx("privacidade")}</a></p>
   </footer>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
@@ -763,7 +765,86 @@ function paginaIndiceArtigos(artigos) {
 }
 
 /* ============================================================
-   4. sitemap.xml e robots.txt
+   4. Página de privacidade (/privacidade e /en/privacidade)
+   ------------------------------------------------------------
+   Texto curto e direto sobre o que o site guarda: GA4 (só com
+   consentimento, js/analytics.js), formulário via FormSubmit,
+   localStorage (tema, idioma, escolha de cookies) e a hospedagem.
+   Se algo aqui mudar no site, atualize PRIVACIDADE_ATUALIZADA.
+   ============================================================ */
+const PRIVACIDADE_ATUALIZADA = "2026-10-10";
+
+function paginaPrivacidade() {
+  const lang = I.idioma;
+  const base = I.prefixo;
+  const em = (pt, en) => (lang === "en" ? en : pt);
+  const caminho = "/privacidade";
+  const url = urlEm(lang, caminho);
+  const titulo = em("Privacidade e cookies · Alex Matias", "Privacy and cookies · Alex Matias");
+  const descricao = em(
+    "Como este site usa cookies, o Google Analytics, o formulário de contato e o armazenamento do navegador, e como mudar a sua escolha.",
+    "How this site uses cookies, Google Analytics, the contact form and browser storage, and how to change your choice.");
+  const trilha = [{ nome: tx("Início"), url: base || "/" }, { nome: tx("Privacidade"), url: caminhoEm(lang, caminho) }];
+  const atualizada = lang === "en"
+    ? new Date(PRIVACIDADE_ATUALIZADA + "T12:00:00").toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })
+    : dataLonga(PRIVACIDADE_ATUALIZADA);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "WebPage", "@id": url, "url": url, "name": titulo, "description": descricao, "inLanguage": hreflang(lang),
+        "dateModified": dataHoraBr(PRIVACIDADE_ATUALIZADA), "isPartOf": { "@id": `${SITE}/#site` } },
+      jsonLdMigalhas(trilha),
+    ],
+  };
+  const secao = (id, h, corpo) => `<h2 id="${id}">${h}</h2>\n${corpo}`;
+  const corpo = [
+    em(`<p>Este é um site pessoal, feito e mantido por mim, Alex Matias. Ele não tem anúncios, não vende dados e não usa cookies de terceiros para publicidade. Aqui está tudo o que ele guarda ou envia, e por quê.</p>`,
+      `<p>This is a personal website, built and maintained by me, Alex Matias. It has no ads, sells no data and uses no third-party advertising cookies. Here is everything it stores or sends, and why.</p>`),
+    secao("analytics", "Google Analytics", em(
+      `<p>Uso o Google Analytics 4 para saber quantas pessoas visitam o site, quais páginas são mais vistas e de onde vêm as visitas (busca, LinkedIn etc.). Ele <strong>só funciona se você clicar em "Aceitar"</strong> no aviso de cookies; antes disso o script do Google nem é carregado.</p>
+<ul><li>Cookies gravados, só com o seu aceite: <code>_ga</code> e <code>_ga_5P9ZC1D2DD</code>, que duram até 2 anos e servem para contar visitas sem repetir a mesma pessoa.</li><li>O que o Google recebe: páginas vistas, tempo na página, tipo de aparelho e navegador, idioma e região aproximada. Não envio nome, e-mail nem o conteúdo de mensagens.</li><li>Os recursos de anúncios ficam desligados (Google Consent Mode v2 com <code>ad_storage</code>, <code>ad_user_data</code> e <code>ad_personalization</code> negados).</li><li>Os dados são tratados pelo Google, inclusive fora do Brasil. Veja a <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">política de privacidade do Google</a>.</li></ul>`,
+      `<p>I use Google Analytics 4 to know how many people visit the site, which pages are viewed the most and where visits come from (search, LinkedIn etc.). It <strong>only runs if you click "Accept"</strong> in the cookie notice; until then the Google script isn't even loaded.</p>
+<ul><li>Cookies set, only after you accept: <code>_ga</code> and <code>_ga_5P9ZC1D2DD</code>, which last up to 2 years and are used to count visits without counting the same person twice.</li><li>What Google receives: pages viewed, time on page, device and browser type, language and approximate region. I don't send names, emails or message contents.</li><li>Advertising features are turned off (Google Consent Mode v2 with <code>ad_storage</code>, <code>ad_user_data</code> and <code>ad_personalization</code> denied).</li><li>The data is processed by Google, including outside Brazil. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's privacy policy</a>.</li></ul>`)),
+    secao("escolha", em("Mudar a sua escolha", "Change your choice"), em(
+      `<p>Você pode aceitar ou recusar quando quiser. Se recusar depois de ter aceitado, os cookies <code>_ga</code> são apagados deste site.</p>
+<p><button type="button" class="btn btn-secundario" data-consentimento>rever escolha de cookies</button></p>`,
+      `<p>You can accept or decline at any time. If you decline after accepting, the <code>_ga</code> cookies are deleted from this site.</p>
+<p><button type="button" class="btn btn-secundario" data-consentimento>review cookie choice</button></p>`)),
+    secao("contato", em("Formulário de contato", "Contact form"), em(
+      `<p>O formulário da seção de contato é enviado pelo <a href="https://formsubmit.co" target="_blank" rel="noopener noreferrer">FormSubmit</a>, um serviço que repassa a mensagem para o meu e-mail. Vão nome, e-mail, título e mensagem, só quando você clica em enviar. Uso esses dados apenas para responder você; não entram em lista de e-mails nem são repassados a mais ninguém.</p>`,
+      `<p>The form in the contact section is sent through <a href="https://formsubmit.co" target="_blank" rel="noopener noreferrer">FormSubmit</a>, a service that forwards the message to my email. It sends your name, email, title and message, only when you click send. I use this data only to reply to you; it isn't added to any mailing list or shared with anyone else.</p>`)),
+    secao("navegador", em("Armazenamento no seu navegador", "Storage in your browser"), em(
+      `<p>O site guarda três preferências no <code>localStorage</code> do seu navegador. Não são cookies e não são enviadas para lugar nenhum:</p>
+<ul><li><code>tema</code>: claro ou escuro, se você trocou.</li><li><code>idioma</code>: português ou inglês, se você escolheu.</li><li><code>consentimento</code>: a sua resposta ao aviso de cookies.</li></ul>
+<p>Para apagar, basta limpar os dados do site nas configurações do navegador.</p>`,
+      `<p>The site stores three preferences in your browser's <code>localStorage</code>. They aren't cookies and aren't sent anywhere:</p>
+<ul><li><code>tema</code>: light or dark theme, if you changed it.</li><li><code>idioma</code>: Portuguese or English, if you picked one.</li><li><code>consentimento</code>: your answer to the cookie notice.</li></ul>
+<p>To remove them, clear this site's data in your browser settings.</p>`)),
+    secao("hospedagem", em("Hospedagem", "Hosting"), em(
+      `<p>O site é hospedado na <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Vercel</a>, que, como todo servidor, registra dados técnicos das requisições (endereço IP, navegador, página pedida) para segurança e funcionamento. Eu não uso esses registros para identificar ninguém.</p>`,
+      `<p>The site is hosted on <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Vercel</a>, which, like any server, logs technical request data (IP address, browser, requested page) for security and operation. I don't use these logs to identify anyone.</p>`)),
+    secao("direitos", em("Seus direitos (LGPD)", "Your rights (LGPD)"), em(
+      `<p>Pela Lei Geral de Proteção de Dados (Lei 13.709/2018), você pode pedir para saber quais dados seus eu tenho, corrigir ou apagar. Como o único dado pessoal que chega até mim é o que você manda pelo contato, é só me escrever pelo <a href="${base}/#contato">formulário</a> ou pelo e-mail que aparece lá.</p>`,
+      `<p>Under Brazil's General Data Protection Law (LGPD, Law 13,709/2018), you can ask what data of yours I hold, and have it corrected or deleted. Since the only personal data that reaches me is what you send through the contact section, just write to me using the <a href="${base}/#contato">form</a> or the email shown there.</p>`)),
+  ].join("\n");
+
+  const html = cabecalho({ caminho, bilingue: true, titulo, descricao, imagem: `${SITE}/assets/og-image.png`, jsonLd }) + `
+  <main id="conteudo" class="pagina">
+    ${migalhas(trilha)}
+    <article class="artigo">
+      <header class="pagina-cab">
+        <p class="secao-cmd mono"><span class="sinal">$</span> cat PRIVACY.md</p>
+        <h1>${em("Privacidade e cookies", "Privacy and cookies")}</h1>
+        <p class="artigo-meta mono">${em("atualizado em", "updated on")} <time datetime="${PRIVACIDADE_ATUALIZADA}">${atualizada}</time></p>
+      </header>
+      <div class="artigo-corpo">${corpo}</div>
+    </article>
+  </main>` + rodape();
+  gravar(`${lang === "en" ? "en/" : ""}privacidade.html`, html);
+}
+
+/* ============================================================
+   5. sitemap.xml e robots.txt
    ------------------------------------------------------------
    Páginas nos dois idiomas entram uma vez por idioma, cada uma
    com os links (xhtml:link) para a versão no outro idioma.
@@ -790,6 +871,7 @@ function gerarSitemap(D, artigos) {
       prioridade: p.destaque ? "0.8" : "0.6",
     });
   });
+  bilingue("/privacidade", { prioridade: "0.3" });
   const publicados = artigos.filter((a) => !a.rascunho);
   if (publicados.length) {
     entrada(`${SITE}/artigos`, { prioridade: "0.7" });
@@ -804,7 +886,7 @@ function gerarRobots() {
 }
 
 /* ============================================================
-   5. Otimização: CSS compactado e versão nos arquivos
+   6. Otimização: CSS compactado e versão nos arquivos
    ------------------------------------------------------------
    O CSS perde comentários e espaços (os textos entre aspas ficam
    intactos). Cada referência a css/*.css e js/*.js nas páginas
@@ -876,6 +958,7 @@ function main() {
     D = dadosEm(bruto);
     gerarIndex(D, publicados);
     D.projetos.forEach((p) => paginaProjeto(p, D));
+    paginaPrivacidade();
   });
 
   // Artigos, sitemap e robots (em português)
@@ -890,6 +973,7 @@ function main() {
   console.log(`build ok em ${Date.now() - inicio} ms → dist/`);
   console.log(`  idiomas: ${IDIOMAS.join(", ")} (/ e /en)`);
   console.log(`  páginas de projeto: ${D.projetos.map((p) => "/projetos/" + p.slug).join(", ")} (e /en/projetos/...)`);
+  console.log(`  privacidade: /privacidade e /en/privacidade`);
   console.log(`  artigos: ${publicados.length} publicado(s)` + (COM_RASCUNHOS ? `, ${artigos.length - publicados.length} rascunho(s) gerado(s) para revisão` : ""));
   console.log(`  sitemap: ${n} endereço(s)`);
   console.log(`  css: ${(otim.cssAntes / 1024).toFixed(1)} KB → ${(otim.cssDepois / 1024).toFixed(1)} KB; versão nos arquivos de ${otim.paginas} página(s)`);

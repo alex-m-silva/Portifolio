@@ -1583,3 +1583,44 @@ dialog[open] { animation: surgir 0.25s ease; }
   .idiomas a { min-width: 28px; padding: 0 6px; }
 }
 .erro-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ============================================================
+   Cookies: aviso de consentimento (js/analytics.js) e rodapé
+   ============================================================ */
+.aviso-cookies {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 150;
+  display: grid;
+  gap: 10px;
+  width: min(400px, calc(100vw - 32px));
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--acento) 45%, var(--borda));
+  border-radius: 12px;
+  background: var(--sup);
+  box-shadow: var(--sombra);
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0;
+  translate: 0 12px;
+  transition: opacity 0.35s var(--suave), translate 0.35s var(--suave);
+}
+.aviso-cookies.mostrar { opacity: 1; translate: 0 0; }
+.aviso-cookies-cmd { font-size: 12.5px; color: var(--texto-3); }
+.aviso-cookies-cmd .sinal { color: var(--acento); }
+.aviso-cookies-txt { color: var(--texto-2); }
+.aviso-cookies-txt a { color: var(--acento); font-weight: 700; white-space: nowrap; }
+.aviso-cookies-botoes { display: flex; justify-content: flex-end; gap: 8px; }
+.aviso-cookies-botoes .btn-peq { min-width: 96px; justify-content: center; color: var(--texto); }
+.aviso-cookies-botoes .btn-peq.btn-demo { color: var(--acento); }
+.aviso-cookies-botoes .btn-peq.btn-demo:hover { color: var(--acento-texto); }
+.rodape a { color: inherit; text-underline-offset: 3px; }
+.rodape a:hover { color: var(--acento); }
+@media (max-width: 720px) {
+  .aviso-cookies { bottom: 76px; } /* acima da barra de navegação do celular */
+  .aviso-cookies-botoes .btn-peq { flex: 1; min-height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aviso-cookies { transition: none; translate: 0 0; }
+}

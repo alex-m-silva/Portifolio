@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * Confere se todo texto passado para tradução no código tem versão em inglês em js/i18n.js.
- * Procura as chamadas tx("...") / t("...") em js/*.js e tools/build.js.
+ * Procura as chamadas tx("...") / t("...") em js/main.js, pagina.js, analytics.js e tools/build.js.
  * Uso: node tools/checar-traducoes.js   (o build também roda esta checagem)
  */
 "use strict";
@@ -29,7 +29,7 @@ function chamadas(arquivo) {
 function checar() {
   const EN = dicionario();
   const faltando = [];
-  ["js/main.js", "js/pagina.js", "tools/build.js"].forEach((arq) => {
+  ["js/main.js", "js/pagina.js", "js/analytics.js", "tools/build.js"].forEach((arq) => {
     if (!fs.existsSync(path.join(RAIZ, arq))) return;
     chamadas(arq).forEach((txt) => {
       if (!Object.prototype.hasOwnProperty.call(EN, txt)) faltando.push(`${arq}: "${txt}"`);

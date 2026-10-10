@@ -22,17 +22,11 @@ Site pessoal em HTML/CSS/JS puros, sem framework, publicado no Vercel em https:/
 | `js/main.js` | comportamento da página inicial (grafo animado, cards, filtros, paleta Ctrl+K, contato via FormSubmit, galeria) |
 | `js/pagina.js` | comportamento das páginas internas (projetos/artigos) |
 | `js/tema.js` | tema salvo + animação de entrada do topo (só na inicial) |
-| `js/analytics.js` | GA4 `G-5P9ZC1D2DD`, só no domínio oficial |
+| `js/analytics.js` | GA4 `G-5P9ZC1D2DD` com Consent Mode v2 e aviso de cookies; gtag.js só carrega após "Aceitar" e só no domínio oficial |
 | `css/style.css` | todo o visual; tokens em `:root`, tema claro em `[data-tema="claro"]` |
 | `vercel.json` | build, `dist/`, cabeçalhos e cache |
 
 ## Pendências (em ordem)
-1. **Cookies / LGPD** (pedido do usuário, ainda não feito). O GA4 grava cookies `_ga`.
-   Plano: aviso discreto no estilo do site (git), pt/en via `js/i18n.js`, com "Aceitar" e "Recusar";
-   Google Consent Mode v2 em `js/analytics.js` (`gtag('consent','default',{analytics_storage:'denied', ad_storage:'denied', ad_user_data:'denied', ad_personalization:'denied'})`,
-   e `update` para `granted` ao aceitar); escolha em localStorage; link "privacidade" no rodapé
-   com uma página curta (`/privacidade` e `/en/privacidade`, gerada pelo build) explicando GA4,
-   FormSubmit e localStorage (tema/idioma). Testar console limpo, celular e os dois idiomas.
 2. **Avaliação do portfólio** (pedido do usuário): análise honesta para recrutador/cliente
    (primeira impressão, clareza do que ele faz, provas de resultado, CTA, acessibilidade,
    desempenho) e propor/implementar melhorias.
@@ -46,6 +40,10 @@ Site pessoal em HTML/CSS/JS puros, sem framework, publicado no Vercel em https:/
 - Endereço sem `#` na barra (links internos interceptados por `irPara`); `#demo-gestaocomercial` abre a demo.
 - Texto do site protegido contra cópia (exceto campos, código dos artigos e botões de copiar).
 - FormSubmit usa o código apelido `formsubmitId` (ativado para o www).
+- Cookies/LGPD (feito em 2026-10-10): tudo negado por padrão; "Aceitar" libera só `analytics_storage` (ad_* sempre negados)
+  e só então baixa o gtag.js (modo básico: quem recusa não envia nada ao Google). Escolha em `localStorage.consentimento`;
+  recusar depois de aceitar apaga os cookies `_ga*`. Página `/privacidade` (e `/en/privacidade`) gerada em `paginaPrivacidade()`
+  no build, com botão `data-consentimento` para rever a escolha. O aviso de idioma espera a escolha de cookies (um aviso por vez).
 - Desempenho: Lighthouse ~84-87, SEO/Acessibilidade/Boas práticas 100.
 
 ## Prompt para retomar

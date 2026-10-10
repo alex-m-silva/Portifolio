@@ -205,6 +205,16 @@
     "detalhes": "details",
     "Lista de projetos de {nome}": "{nome}'s projects",
 
+    /* --- Cookies (js/analytics.js) e página de privacidade (build) --- */
+    "Aviso de cookies": "Cookie notice",
+    "Uso o Google Analytics para saber quantas pessoas visitam o site. Ele só grava cookies se você aceitar.":
+      "I use Google Analytics to know how many people visit this site. It only sets cookies if you accept.",
+    "Saiba mais": "Learn more",
+    "Recusar": "Decline",
+    "Aceitar": "Accept",
+    "privacidade": "privacy",
+    "Privacidade": "Privacy",
+
     /* --- Aviso de idioma --- */
     "Este site também está em português.": "Este site também está em português.",
     "Ler em português →": "Ler em português →",
@@ -357,6 +367,14 @@
     setTimeout(function () { aviso.classList.add("mostrar"); }, 1200);
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", oferecerTroca);
-  else oferecerTroca();
+  // Um aviso por vez: enquanto o de cookies (js/analytics.js) espera uma escolha, este espera também
+  function quandoPronto() {
+    var consentimento;
+    try { consentimento = localStorage.getItem("consentimento"); } catch (e) { consentimento = "?"; }
+    if (consentimento) oferecerTroca();
+    else document.addEventListener("consentimento", oferecerTroca, { once: true });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", quandoPronto);
+  else quandoPronto();
 })(typeof window !== "undefined" ? window : this);
