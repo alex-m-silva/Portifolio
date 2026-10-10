@@ -419,6 +419,7 @@ ${bilingue ? tagsAlternadas(caminho) + "\n" : ""}  <meta property="og:type" cont
   <script src="/js/tema.js"></script>
   <script src="/js/i18n.js"></script>
   <script async src="/js/analytics.js"></script>
+  <script defer src="/js/visor.js"></script>
   <script defer src="/js/pagina.js"></script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 </head>
@@ -477,6 +478,36 @@ const PESSOA = { "@type": "Person", "@id": `${SITE}/#alex`, "name": "Alex Matias
 function imagemDoProjeto(p) {
   if (existe(`assets/og/${p.slug}.png`)) return `${SITE}/assets/og/${p.slug}.png`;
   return `${SITE}/assets/og-image.png`;
+}
+
+// Visor do tour: tela grande, legenda e faixa de miniaturas (o js/visor.js dá vida).
+// Sem JavaScript, cada miniatura é um link para a imagem em tamanho real.
+function visorTelas(p, pasta) {
+  const telas = p.apresentacao.telas;
+  const t0 = telas[0];
+  const num = (i) => String(i + 1).padStart(2, "0");
+  const altTela = (t) => `${p.nome}: ${t.titulo}`;
+  return `<div class="visor" data-rotulo-ampliar="${esc(tx("Ampliar: {titulo}"))}">
+          <div class="visor-palco">
+            <a class="visor-tela" href="${pasta}telas/${t0.arquivo}.jpg" aria-label="${esc(tx("Ampliar: {titulo}", { titulo: t0.titulo }))}">
+              <img src="${pasta}telas/${t0.arquivo}.jpg" alt="${esc(altTela(t0))}" width="1920" height="1080" loading="lazy" decoding="async">
+              <span class="tela-zoom" aria-hidden="true">${ICONE_ZOOM}</span>
+            </a>
+            <button class="visor-seta visor-ant" type="button" aria-label="${esc(tx("Tela anterior"))}">‹</button>
+            <button class="visor-seta visor-prox" type="button" aria-label="${esc(tx("Próxima tela"))}">›</button>
+          </div>
+          <div class="visor-legenda" aria-live="polite">
+            <span class="visor-num mono">${num(0)} / ${num(telas.length - 1)}</span>
+            <b class="visor-titulo">${esc(t0.titulo)}</b>
+            <p class="visor-texto">${esc(t0.texto)}</p>
+          </div>
+          <ol class="visor-minis" aria-label="${esc(tx("Escolher tela"))}">
+            ${telas.map((t, i) => `<li><a class="visor-mini" href="${pasta}telas/${t.arquivo}.jpg" data-indice="${i}" data-titulo="${esc(t.titulo)}" data-texto="${esc(t.texto)}" data-alt="${esc(altTela(t))}"${i ? ' tabindex="-1"' : ' aria-current="true"'}>
+              <img src="${pasta}telas/mini/${t.arquivo}.webp" alt="" loading="lazy" decoding="async" width="720" height="405">
+              <span><span class="mono">${num(i)}</span> ${esc(t.titulo)}</span>
+            </a></li>`).join("\n            ")}
+          </ol>
+        </div>`;
 }
 
 function galeriaDialogo() {
@@ -552,15 +583,7 @@ function paginaProjeto(p, D) {
       <section class="projeto-secao" aria-labelledby="t-tour">
         <h2 id="t-tour"><span class="sinal mono">##</span> ${tx("Tour pelas telas")}</h2>
         ${a.intro ? `<p class="tour-intro">${esc(a.intro)}</p>` : ""}
-        <ol class="tour">
-          ${a.telas.map((t, i) => `<li class="tela">
-            <a class="tela-img" href="${pasta}telas/${t.arquivo}.jpg" data-indice="${i}" data-titulo="${esc(t.titulo)}" data-texto="${esc(t.texto)}" aria-label="${esc(tx("Ampliar: {titulo}", { titulo: t.titulo }))}">
-              <img src="${pasta}telas/mini/${t.arquivo}.webp" alt="${esc(p.nome)}: ${esc(t.titulo)}" loading="lazy" width="720" height="405">
-              <span class="tela-zoom" aria-hidden="true">${ICONE_ZOOM}</span>
-            </a>
-            <div class="tela-txt"><b><span class="tela-num mono">${String(i + 1).padStart(2, "0")}</span>${esc(t.titulo)}</b><span>${esc(t.texto)}</span></div>
-          </li>`).join("\n          ")}
-        </ol>
+        ${visorTelas(p, pasta)}
       </section>` : "";
 
   const outros = D.projetos.filter((x) => x !== p);

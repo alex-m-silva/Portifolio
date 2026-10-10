@@ -14,6 +14,8 @@
   function $(sel, raiz) { return (raiz || document).querySelector(sel); }
   function $$(sel, raiz) { return Array.prototype.slice.call((raiz || document).querySelectorAll(sel)); }
 
+  var dialogoAberto = false; // ver marcarDialogos
+
   // Cria elementos sem innerHTML para os dados (evita injeção de HTML)
   function h(tag, attrs) {
     var el = document.createElement(tag);
@@ -438,7 +440,7 @@
     }
 
     function laco(agora) {
-      if (!visivel || document.hidden) { ultimo = 0; requestAnimationFrame(laco); return; }
+      if (!visivel || document.hidden || dialogoAberto) { ultimo = 0; requestAnimationFrame(laco); return; }
       if (!ultimo) ultimo = agora;
       var dt = Math.min(64, agora - ultimo);
       ultimo = agora;
@@ -882,21 +884,32 @@
     frag.appendChild(h("h4", { text: tx("## Tour pelas telas") }));
     if (a.intro) frag.appendChild(h("p", { class: "tour-intro", text: a.intro }));
 
-    var lista = h("ol", { class: "tour" });
-    a.telas.forEach(function (t, i) {
-      var num = String(i + 1).padStart(2, "0");
-      lista.appendChild(h("li", { class: "tela" },
-        h("button", {
-          type: "button", class: "tela-img", "aria-label": tx("Ampliar: {titulo}", { titulo: t.titulo }),
-          onclick: function () { abrirGaleria(a, i); },
-        },
-          h("img", { src: pasta + "telas/mini/" + t.arquivo + ".webp", alt: t.titulo, loading: "lazy", width: 720, height: 405 }),
+    // Visor (js/visor.js): tela grande, legenda e miniaturas. Bem mais leve que
+    // montar as nove telas com texto: só a tela atual é grande, e ela só baixa
+    // quando aparece na janela.
+    var t0 = a.telas[0];
+    var num = function (i) { return String(i + 1).padStart(2, "0"); };
+    var visor = h("div", { class: "visor", "data-rotulo-ampliar": tx("Ampliar: {titulo}") },
+      h("div", { class: "visor-palco" },
+        h("a", { class: "visor-tela", href: pasta + "telas/" + t0.arquivo + ".jpg", "aria-label": tx("Ampliar: {titulo}", { titulo: t0.titulo }) },
+          h("img", { src: pasta + "telas/" + t0.arquivo + ".jpg", alt: t0.titulo, width: 1920, height: 1080, loading: "lazy", decoding: "async" }),
           h("span", { class: "tela-zoom", "aria-hidden": "true", html: ICONES.zoom })),
-        h("div", { class: "tela-txt" },
-          h("b", null, h("span", { class: "tela-num mono", text: num }), t.titulo),
-          h("span", { text: t.texto }))));
-    });
-    frag.appendChild(lista);
+        h("button", { class: "visor-seta visor-ant", type: "button", "aria-label": tx("Tela anterior"), text: "‹" }),
+        h("button", { class: "visor-seta visor-prox", type: "button", "aria-label": tx("Próxima tela"), text: "›" })),
+      h("div", { class: "visor-legenda", "aria-live": "polite" },
+        h("span", { class: "visor-num mono" }),
+        h("b", { class: "visor-titulo", text: t0.titulo }),
+        h("p", { class: "visor-texto", text: t0.texto })),
+      h("ol", { class: "visor-minis", "aria-label": tx("Escolher tela") }, a.telas.map(function (t, i) {
+        return h("li", null, h("a", {
+          class: "visor-mini", href: pasta + "telas/" + t.arquivo + ".jpg", "data-indice": i,
+          "data-titulo": t.titulo, "data-texto": t.texto, tabindex: i ? -1 : null, "aria-current": i ? null : "true",
+        },
+          h("img", { src: pasta + "telas/mini/" + t.arquivo + ".webp", alt: "", loading: "lazy", decoding: "async", width: 720, height: 405 }),
+          h("span", null, h("span", { class: "mono", text: num(i) }), " " + t.titulo)));
+      })));
+    if (window.Visor) window.Visor.ativar(visor, function (i) { abrirGaleria(a, i); });
+    frag.appendChild(visor);
     return frag;
   }
 
@@ -987,8 +1000,12 @@
     }
     abrirDialogo(modal);
     alvo.scrollTop = 0;
-    var ancora = irParaApresentacao && $("#proj-apresentacao");
-    if (ancora) alvo.scrollTop = ancora.getBoundingClientRect().top - alvo.getBoundingClientRect().top - 12;
+    // A rolagem até a apresentação mede o layout; fica para o quadro seguinte,
+    // depois que a janela já apareceu, para não travar a abertura.
+    if (irParaApresentacao) requestAnimationFrame(function () {
+      var ancora = $("#proj-apresentacao");
+      if (ancora) alvo.scrollTop = ancora.getBoundingClientRect().top - alvo.getBoundingClientRect().top - 12;
+    });
   }
 
   /* ============================================================
@@ -1060,10 +1077,34 @@
   /* ============================================================
      Diálogos (modal e paleta)
      ============================================================ */
+  // Com uma janela aberta, a página por trás fica parada (grafo e animações CSS):
+  // o navegador não precisa repintar o que está escondido sob o fundo escuro.
+  // As animações são pausadas uma a uma (não por uma classe no <html>, que faria
+  // o navegador recalcular o estilo da página inteira bem na hora de abrir).
+  var pausadas = [];
+  function marcarDialogos() {
+    var aberto = $$("dialog[open]").length > 0;
+    if (aberto === dialogoAberto) return;
+    dialogoAberto = aberto;
+    if (aberto) {
+      if (!document.getAnimations) return;
+      pausadas = document.getAnimations().filter(function (a) {
+        var alvo = a.effect && a.effect.target;
+        return a.playState === "running" && alvo && !(alvo.closest && alvo.closest("dialog"));
+      });
+      pausadas.forEach(function (a) { a.pause(); });
+    } else {
+      pausadas.forEach(function (a) { if (a.playState === "paused") a.play(); });
+      pausadas = [];
+    }
+  }
   function abrirDialogo(dlg) {
     if (dlg.open) return;
     if (typeof dlg.showModal === "function") dlg.showModal();
     else dlg.setAttribute("open", "");
+    // No quadro seguinte: getAnimations() calcula o estilo, e aqui esse cálculo
+    // se somaria ao da própria abertura
+    requestAnimationFrame(marcarDialogos);
   }
   function fecharDialogo(dlg) {
     if (typeof dlg.close === "function") dlg.close();
@@ -1071,6 +1112,7 @@
   }
   function prepararDialogos() {
     $$("dialog").forEach(function (dlg) {
+      dlg.addEventListener("close", marcarDialogos);
       // Clique fora do conteúdo fecha
       // `data-travado` impede fechar enquanto algo está sendo enviado
       dlg.addEventListener("click", function (e) { if (e.target === dlg && !dlg.dataset.travado) fecharDialogo(dlg); });

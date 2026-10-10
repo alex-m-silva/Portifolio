@@ -871,7 +871,9 @@ dialog {
   color: var(--texto);
   max-width: calc(100vw - 32px);
 }
-dialog::backdrop { background: rgba(5, 8, 12, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+/* Fundo escuro sem desfoque: o blur obrigava o navegador a refazer o efeito
+   sobre a página inteira a cada quadro, e a janela engasgava ao abrir */
+dialog::backdrop { background: rgba(5, 8, 12, 0.74); }
 dialog[open] { animation: surgir 0.25s ease; }
 
 .modal { width: 640px; }
@@ -912,28 +914,22 @@ dialog[open] { animation: surgir 0.25s ease; }
   background: #000;
 }
 .tour-intro { color: var(--texto-2); margin: 0 0 14px; }
-.tour {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-}
-.tela { display: grid; gap: 10px; align-content: start; }
-.tela-img {
+/* Visor do tour (js/visor.js): tela grande, legenda e faixa de miniaturas */
+.visor { display: grid; gap: 12px; }
+.visor-palco { position: relative; }
+.visor-tela {
   position: relative;
   display: block;
-  padding: 0;
   border: 1px solid var(--borda);
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
   cursor: zoom-in;
-  transition: border-color 0.2s, box-shadow 0.3s;
+  touch-action: pan-y;
+  transition: border-color 0.2s;
 }
-.tela-img img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: top left; transition: scale 0.45s var(--suave); }
-.tela-img:hover { border-color: var(--acento); box-shadow: 0 12px 30px -18px var(--acento); }
-.tela-img:hover img { scale: 1.04; }
+.visor-tela img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: top left; }
+.visor-tela:hover { border-color: var(--acento); }
 .tela-zoom {
   position: absolute;
   right: 8px;
@@ -950,14 +946,64 @@ dialog[open] { animation: surgir 0.25s ease; }
   transition: opacity 0.2s, translate 0.25s var(--suave);
 }
 .tela-zoom svg { width: 16px; height: 16px; fill: currentColor; }
-.tela-img:hover .tela-zoom, .tela-img:focus-visible .tela-zoom { opacity: 1; translate: 0 0; }
+.visor-tela:hover .tela-zoom, .visor-tela:focus-visible .tela-zoom { opacity: 1; translate: 0 0; }
 @media (hover: none) { .tela-zoom { opacity: 1; translate: 0 0; } }
-.tela-txt { display: grid; gap: 4px; font-size: 14px; color: var(--texto-2); }
-.tela-txt b { color: var(--texto); font-size: 15px; display: flex; align-items: center; gap: 8px; }
-.tela-num { color: var(--acento); font-size: 13px; }
+.visor-seta {
+  position: absolute;
+  top: 50%;
+  width: 38px;
+  height: 38px;
+  margin-top: -19px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--borda-forte);
+  border-radius: 50%;
+  background: var(--sup);
+  color: var(--texto);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.visor-seta:hover { border-color: var(--acento); color: var(--acento); }
+.visor-ant { left: 10px; }
+.visor-prox { right: 10px; }
+.visor-legenda { display: grid; gap: 4px; min-height: 76px; }
+.visor-num { color: var(--acento); font-size: 13px; }
+.visor-titulo { color: var(--texto); font-size: 16px; }
+.visor-texto { color: var(--texto-2); font-size: 14px; margin: 0; }
+.visor-minis {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 4px;
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 8px;
+}
+.visor-mini {
+  display: grid;
+  gap: 6px;
+  padding: 4px 4px 6px;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  color: var(--texto-3);
+  font-size: 11px;
+  line-height: 1.25;
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+.visor-mini img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: top left; border-radius: 5px; background: #fff; opacity: 0.7; transition: opacity 0.2s; }
+.visor-mini .mono { color: var(--acento); }
+.visor-mini:hover { color: var(--texto); border-color: var(--borda-forte); }
+.visor-mini:hover img, .visor-mini[aria-current="true"] img { opacity: 1; }
+.visor-mini[aria-current="true"] { color: var(--texto); border-color: var(--acento); box-shadow: inset 0 0 0 1px var(--acento); }
+@media (max-width: 860px) {
+  .visor-minis { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }
+  .visor-minis li { flex: 0 0 112px; scroll-snap-align: start; }
+}
 @media (max-width: 720px) {
-  .tour { grid-template-columns: 1fr; }
   .modal-largo .modal-conteudo { padding: 18px; }
+  .visor-seta { width: 34px; height: 34px; margin-top: -17px; font-size: 20px; }
 }
 
 /* Galeria: tela ampliada */

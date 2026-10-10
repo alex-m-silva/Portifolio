@@ -76,11 +76,14 @@
     }, { threshold: 0 }).observe(v);
   }
 
-  /* --- Galeria: as telas abrem ampliadas (sem JS, o link abre a imagem) --- */
+  /* --- Tour: o visor troca as telas; a tela grande abre ampliada na galeria
+         (sem JS, cada miniatura é um link para a imagem) --- */
   function prepararGaleria() {
     var dlg = $("#galeria");
-    var links = $$(".tela-img[data-indice]");
-    if (!dlg || !links.length || typeof dlg.showModal !== "function") return;
+    var visor = $(".visor");
+    var links = $$(".visor-mini[data-indice]");
+    if (!visor || !links.length || !window.Visor) return;
+    if (!dlg || typeof dlg.showModal !== "function") { window.Visor.ativar(visor); return; }
     var atual = 0;
     var img = $("#galeria-img");
 
@@ -98,13 +101,10 @@
       [atual + 1, atual - 1].forEach(function (k) { new Image().src = links[(k + total) % total].getAttribute("href"); });
     }
 
-    links.forEach(function (l, i) {
-      l.addEventListener("click", function (e) {
-        e.preventDefault();
-        mostrar(i);
-        dlg.showModal();
-        rastrear("ver_tela", { tela: l.dataset.titulo });
-      });
+    window.Visor.ativar(visor, function (i) {
+      mostrar(i);
+      dlg.showModal();
+      rastrear("ver_tela", { tela: links[i].dataset.titulo });
     });
     $("#galeria-ant").addEventListener("click", function () { mostrar(atual - 1); });
     $("#galeria-prox").addEventListener("click", function () { mostrar(atual + 1); });

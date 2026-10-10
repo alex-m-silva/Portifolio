@@ -120,6 +120,7 @@
     "Vídeo de apresentação do sistema": "System presentation video",
     "## Tour pelas telas": "## Screen tour",
     "Ampliar: {titulo}": "Enlarge: {titulo}",
+    "Escolher tela": "Choose a screen",
     "## Destaques": "## Highlights",
     "## Linguagens": "## Languages",
     "Repositório privado. Código disponível sob consulta.": "Private repository. Code available on request.",
