@@ -64,4 +64,4 @@ python -m http.server 5510
 
 ## Publicação
 
-O site está no Vercel, em [alexmatias.dev.br](https://alexmatias.dev.br). Cada push na `main` publica. O [`vercel.json`](vercel.json) define cabeçalhos de segurança e de cache.
+O site está no Vercel, em [www.alexmatias.dev.br](https://www.alexmatias.dev.br) (o domínio sem `www` redireciona para ele). Cada push na `main` publica. O [`vercel.json`](vercel.json) define cabeçalhos de segurança e de cache.
