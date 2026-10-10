@@ -54,7 +54,7 @@ window.PORTFOLIO = {
     email: revelar("bW9jLmxpYW1nQDI2MW1hLnNhaXRhbXhlbGE="),
     // Endereço apelido do FormSubmit (chega no e-mail de ativação). Se preenchido, é usado
     // no envio do formulário no lugar do e-mail, que assim não aparece na requisição.
-    formsubmitId: "",
+    formsubmitId: "e8db717fac99061a0f23110ebd649f74",
     github: "https://github.com/alex-m-silva",
     linkedin: "https://www.linkedin.com/in/alex-matias-silva",
     instagram: "", // vazio: não aparece no site
