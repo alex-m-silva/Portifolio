@@ -32,6 +32,14 @@ const SITE = "https://www.alexmatias.dev.br";
 const COM_RASCUNHOS = process.argv.includes("--rascunhos");
 const HOJE = new Date().toISOString().slice(0, 10);
 
+// Data e hora no formato que o Google aceita em datePublished/dateModified (ISO 8601 com fuso):
+// "2026-10-10T14:32:05-03:00". Sem argumento, usa o momento do build; com "AAAA-MM-DD", meio-dia nesse dia.
+function dataHoraBr(aaaammdd) {
+  const d = aaaammdd ? new Date(aaaammdd + "T12:00:00-03:00") : new Date();
+  const local = new Date(d.getTime() - 3 * 3600 * 1000); // horário de Brasília (UTC-3)
+  return local.toISOString().slice(0, 19) + "-03:00";
+}
+
 /* ============================================================
    Utilitários
    ============================================================ */
@@ -210,6 +218,7 @@ function jsonLdProjetos(D) {
 function gerarIndex(D, artigos) {
   let html = ler("index.html");
   const p = D.perfil;
+  html = html.replace(/"dateModified": "[^"]*"/, `"dateModified": "${dataHoraBr()}"`);
   html = preencher(html, "frase", esc(p.frase));
   html = preencher(html, "sobre", p.sobre.map((t) => `<p>${esc(t)}</p>`).join(""));
   html = preencher(html, "stack", p.stack.map((t, i) => `<li style="--i:${i}">${esc(t)}</li>`).join(""));
@@ -548,6 +557,7 @@ function carregarArtigos() {
       data: meta.data || HOJE,
       tags: Array.isArray(meta.tags) ? meta.tags : [],
       rascunho: meta.rascunho === true,
+      atualizado: meta.atualizado || "", // opcional: data da última revisão do artigo
       leitura: Math.max(1, Math.round(palavras / 200)),
       html: markdown(corpo),
     };
@@ -566,7 +576,7 @@ function paginaArtigo(art) {
     "@graph": [
       {
         "@type": "TechArticle", "@id": url, "headline": art.titulo, "description": art.descricao,
-        "datePublished": art.data, "dateModified": art.data, "inLanguage": "pt-BR",
+        "datePublished": dataHoraBr(art.data), "dateModified": dataHoraBr(art.atualizado || art.data), "inLanguage": "pt-BR",
         "author": PESSOA, "publisher": PESSOA, "mainEntityOfPage": url, "keywords": art.tags.join(", "),
         "image": `${SITE}/assets/og-image.png`,
       },
@@ -621,7 +631,7 @@ function paginaIndiceArtigos(artigos) {
   const trilha = [{ nome: "Início", url: "/" }, { nome: "Artigos", url: "/artigos" }];
   const jsonLd = { "@context": "https://schema.org", "@graph": [
     { "@type": "Blog", "@id": url, "name": "Artigos de Alex Matias", "url": url, "author": PESSOA, "inLanguage": "pt-BR",
-      "blogPost": artigos.map((a) => ({ "@type": "TechArticle", "headline": a.titulo, "url": `${SITE}/artigos/${a.slug}`, "datePublished": a.data })) },
+      "blogPost": artigos.map((a) => ({ "@type": "TechArticle", "headline": a.titulo, "url": `${SITE}/artigos/${a.slug}`, "datePublished": dataHoraBr(a.data) })) },
     jsonLdMigalhas(trilha),
   ] };
   const html = cabecalho({ titulo, descricao, url, imagem: `${SITE}/assets/og-image.png`, jsonLd }) + `
