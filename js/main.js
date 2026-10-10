@@ -800,7 +800,8 @@
     return h("div", { class: "repo-acoes" },
       comReadme ? h("button", { class: "btn-peq", type: "button", html: ICONES.livro + " README", onclick: function () { abrirProjeto(p); } }) : null,
       p.repo ? h("a", { class: "btn-peq", href: p.repo, target: "_blank", rel: "noopener noreferrer", html: ICONES.github + " código" }) : null,
-      p.demo ? h("a", { class: "btn-peq", href: p.demo, target: "_blank", rel: "noopener noreferrer", html: ICONES.link + " demo" }) : null,
+      // Demo no ar (site): mesmo botão de destaque da apresentação, abrindo em outra aba
+      p.demo ? h("a", { class: "btn-peq btn-demo", href: p.demo, target: "_blank", rel: "noopener noreferrer", html: ICONES.play + " demo", "aria-label": "Abrir a demonstração do " + p.nome + " (nova aba)" }) : null,
       // Sistema desktop não roda no navegador: a demo é o vídeo e o tour pelas telas
       comReadme && !p.demo && p.apresentacao ? h("button", { class: "btn-peq btn-demo", type: "button", html: ICONES.play + " demo", "aria-label": "Ver a demonstração do " + p.nome, onclick: function () { abrirProjeto(p, true); } }) : null);
   }
