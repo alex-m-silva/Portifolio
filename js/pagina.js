@@ -1,7 +1,7 @@
 /*
  * Script das páginas internas (projetos e artigos), geradas por tools/build.js.
  * O conteúdo já vem pronto no HTML; aqui ficam só os comportamentos:
- * tema claro/escuro, galeria das telas, vídeo, proteção do texto e links internos.
+ * tema claro/escuro, galeria das telas, vídeo e links internos.
  */
 (function () {
   "use strict";
@@ -125,34 +125,12 @@
     });
   }
 
-  /* --- Proteção do texto (mesma regra da página inicial; código dos artigos pode ser copiado) --- */
-  function protegerConteudo() {
-    function liberado(alvo) {
-      return !!(alvo && alvo.closest && alvo.closest("input, textarea, [contenteditable], pre.codigo"));
-    }
-    var ultimoAviso = 0;
-    ["copy", "cut"].forEach(function (tipo) {
-      document.addEventListener(tipo, function (e) {
-        if (liberado(e.target) || liberado(window.getSelection && window.getSelection().anchorNode && window.getSelection().anchorNode.parentElement)) return;
-        e.preventDefault();
-        if (Date.now() - ultimoAviso > 2500) { ultimoAviso = Date.now(); toast(tx("Conteúdo protegido")); }
-      });
-    });
-    document.addEventListener("contextmenu", function (e) {
-      if (liberado(e.target) || (e.target.closest && e.target.closest("a[href]"))) return;
-      e.preventDefault();
-    });
-    document.addEventListener("dragstart", function (e) { if (!liberado(e.target)) e.preventDefault(); });
-    document.addEventListener("selectstart", function (e) { if (!liberado(e.target)) e.preventDefault(); });
-  }
-
   function iniciar() {
     prepararTema();
     prepararTopo();
     prepararLinksInternos();
     prepararVideo();
     prepararGaleria();
-    protegerConteudo();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar);

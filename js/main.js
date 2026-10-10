@@ -144,6 +144,7 @@
     check: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>',
     play: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.8v10.4a.8.8 0 0 0 1.22.68l8.3-5.2a.8.8 0 0 0 0-1.36l-8.3-5.2A.8.8 0 0 0 4 2.8Z"/></svg>',
     zoom: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 3a7.5 7.5 0 0 1 5.96 12.05l4.25 4.24a1 1 0 0 1-1.42 1.42l-4.24-4.25A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Zm0 2a1 1 0 0 1 1 1v1.5H13a1 1 0 1 1 0 2h-1.5V13a1 1 0 1 1-2 0v-1.5H8a1 1 0 1 1 0-2h1.5V8a1 1 0 0 1 1-1Z"/></svg>',
+    baixar: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .14.11.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"/><path d="M7.25 7.69V1.75a.75.75 0 0 1 1.5 0v5.94l1.97-1.97a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 6.78a.75.75 0 0 1 1.06-1.06Z"/></svg>',
     copiar: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 6.75C0 5.78.78 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .14.11.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Zm5-5C5 .78 5.78 0 6.75 0h7.5C15.22 0 16 .78 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .14.11.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>',
   };
 
@@ -1122,6 +1123,7 @@
     if (c.github) canal(ICONES.github, "origin", c.github.replace(/^https?:\/\/(www\.)?/, ""), { href: c.github, target: "_blank", rel: "noopener noreferrer" }, { texto: c.github, aviso: tx("Link do GitHub copiado!") });
     if (c.linkedin) canal(ICONES.linkedin, "linkedin", c.linkedin.replace(/^https?:\/\/(www\.)?/, ""), { href: c.linkedin, target: "_blank", rel: "noopener noreferrer" }, { texto: c.linkedin, aviso: tx("Link do LinkedIn copiado!") });
     if (c.instagram) canal(ICONES.instagram, "instagram", "@" + c.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/+$/, ""), { href: c.instagram, target: "_blank", rel: "noopener noreferrer" });
+    if (c.curriculo) canal(ICONES.baixar, "curriculo.pdf", tx("baixar CV em PDF"), { href: c.curriculo, download: "Alex-Matias-CV.pdf", "data-cv": "contato" });
     if (c.whatsapp) {
       var num = String(c.whatsapp).replace(/\D/g, "");
       canal(ICONES.whatsapp, "whatsapp", tx("mandar mensagem"), { href: "https://wa.me/" + num + (c.whatsappMensagem ? "?text=" + encodeURIComponent(c.whatsappMensagem) : ""), target: "_blank", rel: "noopener noreferrer" });
@@ -1423,6 +1425,12 @@
         location.href = new URL(linkOutro.href).pathname;
       },
     });
+    if (D.contato.curriculo) comandos.push({ rotulo: tx("Baixar currículo (PDF)"), dica: "curl -O curriculo.pdf", acao: function () {
+      var a = h("a", { href: D.contato.curriculo, download: "Alex-Matias-CV.pdf", "data-cv": "paleta" });
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } });
     if (D.contato.email) comandos.push({ rotulo: tx("Copiar e-mail"), dica: D.contato.email, acao: function () { copiar(D.contato.email, tx("E-mail copiado!")); } });
     if (D.contato.github) comandos.push({ rotulo: tx("Abrir GitHub"), dica: "git remote -v", acao: function () { window.open(D.contato.github, "_blank", "noopener"); } });
     if (D.contato.linkedin) comandos.push({ rotulo: tx("Abrir LinkedIn"), dica: "linkedin", acao: function () { window.open(D.contato.linkedin, "_blank", "noopener"); } });
@@ -1496,44 +1504,6 @@
   }
 
   /* ============================================================
-     Proteção do conteúdo
-     ------------------------------------------------------------
-     Bloqueia seleção, cópia, recorte, arrastar e o menu do botão
-     direito no texto do site. Campos do formulário continuam
-     normais, e o e-mail se copia pelo botão "copiar email".
-     ============================================================ */
-  function protegerConteudo() {
-    function liberado(alvo) {
-      return !!(alvo && alvo.closest && alvo.closest("input, textarea, [contenteditable], .paleta"));
-    }
-    var ultimoAviso = 0;
-    function avisar() {
-      var agora = Date.now();
-      if (agora - ultimoAviso < 2500) return;
-      ultimoAviso = agora;
-      toast(D.contato.email ? tx("Conteúdo protegido · use \"copiar email\" no contato") : tx("Conteúdo protegido"));
-    }
-    ["copy", "cut"].forEach(function (tipo) {
-      document.addEventListener(tipo, function (e) {
-        if (liberado(e.target) || liberado(document.activeElement)) return;
-        e.preventDefault();
-        avisar();
-      });
-    });
-    document.addEventListener("contextmenu", function (e) {
-      // Links continuam com o menu (abrir em nova aba etc.)
-      if (liberado(e.target) || (e.target.closest && e.target.closest("a[href]"))) return;
-      e.preventDefault();
-    });
-    document.addEventListener("dragstart", function (e) {
-      if (!liberado(e.target)) e.preventDefault();
-    });
-    document.addEventListener("selectstart", function (e) {
-      if (!liberado(e.target)) e.preventDefault();
-    });
-  }
-
-  /* ============================================================
      Recado para quem abre o console (DevTools)
      ============================================================ */
   function recadoNoConsole() {
@@ -1586,10 +1556,14 @@
     iniciarGrafo();
     atualizarCorTema();
     contarNumeros();
-    protegerConteudo();
     recadoNoConsole();
     $("#ano").textContent = String(new Date().getFullYear());
     $("#alternar-tema").addEventListener("click", alternarTema);
+    // Downloads do currículo (topo, contato e paleta) viram evento no Analytics
+    document.addEventListener("click", function (e) {
+      var cv = e.target.closest && e.target.closest("a[data-cv]");
+      if (cv) rastrear("baixar_cv", { origem: cv.getAttribute("data-cv") });
+    });
     abrirDemoPeloEndereco();
     window.addEventListener("hashchange", abrirDemoPeloEndereco);
 

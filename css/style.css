@@ -113,9 +113,6 @@ html {
 
 body {
   margin: 0;
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
   background: var(--bg);
   color: var(--texto);
   font-family: var(--fonte);
@@ -159,8 +156,6 @@ code, kbd, .mono { font-family: var(--mono); }
 
 ::selection { background: var(--acento); color: var(--acento-texto); }
 
-/* Conteúdo protegido contra cópia; campos e paleta continuam editáveis */
-input, textarea, [contenteditable], .paleta, pre.codigo { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
 img, svg, canvas { -webkit-user-drag: none; }
 
 .pular {
@@ -400,6 +395,29 @@ main { display: block; }
 .hero-cargo b { color: var(--texto); font-weight: 600; }
 .hero-cargo-empresa { color: var(--acento); white-space: nowrap; }
 .hero-cargo-local { white-space: nowrap; }
+.hero-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 14px;
+  padding: 5px 14px 5px 12px;
+  border: 1px solid color-mix(in srgb, var(--menta) 40%, var(--borda));
+  border-radius: 999px;
+  background: var(--add-bg);
+  color: var(--texto);
+  font-size: 14.5px;
+}
+.hero-status-ponto {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--menta);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--menta) 25%, transparent);
+}
+.btn-cv { padding: 0 16px; }
+.btn-cv svg { width: 16px; height: 16px; fill: currentColor; }
+.btn-nota { font-size: 11px; color: var(--texto-3); }
 .digitando { color: var(--texto); }
 .cursor-texto { color: var(--acento); animation: piscar 1s steps(1) infinite; }
 .hero-frase { margin-top: 18px; max-width: 34em; color: var(--texto-2); font-size: 18px; }

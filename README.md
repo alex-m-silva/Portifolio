@@ -10,7 +10,7 @@ Site pessoal com um conceito próprio: **o portfólio é um repositório git**.
 - **Artigos**: textos técnicos em Markdown, publicados em `/artigos`.
 - **Contato**: o formulário é um *pull request*, com "checks" que passam conforme os campos são preenchidos, uma janela para revisar antes de enviar e a confirmação de envio ("PR merged").
 - Trilho lateral clicável, paleta de comandos (**Ctrl+K** ou **/**), tema claro e escuro, layout para celular e endereço sem `#`.
-- Texto protegido contra seleção e cópia (os campos do formulário e o código dos artigos continuam normais).
+- Currículo em PDF para baixar (topo, contato e paleta de comandos) e aviso de disponibilidade no topo.
 - Um recado para quem abre o console do navegador, com os links de contato e o comando `vamosConversar()`.
 
 HTML, CSS e JavaScript puros, sem framework e sem dependências. Um script de build em Node ([`tools/build.js`](tools/build.js)) gera o site final.

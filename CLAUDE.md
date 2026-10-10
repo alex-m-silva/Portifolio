@@ -27,22 +27,21 @@ Site pessoal em HTML/CSS/JS puros, sem framework, publicado no Vercel em https:/
 | `vercel.json` | build, `dist/`, cabeçalhos e cache |
 
 ## Pendências (em ordem)
-1. **Sugestões da avaliação (2026-10-10), dependem do usuário**:
-   - Currículo em PDF para baixar (pt e en): recrutador costuma pedir; não existe arquivo no repo.
-   - Reconsiderar a proteção contra cópia: impede recrutador de copiar nome/empresa/trechos e
-     atrapalha quem seleciona texto para ler; hoje é decisão do usuário (ver "Fatos já decididos").
-   - Dizer se está aberto a propostas/freelas (uma linha no topo ou no contato).
-   - Desempenho: o maior custo é JS da página inicial (main.js 77 KB + data.js 48 KB sem compactar,
-     grafo em canvas e digitação); compactar os JS no build é o próximo passo se quiser subir o Lighthouse.
-2. Revisar com o usuário e publicar os 2 rascunhos em `artigos/` (`rascunho: false`).
-3. Do lado do usuário: criar o serviço do pdf-para-epub no Render (`render.yaml` pronto no repo
+1. Revisar com o usuário e publicar os 2 rascunhos em `artigos/` (`rascunho: false`).
+2. Do lado do usuário: criar o serviço do pdf-para-epub no Render (`render.yaml` pronto no repo
    `alex-m-silva/pdf-para-epub`); Search Console já cadastrado.
 
 ## Fatos já decididos
 - Repositórios GestaoComercial, ProjetoOficina, CriadorInstalador e LionFinance são privados
   (no site aparecem como "privado", sem link de código). GestaoModa também é privado.
 - Endereço sem `#` na barra (links internos interceptados por `irPara`); `#demo-gestaocomercial` abre a demo.
-- Texto do site protegido contra cópia (exceto campos, código dos artigos e botões de copiar).
+- Texto do site pode ser selecionado e copiado (a proteção contra cópia foi retirada em 2026-10-10, a pedido).
+- Currículo: `assets/curriculo/Alex-Matias-CV.pdf` (só pt, feito no FlowCV), em `contato.curriculo` no data.js;
+  aparece no topo ("CV PDF"), no contato e na paleta; evento `baixar_cv` no GA. O vercel.json serve com
+  `X-Robots-Tag: noindex` (telefone e e-mail não vão para a busca) e sem cache longo, para trocar o PDF com o mesmo nome.
+- Disponibilidade: `perfil.disponibilidade` no data.js vira o selo abaixo do cargo; vazio esconde.
+- JS compactado no build (`minificarJs`, sem dependências: tira comentários e espaços, mantém quebras de linha,
+  textos, templates e regex; o build para se o resultado não compilar).
 - FormSubmit usa o código apelido `formsubmitId` (ativado para o www).
 - Cookies/LGPD (feito em 2026-10-10): tudo negado por padrão; "Aceitar" libera só `analytics_storage` (ad_* sempre negados)
   e só então baixa o gtag.js (modo básico: quem recusa não envia nada ao Google). Escolha em `localStorage.consentimento`;
@@ -54,5 +53,5 @@ Site pessoal em HTML/CSS/JS puros, sem framework, publicado no Vercel em https:/
 - Desempenho: Lighthouse ~84-87, SEO/Acessibilidade/Boas práticas 100.
 
 ## Prompt para retomar
-"Leia o CLAUDE.md e veja comigo as pendências (sugestões da avaliação e os rascunhos dos artigos).
+"Leia o CLAUDE.md e veja comigo as pendências (rascunhos dos artigos).
 Teste no navegador, sem erros no console, e faça commit e push."

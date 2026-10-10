@@ -19,7 +19,7 @@ const PORTA = Number(process.env.PORTA) || 5510;
 const cfg = JSON.parse(fs.readFileSync(path.join(RAIZ, "vercel.json"), "utf8"));
 const TIPOS = {
   ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8",
-  ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".mp4": "video/mp4",
+  ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".mp4": "video/mp4", ".pdf": "application/pdf",
   ".json": "application/json", ".txt": "text/plain; charset=utf-8", ".xml": "application/xml",
   ".webmanifest": "application/manifest+json",
 };

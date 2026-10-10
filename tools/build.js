@@ -189,6 +189,7 @@ const ICONE_REPO = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2.5A
 const ICONE_GITHUB = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>';
 const ICONE_PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.8v10.4a.8.8 0 0 0 1.22.68l8.3-5.2a.8.8 0 0 0 0-1.36l-8.3-5.2A.8.8 0 0 0 4 2.8Z"/></svg>';
 const ICONE_LIVRO = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 1.75A.75.75 0 0 1 .75 1h4.25c1.2 0 2.27.56 3 1.44A3.75 3.75 0 0 1 11 1h4.25a.75.75 0 0 1 .75.75v10.5a.75.75 0 0 1-.75.75H10.8a2.25 2.25 0 0 0-2.05 1.32.75.75 0 0 1-1.38.02l-.05-.1A2.25 2.25 0 0 0 5.2 13H.75a.75.75 0 0 1-.75-.75Zm7.25 2.5A2.25 2.25 0 0 0 5 2.5H1.5v9h3.7c.75 0 1.47.22 2.05.6Zm1.5 7.85a3.74 3.74 0 0 1 2.05-.6h3.7v-9H11a2.25 2.25 0 0 0-2.25 2.25Z"/></svg>';
+const ICONE_BAIXAR = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .14.11.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"/><path d="M7.25 7.69V1.75a.75.75 0 0 1 1.5 0v5.94l1.97-1.97a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 6.78a.75.75 0 0 1 1.06-1.06Z"/></svg>';
 const ICONE_ZOOM = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 3a7.5 7.5 0 0 1 5.96 12.05l4.25 4.24a1 1 0 0 1-1.42 1.42l-4.24-4.25A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Zm0 2a1 1 0 0 1 1 1v1.5H13a1 1 0 1 1 0 2h-1.5V13a1 1 0 1 1-2 0v-1.5H8a1 1 0 1 1 0-2h1.5V8a1 1 0 0 1 1-1Z"/></svg>';
 
 /* ============================================================
@@ -306,6 +307,19 @@ function htmlCargo(D) {
     (atual && atual.local ? ` <span class="hero-cargo-local">· ${esc(atual.local)}</span>` : "");
 }
 
+// Selo de disponibilidade abaixo do cargo (perfil.disponibilidade; vazio = não mostra)
+function htmlStatus(p) {
+  if (!p.disponibilidade) return "";
+  return `<p class="hero-status"><span class="hero-status-ponto" aria-hidden="true"></span>${esc(p.disponibilidade)}</p>`;
+}
+
+// Botão do currículo em PDF no topo (contato.curriculo; vazio = não mostra)
+function htmlBotaoCv(c) {
+  if (!c.curriculo) return "";
+  return `<a class="btn btn-secundario btn-cv" href="${esc(c.curriculo)}" download="Alex-Matias-CV.pdf" data-cv="topo"` +
+    ` aria-label="${esc(tx("Baixar currículo (PDF)"))}" title="${esc(tx("Currículo em PDF"))}">${ICONE_BAIXAR} CV <span class="btn-nota">PDF</span></a>`;
+}
+
 // Resultados com número (perfil.resultados), no topo do "Quem sou eu"
 function htmlResultados(resultados) {
   if (!resultados.length) return "";
@@ -324,6 +338,8 @@ function gerarIndex(D, artigos) {
   html = ajustarJsonLdPrincipal(html, D);
   html = preencher(html, "frase", esc(p.frase));
   html = preencher(html, "cargo", htmlCargo(D));
+  html = preencher(html, "status", htmlStatus(p));
+  html = preencher(html, "cv", htmlBotaoCv(D.contato));
   html = preencher(html, "resultados", htmlResultados(p.resultados || []));
   html = preencher(html, "sobre", p.sobre.map((t) => `<p>${esc(t)}</p>`).join(""));
   html = preencher(html, "stack", p.stack.map((t, i) => `<li style="--i:${i}">${esc(t)}</li>`).join(""));
@@ -907,10 +923,11 @@ function gerarRobots() {
 }
 
 /* ============================================================
-   6. Otimização: CSS compactado e versão nos arquivos
+   6. Otimização: CSS e JS compactados e versão nos arquivos
    ------------------------------------------------------------
    O CSS perde comentários e espaços (os textos entre aspas ficam
-   intactos). Cada referência a css/*.css e js/*.js nas páginas
+   intactos). O JS perde comentários e indentação, mas guarda as
+   quebras de linha, textos, templates e regex como estão. Cada referência a css/*.css e js/*.js nas páginas
    ganha "?v=<hash do conteúdo>": o Vercel pode guardar esses
    arquivos em cache por um ano, e quando um deles muda o
    endereço muda junto e o navegador baixa a versão nova.
@@ -928,11 +945,110 @@ function minificarCss(css) {
   }).join("").trim();
 }
 
+// Compacta JS sem dependências. Não renomeia nada nem junta linhas: só tira comentários,
+// indentação e espaços em volta da pontuação. Como as quebras de linha ficam, a inserção automática de ";" não muda.
+// Textos, templates (com ${...} dentro) e expressões regulares passam intactos.
+function minificarJs(src, nome) {
+  const n = src.length;
+  const pilha = []; // um contador de chaves para cada ${ aberto dentro de template
+  let out = "", i = 0, espaco = "", ultimo = "", palavra = "";
+  // Espaço entre dois pedaços só some quando não tem como eles virarem outro símbolo:
+  // ao lado de { } ( ) [ ] ; , : ou de um operador encostado em nome, número ou texto
+  const PONTUACAO = "{}()[];,:", OPERADOR = "=+-?<>&|*%!^~", NOME = /[\w$"'`]/;
+  const colar = (a, b) => PONTUACAO.includes(a) || PONTUACAO.includes(b) ||
+    (OPERADOR.includes(a) && NOME.test(b)) || (OPERADOR.includes(b) && NOME.test(a));
+  const emitir = (s) => {
+    if (espaco && out && !(espaco === " " && colar(out[out.length - 1], s[0]))) out += espaco;
+    espaco = "";
+    out += s;
+  };
+  const abreRegex = () => !ultimo || "(,=:[!&|?{};+-*%<>~^".includes(ultimo) ||
+    /^(return|typeof|instanceof|in|of|new|delete|void|throw|case|do|else|yield|await)$/.test(palavra);
+  const lerTemplate = (j) => { // j: logo depois da crase ou do "}" que fecha ${
+    while (j < n) {
+      if (src[j] === "\\") { j += 2; continue; }
+      if (src[j] === "`") return { fim: j + 1, abriu: false };
+      if (src[j] === "$" && src[j + 1] === "{") return { fim: j + 2, abriu: true };
+      j++;
+    }
+    throw new Error(`${nome}: template sem fim`);
+  };
+  const seguirTemplate = (inicio, depois) => {
+    const r = lerTemplate(depois);
+    emitir(src.slice(inicio, r.fim));
+    if (r.abriu) pilha.push(0);
+    ultimo = r.abriu ? "{" : "`";
+    palavra = "";
+    i = r.fim;
+  };
+  while (i < n) {
+    const c = src[i], d = src[i + 1];
+    if (c === " " || c === "\t" || c === "\r" || c === "\n") {
+      if (c === "\n") espaco = "\n"; else if (!espaco) espaco = " ";
+      i++;
+    } else if (c === "/" && d === "/") {
+      while (i < n && src[i] !== "\n") i++;
+    } else if (c === "/" && d === "*") {
+      const fim = src.indexOf("*/", i + 2);
+      if (fim < 0) throw new Error(`${nome}: comentário sem fim`);
+      if (src.slice(i, fim).includes("\n")) espaco = "\n"; else if (!espaco) espaco = " ";
+      i = fim + 2;
+    } else if (c === '"' || c === "'") {
+      let j = i + 1;
+      while (j < n && src[j] !== c) { if (src[j] === "\\") j++; j++; }
+      emitir(src.slice(i, j + 1));
+      ultimo = c; palavra = ""; i = j + 1;
+    } else if (c === "`") {
+      seguirTemplate(i, i + 1);
+    } else if (c === "}" && pilha.length && pilha[pilha.length - 1] === 0) {
+      pilha.pop();
+      seguirTemplate(i, i + 1);
+    } else if (c === "/" && abreRegex()) {
+      let j = i + 1, classe = false;
+      while (j < n) {
+        const ch = src[j];
+        if (ch === "\\") { j += 2; continue; }
+        if (ch === "\n") throw new Error(`${nome}: regex sem fim perto de ${src.slice(i, i + 30)}`);
+        if (ch === "[") classe = true;
+        else if (ch === "]") classe = false;
+        else if (ch === "/" && !classe) break;
+        j++;
+      }
+      j++;
+      while (j < n && /[a-z]/.test(src[j])) j++;
+      emitir(src.slice(i, j));
+      ultimo = "a"; palavra = ""; i = j;
+    } else if (/[\w$]/.test(c)) {
+      let j = i;
+      while (j < n && /[\w$]/.test(src[j])) j++;
+      palavra = src.slice(i, j);
+      emitir(palavra);
+      ultimo = src[j - 1]; i = j;
+    } else {
+      if (pilha.length && c === "{") pilha[pilha.length - 1]++;
+      else if (pilha.length && c === "}") pilha[pilha.length - 1]--;
+      emitir(c);
+      ultimo = c; palavra = ""; i++;
+    }
+  }
+  new vm.Script(out, { filename: nome }); // para o build se algo saiu quebrado
+  return out + "\n";
+}
+
 function otimizarArquivos() {
   const crypto = require("crypto");
   const css = path.join(DIST, "css", "style.css");
   const original = fs.statSync(css).size;
   fs.writeFileSync(css, minificarCss(fs.readFileSync(css, "utf8")));
+  let jsAntes = 0, jsDepois = 0;
+  fs.readdirSync(path.join(DIST, "js")).filter((f) => f.endsWith(".js")).forEach((f) => {
+    const arq = path.join(DIST, "js", f);
+    const src = fs.readFileSync(arq, "utf8");
+    const min = minificarJs(src, "js/" + f);
+    jsAntes += Buffer.byteLength(src);
+    jsDepois += Buffer.byteLength(min);
+    fs.writeFileSync(arq, min);
+  });
   const versao = {};
   const arquivos = ["css/style.css"].concat(fs.readdirSync(path.join(DIST, "js")).map((f) => "js/" + f));
   arquivos.forEach((rel) => {
@@ -951,7 +1067,7 @@ function otimizarArquivos() {
       (m, attr, barra, rel) => (versao[rel] ? `${attr}="${barra}${rel}?v=${versao[rel]}"` : m));
     fs.writeFileSync(pagina, html);
   });
-  return { cssAntes: original, cssDepois: fs.statSync(css).size, paginas: paginas.length };
+  return { cssAntes: original, cssDepois: fs.statSync(css).size, jsAntes, jsDepois, paginas: paginas.length };
 }
 
 /* ============================================================
@@ -997,7 +1113,7 @@ function main() {
   console.log(`  privacidade: /privacidade e /en/privacidade`);
   console.log(`  artigos: ${publicados.length} publicado(s)` + (COM_RASCUNHOS ? `, ${artigos.length - publicados.length} rascunho(s) gerado(s) para revisão` : ""));
   console.log(`  sitemap: ${n} endereço(s)`);
-  console.log(`  css: ${(otim.cssAntes / 1024).toFixed(1)} KB → ${(otim.cssDepois / 1024).toFixed(1)} KB; versão nos arquivos de ${otim.paginas} página(s)`);
+  console.log(`  css: ${(otim.cssAntes / 1024).toFixed(1)} KB → ${(otim.cssDepois / 1024).toFixed(1)} KB; js: ${(otim.jsAntes / 1024).toFixed(1)} KB → ${(otim.jsDepois / 1024).toFixed(1)} KB; versão nos arquivos de ${otim.paginas} página(s)`);
 }
 
 main();

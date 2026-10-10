@@ -39,6 +39,11 @@ window.PORTFOLIO = {
       "On my own, I build management systems for small businesses: auto repair shops, printer supply stores and clothing stores. Each system grows out of the previous one, reusing the shared infrastructure and keeping what is specific to each business separate.",
       "I work mainly with C# and .NET (Windows Forms, WPF, .NET Framework 4.8 and .NET 8), Entity Framework / EF Core, SQL Server, MySQL, PostgreSQL and SQLite, as well as layered APIs (Domain, Application, Infrastructure).",
     ]),
+    // Aparece no topo, abaixo do cargo. Vazio ("") esconde.
+    disponibilidade: L(
+      "Disponível para projetos freelance e aberto a novas oportunidades",
+      "Available for freelance projects and open to new opportunities"
+    ),
     // Resultados com número, em destaque no "Quem sou eu" (os mesmos da experiência)
     resultados: [
       {
@@ -84,6 +89,8 @@ window.PORTFOLIO = {
     github: "https://github.com/alex-m-silva",
     linkedin: "https://www.linkedin.com/in/alex-matias-silva",
     instagram: "", // vazio: não aparece no site
+    // Currículo em PDF (só em português). Vazio: some o botão do topo, do contato e da paleta
+    curriculo: "/assets/curriculo/Alex-Matias-CV.pdf",
     whatsapp: revelar("ODE5MTE0ODg5NzM1NQ=="), // só números com DDI e DDD
     // Texto que já vem escrito ao abrir o WhatsApp
     whatsappMensagem: L(

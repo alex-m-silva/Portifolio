@@ -175,8 +175,6 @@
     "Ler em português": "Read in Portuguese",
     "Ler em inglês": "Read in English",
     "comando não encontrado: {q}": "command not found: {q}",
-    "Conteúdo protegido · use \"copiar email\" no contato": "Protected content · use \"copy email\" in the contact section",
-    "Conteúdo protegido": "Protected content",
     "você abriu o console": "you opened the console",
     "feat: curiosidade de dev": "feat: developer curiosity",
     "Olá, dev curioso! 👋": "Hi, curious dev! 👋",
@@ -208,6 +206,11 @@
     /* --- Página inicial: resultados (build) --- */
     "Resultados com antes e depois": "Results with before and after numbers",
     "o que mudou, medido antes e depois": "what changed, measured before and after",
+
+    /* --- Currículo e disponibilidade --- */
+    "Currículo em PDF": "CV in PDF (in Portuguese)",
+    "baixar CV em PDF": "download CV (PDF, in Portuguese)",
+    "Baixar currículo (PDF)": "Download CV (PDF)",
 
     /* --- Cookies (js/analytics.js) e página de privacidade (build) --- */
     "Aviso de cookies": "Cookie notice",
