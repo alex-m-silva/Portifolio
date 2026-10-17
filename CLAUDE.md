@@ -45,6 +45,14 @@ Site pessoal em HTML/CSS/JS puros, sem framework, publicado no Vercel em https:/
 - Disponibilidade: `perfil.disponibilidade` no data.js vira o selo abaixo do cargo; vazio esconde.
 - JS compactado no build (`minificarJs`, sem dependências: tira comentários e espaços, mantém quebras de linha,
   textos, templates e regex; o build para se o resultado não compilar).
+- Carregamento (feito em 2026-10-17): o que o build sabe calcular já vem no HTML (hashes do topo e do Sobre,
+  quantidade de ferramentas, botões de filtro com as mesmas opções do main.js). O que só o navegador monta
+  (números animados, contatos com e-mail protegido, grafo da carreira, data, canvas) tem esqueleto (`.esq-*`
+  no index.html e no fim do style.css) com a mesma altura do conteúdo final: nada pula de lugar.
+  Telas ganham "carregou" (listener no tema.js) e mostram esqueleto até baixar; quem troca `src` tira a classe antes.
+  Sem JS, um <noscript><style> esconde esqueletos e filtros.
+- Navegação: View Transitions entre páginas (fade curto, topo parado; só Chrome/Edge) e Speculation Rules
+  (`prefetch` moderado das páginas internas ao parar o mouse num link) no index.html e no cabeçalho do build.
 - FormSubmit usa o código apelido `formsubmitId` (ativado para o www).
 - Cookies/LGPD (feito em 2026-10-10): tudo negado por padrão; "Aceitar" libera só `analytics_storage` (ad_* sempre negados)
   e só então baixa o gtag.js (modo básico: quem recusa não envia nada ao Google). Escolha em `localStorage.consentimento`;

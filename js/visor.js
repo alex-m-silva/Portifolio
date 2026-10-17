@@ -41,7 +41,7 @@
       var href = m.getAttribute("href");
       tela.setAttribute("href", href);
       tela.setAttribute("aria-label", rotulo.replace("{titulo}", m.dataset.titulo));
-      img.src = href;
+      if (img.getAttribute("src") !== href) { img.classList.remove("carregou"); img.src = href; } // esqueleto até carregar
       img.alt = m.dataset.alt || m.dataset.titulo;
       num.textContent = rotular(atual);
       titulo.textContent = m.dataset.titulo;

@@ -53,6 +53,10 @@
   <script defer src="/js/data.js"></script>
   <script defer src="/js/visor.js"></script>
   <script defer src="/js/main.js"></script>
+  <!-- Navegador baixa antes as páginas internas quando o mouse para num link (Chrome/Edge) -->
+  <script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/assets/*"}}]},"eagerness":"moderate"}]}</script>
+  <!-- Sem JavaScript os esqueletos não são trocados e os filtros não funcionam: some com eles -->
+  <noscript><style>.esq-bloco, .esq-carreira, .filtros { display: none !important; } .hero-grafo::after { display: none; }</style></noscript>
 
   <!-- Dados estruturados para o Google (perfil profissional) -->
   <script type="application/ld+json">
@@ -143,7 +147,7 @@
     <!-- INÍCIO -->
     <section class="secao hero" id="inicio" data-commit="init">
       <div class="hero-texto">
-        <p class="hero-hash"><span class="mono">commit</span> <span class="hash" id="hero-hash">0000000</span> <span class="ref">(HEAD → main)</span></p>
+        <p class="hero-hash"><span class="mono">commit</span> <span class="hash" id="hero-hash"><!--pre:hero-hash-->0000000<!--/pre:hero-hash--></span> <span class="ref">(HEAD → main)</span></p>
         <h1 class="hero-nome">
           <span class="hero-ola" data-t>Olá, eu sou</span>
           <span id="hero-nome">Alex Matias</span>
@@ -159,7 +163,7 @@
           <a class="btn btn-secundario" href="#contato" data-t>abrir um PR →</a>
           <!--pre:cv--><!--/pre:cv-->
         </div>
-        <dl class="hero-numeros" id="hero-numeros"></dl>
+        <dl class="hero-numeros" id="hero-numeros"><div class="esq-bloco" aria-hidden="true"><dt><span class="esq esq-rotulo"></span></dt><dd><span class="esq esq-valor"></span></dd></div><div class="esq-bloco" aria-hidden="true"><dt><span class="esq esq-rotulo"></span></dt><dd><span class="esq esq-valor"></span></dd></div><div class="esq-bloco" aria-hidden="true"><dt><span class="esq esq-rotulo"></span></dt><dd><span class="esq esq-valor"></span></dd></div><div class="esq-bloco" aria-hidden="true"><dt><span class="esq esq-rotulo"></span></dt><dd><span class="esq esq-valor"></span></dd></div></dl>
       </div>
       <div class="hero-grafo">
         <canvas id="grafo" aria-label="Animação de um grafo de commits com ramos se unindo" data-ta="aria-label" role="img"></canvas>
@@ -176,19 +180,19 @@
       <!--pre:resultados--><!--/pre:resultados-->
       <article class="git-show" aria-label="Sobre mim" data-ta="aria-label">
         <div class="git-show-meta mono">
-          <p><span class="amarelo">commit</span> <span id="sobre-hash">0000000</span></p>
+          <p><span class="amarelo">commit</span> <span id="sobre-hash"><!--pre:sobre-hash-->0000000<!--/pre:sobre-hash--></span></p>
           <p>Author: <span id="sobre-autor">Alex Matias</span></p>
-          <p>Date:&nbsp;&nbsp; <span id="sobre-data"></span></p>
+          <p>Date:&nbsp;&nbsp; <span id="sobre-data" class="esq-texto"></span></p>
         </div>
         <div class="git-show-corpo">
           <div class="git-show-msg" id="sobre-texto"><!--pre:sobre--><!--/pre:sobre--></div>
-          <figure class="grafo-carreira" id="grafo-carreira" hidden>
+          <figure class="grafo-carreira esq-carreira" id="grafo-carreira">
             <figcaption class="mono"><span class="sinal">$</span> git log --graph --oneline</figcaption>
           </figure>
         </div>
         <div class="diff" aria-label="Tecnologias" data-ta="aria-label">
           <p class="diff-cab mono">diff --git a/stack b/stack</p>
-          <p class="diff-hunk mono">@@ -0,0 +1,<span id="stack-qtd">0</span> @@ <span data-t>ferramentas do dia a dia</span></p>
+          <p class="diff-hunk mono">@@ -0,0 +1,<span id="stack-qtd"><!--pre:stack-qtd-->0<!--/pre:stack-qtd--></span> @@ <span data-t>ferramentas do dia a dia</span></p>
           <ul class="diff-linhas mono" id="stack"><!--pre:stack--><!--/pre:stack--></ul>
         </div>
       </article>
@@ -215,7 +219,7 @@
         <h2 data-t>Certificados</h2>
         <p class="secao-sub" data-t>Cada certificado é uma versão lançada. Clique para verificar.</p>
       </header>
-      <div class="filtros" id="filtros-cert" role="group" aria-label="Filtrar certificados por habilidade" data-ta="aria-label"></div>
+      <div class="filtros" id="filtros-cert" role="group" aria-label="Filtrar certificados por habilidade" data-ta="aria-label"><!--pre:filtros-cert--><!--/pre:filtros-cert--></div>
       <ol class="tags" id="lista-cert"><!--pre:certificados--><!--/pre:certificados--></ol>
     </section>
 
@@ -226,7 +230,7 @@
         <h2 data-t>Projetos</h2>
         <p class="secao-sub" data-t>Sistemas de gestão, APIs e ferramentas web, do balcão da loja ao navegador.</p>
       </header>
-      <div class="filtros" id="filtros-proj" role="group" aria-label="Filtrar projetos por tecnologia" data-ta="aria-label"></div>
+      <div class="filtros" id="filtros-proj" role="group" aria-label="Filtrar projetos por tecnologia" data-ta="aria-label"><!--pre:filtros-proj--><!--/pre:filtros-proj--></div>
       <div class="repos" id="lista-proj"><!--pre:projetos--><!--/pre:projetos--></div>
     </section>
 
@@ -278,7 +282,7 @@
         </form>
         <aside class="canais" aria-label="Outros canais" data-ta="aria-label">
           <h3 class="mono">remotes</h3>
-          <ul id="canais"></ul>
+          <ul id="canais"><li class="esq-bloco esq-canal" aria-hidden="true"><span class="esq esq-ico"></span><span class="esq-linhas"><span class="esq esq-l1"></span><span class="esq esq-l2"></span></span></li><li class="esq-bloco esq-canal" aria-hidden="true"><span class="esq esq-ico"></span><span class="esq-linhas"><span class="esq esq-l1"></span><span class="esq esq-l2"></span></span></li><li class="esq-bloco esq-canal" aria-hidden="true"><span class="esq esq-ico"></span><span class="esq-linhas"><span class="esq esq-l1"></span><span class="esq esq-l2"></span></span></li><li class="esq-bloco esq-canal" aria-hidden="true"><span class="esq esq-ico"></span><span class="esq-linhas"><span class="esq esq-l1"></span><span class="esq esq-l2"></span></span></li><li class="esq-bloco esq-canal" aria-hidden="true"><span class="esq esq-ico"></span><span class="esq-linhas"><span class="esq esq-l1"></span><span class="esq esq-l2"></span></span></li></ul>
         </aside>
       </div>
     </section>

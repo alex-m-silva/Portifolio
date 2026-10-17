@@ -174,6 +174,7 @@
     var anos = anosDeCarreira();
     if (anos) numeros.unshift({ valor: anos, rotulo: tx("anos de carreira") });
     var dl = $("#hero-numeros");
+    dl.textContent = ""; // tira o esqueleto
     numeros.forEach(function (n) {
       var dd = h("dd", null, h("span", { "data-contar": n.valor, text: reduzirMovimento ? String(n.valor) : "0" }), h("small", { text: "+" }));
       dl.appendChild(h("div", null, h("dt", { text: n.rotulo }), dd));
@@ -255,6 +256,7 @@
   function iniciarGrafo() {
     var canvas = $("#grafo");
     var legenda = $("#grafo-legenda");
+    canvas.parentNode.classList.add("pronto"); // tira o brilho de carregamento da caixa
     var ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -546,7 +548,8 @@
     var fig = $("#grafo-carreira");
     var exp = D.experiencia || [];
     var form = D.formacao || [];
-    if (!fig || exp.length + form.length < 2) return;
+    if (!fig) return;
+    if (exp.length + form.length < 2) { fig.hidden = true; return; }
 
     var hoje = new Date();
     var hojeStr = hoje.getFullYear() + "-" + ("0" + (hoje.getMonth() + 1)).slice(-2);
@@ -649,6 +652,7 @@
 
     fig.appendChild(svg);
     fig.hidden = false;
+    fig.classList.remove("esq-carreira");
     desenharUmaVez(fig);
   }
 
@@ -788,6 +792,7 @@
     var categorias = [];
     D.certificados.forEach(function (c) { if (c.categoria && categorias.indexOf(c.categoria) < 0) categorias.push(c.categoria); });
     var opcoes = porCategoria ? categorias : frequencia(certs.map(function (c) { return c.skills; }), 8);
+    $("#filtros-cert").textContent = ""; // os botões do build são trocados pelos que funcionam
     if (opcoes.length > 1) montarFiltros($("#filtros-cert"), opcoes, render);
     render("todos");
   }
@@ -863,6 +868,7 @@
     }
 
     var tags = frequencia(projetos.map(function (p) { return p.tags; }), 8);
+    $("#filtros-proj").textContent = ""; // os botões do build são trocados pelos que funcionam
     if (tags.length > 1) montarFiltros($("#filtros-proj"), tags, render);
     render("todos");
   }
@@ -926,7 +932,8 @@
     var t = a.telas[galeria.i];
     var img = $("#galeria-img");
     img.classList.remove("zoom");
-    img.src = (a.pasta || "") + "telas/" + t.arquivo + ".jpg";
+    var src = (a.pasta || "") + "telas/" + t.arquivo + ".jpg";
+    if (img.getAttribute("src") !== src) { img.classList.remove("carregou"); img.src = src; }
     img.alt = t.titulo;
     $("#galeria-num").textContent = String(galeria.i + 1).padStart(2, "0") + " / " + String(total).padStart(2, "0");
     $("#galeria-titulo").textContent = t.titulo;
@@ -1128,6 +1135,7 @@
   function montarContato() {
     var c = D.contato;
     var ul = $("#canais");
+    ul.textContent = ""; // tira o esqueleto
 
     // `copia` (opcional): { texto, aviso } mostra um botão de copiar no canto do card
     function canal(icone, rotulo, valor, attrs, copia) {

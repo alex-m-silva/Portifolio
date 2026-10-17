@@ -92,7 +92,7 @@
       atual = (i + total) % total;
       var l = links[atual];
       img.classList.remove("zoom");
-      img.src = l.getAttribute("href");
+      if (img.getAttribute("src") !== l.getAttribute("href")) { img.classList.remove("carregou"); img.src = l.getAttribute("href"); }
       img.alt = l.dataset.titulo || "";
       $("#galeria-num").textContent = String(atual + 1).padStart(2, "0") + " / " + String(total).padStart(2, "0");
       $("#galeria-titulo").textContent = l.dataset.titulo || "";

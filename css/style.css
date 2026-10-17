@@ -1718,3 +1718,78 @@ dialog[open] { animation: surgir 0.25s ease; }
 @media (prefers-reduced-motion: reduce) {
   .aviso-cookies { transition: none; translate: 0 0; }
 }
+
+/* ============================================================
+   Esqueletos de carregamento
+   ------------------------------------------------------------
+   Mostram a forma do que vai chegar (números, contatos,
+   grafos, data e telas) enquanto o JavaScript ou a imagem não
+   chegam: nada pula de lugar quando o conteúdo aparece.
+   main.js troca os .esq-bloco pelo conteúdo; imagens ganham
+   "carregou" (js/tema.js) ao terminar de baixar.
+   ============================================================ */
+:root {
+  --esq: color-mix(in srgb, var(--texto) 8%, transparent);
+  --esq-brilho: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--texto) 9%, transparent) 50%, transparent 80%);
+}
+@keyframes esq-brilho { from { background-position: 180% 0; } to { background-position: -80% 0; } }
+.esq,
+.esq-texto:empty,
+.esq-carreira::after,
+.hero-grafo:not(.pronto)::after,
+:is(.visor-tela, .visor-mini, .tela-img) img:not(.carregou),
+#galeria-img[src]:not(.carregou) {
+  background-color: var(--esq);
+  background-image: var(--esq-brilho);
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  animation: esq-brilho 1.5s ease-in-out infinite;
+}
+.esq { display: block; border-radius: 6px; }
+
+/* Números do topo (mesma altura do número e da legenda de verdade) */
+.hero-numeros .esq-bloco { gap: 12px; }
+.esq-valor { width: 46px; height: 40px; }
+.esq-rotulo { width: 92px; height: 15px; }
+
+/* Contatos */
+.esq-canal { display: flex; align-items: center; gap: 12px; height: 71px; padding: 12px 14px; border: 1px solid var(--borda); border-radius: 10px; background: var(--bg-2); }
+.esq-ico { flex: none; width: 20px; height: 20px; border-radius: 5px; }
+.esq-linhas { display: grid; gap: 7px; flex: 1; }
+.esq-l1 { width: 38%; height: 11px; }
+.esq-l2 { width: 72%; height: 14px; }
+
+/* Data do "git show" */
+.esq-texto:empty { display: inline-block; width: 16ch; height: 0.95em; vertical-align: -0.1em; border-radius: 4px; }
+
+/* Grafo da carreira (Sobre): a caixa já ocupa o lugar dela */
+.esq-carreira::after { content: ""; display: block; width: 300px; max-width: 100%; aspect-ratio: 300 / 308; border-radius: 8px; }
+
+/* Grafo animado do topo: brilho por cima da caixa até o canvas começar */
+.hero-grafo::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.6; transition: opacity 0.4s; }
+.hero-grafo.pronto::after { opacity: 0; background: none; animation: none; }
+
+/* Telas: esqueleto enquanto baixam (o fundo branco do quadro some até lá) e entrada suave quando chegam */
+.visor-tela:has(img:not(.carregou)),
+.galeria-quadro:has(#galeria-img[src]:not(.carregou)) { background: var(--sup-2); }
+@keyframes esq-aparecer { from { opacity: 0; } }
+:is(.visor-tela, .tela-img) img.carregou, #galeria-img.carregou { animation: esq-aparecer 0.35s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .esq, .esq-texto:empty, .esq-carreira::after, .hero-grafo:not(.pronto)::after,
+  :is(.visor-tela, .visor-mini, .tela-img) img:not(.carregou), #galeria-img[src]:not(.carregou),
+  :is(.visor-tela, .tela-img) img.carregou, #galeria-img.carregou { animation: none; background-image: none; }
+}
+
+/* ============================================================
+   Transição entre páginas (View Transitions, Chrome e Edge)
+   ------------------------------------------------------------
+   Ir da página inicial para um projeto (e voltar) faz um fade
+   curto em vez de piscar branco; o topo fica parado no lugar.
+   Navegadores sem suporte só trocam de página como antes.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  .topo { view-transition-name: topo; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.22s; }
+}

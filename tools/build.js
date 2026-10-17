@@ -320,6 +320,25 @@ function htmlBotaoCv(c) {
     ` aria-label="${esc(tx("Baixar currículo (PDF)"))}" title="${esc(tx("Currículo em PDF"))}">${ICONE_BAIXAR} CV <span class="btn-nota">PDF</span></a>`;
 }
 
+// Botões de filtro (certificados e projetos) com as mesmas opções que o main.js monta:
+// chegam prontos no HTML e o main.js só os liga, sem nada pular de lugar.
+function frequencia(listas, limite) {
+  const conta = {};
+  listas.forEach((l) => (l || []).forEach((x) => { conta[x] = (conta[x] || 0) + 1; }));
+  return Object.keys(conta).sort((a, b) => conta[b] - conta[a] || a.localeCompare(b)).slice(0, limite);
+}
+function htmlFiltros(opcoes) {
+  if (opcoes.length < 2) return "";
+  return [tx("todos")].concat(opcoes).map((rotulo, i) =>
+    `<button class="chip" type="button" aria-pressed="${i === 0}">${esc(rotulo)}</button>`).join("");
+}
+function opcoesCertificados(certs) {
+  if (!certs.some((c) => c.categoria)) return frequencia(certs.map((c) => c.skills), 8);
+  const categorias = [];
+  certs.forEach((c) => { if (c.categoria && !categorias.includes(c.categoria)) categorias.push(c.categoria); });
+  return categorias;
+}
+
 // Resultados com número (perfil.resultados), no topo do "Quem sou eu"
 function htmlResultados(resultados) {
   if (!resultados.length) return "";
@@ -337,6 +356,10 @@ function gerarIndex(D, artigos) {
   const p = D.perfil;
   html = ajustarJsonLdPrincipal(html, D);
   html = preencher(html, "frase", esc(p.frase));
+  // Mesmos valores que o main.js calcula: chegam prontos, sem "0000000" piscando
+  html = preencher(html, "hero-hash", hashCurto(p.nome + p.cargo));
+  html = preencher(html, "sobre-hash", hashCurto(p.sobre.join(" ")) + hashCurto(p.nome) + hashCurto(p.cargo).slice(0, 4));
+  html = preencher(html, "stack-qtd", String(p.stack.length));
   html = preencher(html, "cargo", htmlCargo(D));
   html = preencher(html, "status", htmlStatus(p));
   html = preencher(html, "cv", htmlBotaoCv(D.contato));
@@ -347,6 +370,8 @@ function gerarIndex(D, artigos) {
   html = preencher(html, "formacao", htmlFormacao(D.formacao || []));
   if ((D.formacao || []).length) html = html.replace('<div id="bloco-formacao" hidden>', '<div id="bloco-formacao">');
   html = preencher(html, "certificados", htmlCertificados(D.certificados || []));
+  html = preencher(html, "filtros-cert", htmlFiltros(opcoesCertificados(D.certificados || [])));
+  html = preencher(html, "filtros-proj", htmlFiltros(frequencia(D.projetos.map((pr) => pr.tags), 8)));
   html = preencher(html, "projetos", htmlCardsProjetos(D.projetos));
   html = preencher(html, "jsonld-projetos", jsonLdProjetos(D));
   // Artigos só existem em português
@@ -421,6 +446,7 @@ ${bilingue ? tagsAlternadas(caminho) + "\n" : ""}  <meta property="og:type" cont
   <script async src="/js/analytics.js"></script>
   <script defer src="/js/visor.js"></script>
   <script defer src="/js/pagina.js"></script>
+  <script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/assets/*"}}]},"eagerness":"moderate"}]}</script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 </head>
 <body class="pagina-interna">
